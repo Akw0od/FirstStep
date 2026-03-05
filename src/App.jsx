@@ -79,7 +79,6 @@ const estimateFlightCost = (lon1, lat1, lon2, lat2) => {
   return Math.round(cost / 100) * 100; 
 };
 
-// --- 包含老板点名增加的上海和广州 ---
 const DEPARTURE_CITIES = [
   { id: 'dep_bj', name: '北京', lon: 116.4, lat: 39.9, icon: '🐼' },
   { id: 'dep_sh', name: '上海', lon: 121.47, lat: 31.23, icon: '🏙️' }, 
@@ -204,19 +203,101 @@ export default function App() {
     return flightCost + livingCost;
   }, [departure]);
 
+  // --- 核心更新：安全的 API 调用与重试逻辑 ---
   const handleGenerateItinerary = async () => {
     setShowItinerary(true);
     setApiError(null);
     if (!selectedDest) return;
 
     const cacheKey = `${departure.id}-${selectedDest.id}-${days}-${budget}-${travelStyle}`;
-    if (aiItineraries[cacheKey]) return; 
+    if (aiItineraries[cacheKey]) return; // 如果有缓存，直接展示，不发请求
 
     setIsAILoading(true);
-    // 假装加载，直接展示本地内容，顺滑无比！
-    setTimeout(() => {
+
+    try {
+      const styleInfo = TRAVEL_STYLES.find(s => s.id === travelStyle);
+      const styleName = styleInfo ? styleInfo.name : '自由行';
+
+      // ⚠️ 修复 401 报错：Canvas 预览环境严格要求 apiKey 必须直接等于 ""
+      // 如果你在本地 VS Code 运行，请将此行改回：const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = "import.meta.env.VITE_GEMINI_API_KEY"; 
+      
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+      const prompt = `你是一个脑洞大开、极度幽默的旅行规划师。
+      请为从【${departure.name}】出发去【${selectedDest.name}】规划一个【${days}】天的旅行行程。
+      总预算：${budget}元人民币。
+      旅行风格：${styleName}。
+
+      重要要求：
+      1. 每天的标题(title)要简短、有冲击力、符合这趟旅行的基调。
+      2. 每天的描述(desc)要生动、幽默、画面感极强，让人看了就想马上订机票，千万不要冷冰冰的罗列地名。
+      3. 每天的图标(iconName)必须且只能从以下列表中选择一个最符合当天活动的英文名：Coffee, Camera, Plane, Compass, Sunrise, Moon, Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves, MapIcon, BedDouble。
+      4. 严格按照 JSON Array 格式返回，不包含任何 Markdown 代码块和其他废话。`;
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        systemInstruction: { parts: [{ text: "You are a creative and humorous travel planner. Always return valid JSON matching the requested schema. Never use markdown codeblocks." }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                day: { type: "INTEGER" },
+                title: { type: "STRING" },
+                desc: { type: "STRING" },
+                iconName: { type: "STRING" }
+              },
+              required: ["day", "title", "desc", "iconName"]
+            }
+          }
+        }
+      };
+
+      const delays = [1000, 2000, 4000, 8000, 16000];
+      let attempt = 0;
+      let resultData = null;
+
+      while (attempt < 5) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) throw new Error(`HTTP 报错啦: 状态码 ${res.status}`);
+
+          const data = await res.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!text) throw new Error("AI 返回了空空如也的脑洞");
+
+          resultData = JSON.parse(text);
+          break; // 成功解析 JSON 后跳出重试循环
+
+        } catch (e) {
+          console.warn(`第 ${attempt + 1} 次召唤 AI 失败:`, e);
+          attempt++;
+          if (attempt >= 5) {
+            throw e; // 所有机会用尽，向上抛出错误
+          }
+          await new Promise(r => setTimeout(r, delays[attempt - 1]));
+        }
+      }
+
+      if (resultData) {
+        setAiItineraries(prev => ({ ...prev, [cacheKey]: resultData }));
+      }
+
+    } catch (error) {
+      console.error("最终 AI 生成失败:", error);
+      // 优雅降级：提示错误，但在 UI 层面会依靠下方的短路逻辑自动回落显示 itineraryDays 本地数据
+      setApiError("魔法暂时中断... 请检查一下终端日志或者稍后重试！");
+    } finally {
       setIsAILoading(false);
-    }, 1500); 
+    }
   };
 
   const handleMouseDown = (e) => {
@@ -346,29 +427,27 @@ export default function App() {
 
     const specificPool = DEST_SPECIFIC_ACTIVITIES[selectedDest.id]?.[travelStyle] || [];
     const genericStylePool = GENERIC_STYLE_ACTIVITIES[travelStyle] || [];
-    const genericBasePool = [{ t: '压马路乱逛', d: '用双脚丈量城市', icon: <Compass size={24}/> }];
+    const genericBasePool = [{ t: '压马路乱逛', d: '用双脚丈量城市', iconName: 'Compass' }];
     const richPool = [...specificPool, ...genericStylePool, ...genericBasePool];
 
     const it = [];
     for (let i = 1; i <= days; i++) {
-      if (i === 1) it.push({ day: i, title: `BOOM! 空降${cityName}`, desc: arrivalText, icon: <Plane size={24}/> });
-      else if (i === days) it.push({ day: i, title: "打包牛马回家", desc: departText, icon: <Wallet size={24}/> });
+      if (i === 1) it.push({ day: i, title: `BOOM! 空降${cityName}`, desc: arrivalText, iconName: 'Plane' });
+      else if (i === days) it.push({ day: i, title: "打包牛马回家", desc: departText, iconName: 'Wallet' });
       else {
         const activity = richPool[(i - 2) % richPool.length];
-        it.push({ day: i, title: activity.t, desc: activity.d, icon: activity.icon || <MapIcon size={24}/> });
+        it.push({ day: i, title: activity.t, desc: activity.d, iconName: activity.iconName || 'MapIcon', icon: activity.icon });
       }
     }
     return it;
   }, [selectedDest, days, budget, travelStyle, calculateTotalCost]);
 
   return (
-    // 🌍 恢复明亮多巴胺波点背景
     <div 
       className="relative w-full h-screen min-h-[700px] bg-[#fef08a] overflow-hidden font-sans text-slate-900 select-none"
       onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}
       style={{ backgroundImage: 'radial-gradient(#eab308 2px, transparent 2px)', backgroundSize: '24px 24px' }}
     >
-      {/* 🎲 核心魔法：疯狂彩虹闪烁的 CSS 动画 */}
       <style>
         {`
           @keyframes rainbow-flash {
@@ -385,21 +464,19 @@ export default function App() {
             text-shadow: 2px 2px 0px #000 !important;
           }
           .btn-crazy-rainbow:hover {
-            animation-duration: 0.08s !important; /* 鼠标悬浮疯狂加速 */
+            animation-duration: 0.08s !important;
           }
         `}
       </style>
 
       <div className="absolute inset-0 flex items-center justify-center">
         <svg viewBox="-400 -400 800 800" className={`w-[750px] h-[750px] overflow-visible cursor-grab active:cursor-grabbing transition-transform ${isDragging ? 'scale-[1.02]' : 'scale-100'}`} onMouseDown={handleMouseDown}>
-          {/* 🌍 恢复经典漫画蓝海洋 */}
           <circle r={currentRadius} fill="#38bdf8" stroke="#000" strokeWidth="8" />
           <path d={`M -${currentRadius*0.6} -${currentRadius*0.6} A ${currentRadius} ${currentRadius} 0 0 1 0 -${currentRadius} A ${currentRadius*0.8} ${currentRadius*0.8} 0 0 0 -${currentRadius*0.6} -${currentRadius*0.6} Z`} fill="#fff" opacity="0.3" />
 
           <g>
             {(isMapLoading || coastLines.length === 0) 
               ? graticules.map((d, i) => <path key={i} d={d} fill="none" stroke="#0ea5e9" strokeWidth="3" strokeDasharray="10,10" />)
-              // 🌍 恢复黑色粗线条陆地轮廓
               : coastLines.map((d, i) => <path key={i} d={d} fill="none" stroke="#1e293b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />)}
           </g>
           
@@ -465,7 +542,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* 🎲 重点：这是已经被“魔法类名”加持的疯狂盲盒按钮 */}
       <button 
         onWheel={(e) => e.stopPropagation()}
         onClick={() => setShowBlindBox(true)} 
@@ -608,22 +684,30 @@ export default function App() {
                   </div>
                   <div className="text-center">
                     <h3 className="text-xl font-black uppercase text-black mb-2">生成中...</h3>
-                    <p className="text-sm font-bold text-slate-500">马上为你献上专属攻略！</p>
+                    <p className="text-sm font-bold text-slate-500">正在为你定制专属疯狂攻略！</p>
                   </div>
                 </div>
               ) : (
                 <>
+                  {/* API 报错时展示漫画风错误提示框 */}
                   {apiError && (
-                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-                      <p className="font-bold">Oops!</p>
-                      <p>{apiError}</p>
+                    <div className="bg-[#fee2e2] border-4 border-black rounded-xl p-4 mb-4 shadow-[4px_4px_0_0_#000] relative overflow-hidden">
+                      <div className="absolute -top-4 -right-2 text-6xl opacity-20 transform rotate-12">💥</div>
+                      <p className="font-black text-black text-lg mb-1 flex items-center gap-2"><Flame className="text-[#ef4444]" size={20}/> Oops! 魔法中断</p>
+                      <p className="text-sm font-bold text-slate-700 leading-tight mb-3">{apiError}</p>
+                      <button onClick={handleGenerateItinerary} className="text-xs bg-white text-black px-4 py-2 rounded-lg border-2 border-black font-black active:translate-y-1 shadow-[2px_2px_0_0_#000] hover:bg-[#fcd34d] transition-colors">
+                        🔄 重新召唤 AI
+                      </button>
                     </div>
                   )}
+
+                  {/* 这里使用了短路逻辑：如果 AI 返回了数据就用 AI 的，否则回退使用本地自动计算的假行程 */}
                   {(aiItineraries[`${departure.id}-${selectedDest?.id}-${days}-${budget}-${travelStyle}`] || itineraryDays).map((day, idx) => (
                     <div key={idx} className={`relative bg-white border-4 border-black p-5 rounded-2xl shadow-[8px_8px_0_0_#000] transform hover:-translate-y-1 transition-transform ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}>
                       <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#22d3ee] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-xl font-black z-10">{day.day}</div>
                       <div className="absolute -top-6 right-4 w-14 h-14 bg-[#facc15] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-black z-10">
-                        {day.iconName ? <DynamicIcon name={day.iconName} size={24}/> : day.icon}
+                        {/* 兼容 AI 的返回数据（纯字符串）和本地数据 */}
+                        {day.iconName ? <DynamicIcon name={day.iconName} size={28}/> : (day.icon || <MapIcon size={28}/>)}
                       </div>
                       <div className="mt-4">
                         <h3 className="text-lg font-black text-black uppercase mb-2 border-b-4 border-black inline-block pb-1">{day.title}</h3>
