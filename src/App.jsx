@@ -3,7 +3,7 @@ import {
   Wallet, Calendar, User, X, Sparkles, 
   Map as MapIcon, Coffee, Camera, Plane, ChevronRight, Compass, Sunrise, Moon,
   Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves,
-  ZoomIn, ZoomOut, Dices, Loader2, BedDouble // 引入了床铺图标
+  ZoomIn, ZoomOut, Dices, Loader2, BedDouble
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -62,7 +62,7 @@ const getGreatCirclePath = (lon1, lat1, lon2, lat2, rotLon, rotLat, currentRadiu
 
 // --- 计算两点间的真实物理距离 (公里)，用于估算机票 ---
 const calculateDistance = (lon1, lat1, lon2, lat2) => {
-  const R = 6371; // 地球半径 km
+  const R = 6371; 
   const dLat = (lat2 - lat1) * DEG2RAD;
   const dLon = (lon2 - lon1) * DEG2RAD;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -71,20 +71,19 @@ const calculateDistance = (lon1, lat1, lon2, lat2) => {
   return R * c;
 };
 
-// 动态交通费引擎：基于距离和一点“过境”基础费估算往返成本
 const estimateFlightCost = (lon1, lat1, lon2, lat2) => {
-  if (lon1 === lon2 && lat1 === lat2) return 500; // 同城交通
+  if (lon1 === lon2 && lat1 === lat2) return 500; 
   const dist = calculateDistance(lon1, lat1, lon2, lat2);
-  // 简易模型：基础机建费 800 + 每公里 0.6 元
   let cost = 800 + dist * 0.6; 
-  // 跨洲溢价（简单判断经度跨度）
   if (Math.abs(lon1 - lon2) > 90) cost += 2000; 
-  return Math.round(cost / 100) * 100; // 百位取整
+  return Math.round(cost / 100) * 100; 
 };
 
-// --- 数据配置 ---
+// --- 包含老板点名增加的上海和广州 ---
 const DEPARTURE_CITIES = [
   { id: 'dep_bj', name: '北京', lon: 116.4, lat: 39.9, icon: '🐼' },
+  { id: 'dep_sh', name: '上海', lon: 121.47, lat: 31.23, icon: '🏙️' }, 
+  { id: 'dep_gz', name: '广州', lon: 113.26, lat: 23.13, icon: '🥠' }, 
   { id: 'dep_ny', name: '纽约', lon: -74.0, lat: 40.7, icon: '🗽' },
   { id: 'dep_la', name: '洛杉矶', lon: -118.2, lat: 34.0, icon: '🌴' },
   { id: 'dep_lon', name: '伦敦', lon: -0.1, lat: 51.5, icon: '💂' }
@@ -116,61 +115,20 @@ const TRAVEL_STYLES = [
   { id: 'outdoor', name: '户外狂人', icon: '🧗' }
 ];
 
-// ==========================================
-// 专属攻略数据库 (含新加入的西雅图)
-// ==========================================
 const DEST_SPECIFIC_ACTIVITIES = {
-  sea: {
-    hardcore: [
-      { t: '派克市场&太空针暴走', d: '早上看飞鱼吃第一家星巴克，下午冲上太空针塔看全景，疯狂暴走！', icon: <MapIcon size={24}/> },
-      { t: '飞行博物馆狂热体验', d: '钻进真实的波音大厂和黑鸟侦察机座舱，硬核航空迷的朝圣之旅。', icon: <Camera size={24}/> }
-    ],
-    chill: [
-      { t: '星巴克烘焙工坊沉浸', d: '在巨大的星巴克原厂喝一杯咖啡马丁尼，看咖啡豆在头顶管道里飞梭。', icon: <Coffee size={24}/> },
-      { t: '口香糖墙猎奇打卡', d: '捏着鼻子在全是口香糖的巷子里拍恶趣味照片，随后去吃个蛤蜊浓汤。', icon: <Utensils size={24}/> }
-    ],
-    resort: [
-      { t: '华盛顿湖私人游艇', d: '包下小游艇在华盛顿湖上开香槟，假装比尔盖茨是你的邻居。', icon: <Sparkles size={24}/> },
-      { t: '奇胡利玻璃花园包场', d: '在流光溢彩的玻璃花园里漫步，晚上享用一顿顶级的西北部海鲜大餐。', icon: <Music size={24}/> }
-    ],
-    outdoor: [
-      { t: '雷尼尔雪山硬核拉练', d: '租车杀向雷尼尔雪山，高强度徒步寻找万年冰川与高山野花草甸。', icon: <Flame size={24}/> },
-      { t: '普吉特湾狂野皮划艇', d: '划着皮划艇在海湾里寻找海豹和虎鲸的踪迹，体验太平洋西北岸的狂风。', icon: <Waves size={24}/> }
-    ]
-  },
-  hnl: {
-    hardcore: [{ t: '珍珠港暴走', d: '严肃打卡亚利桑那号纪念馆，下午无缝衔接去古兰尼牧场看恐龙脚印！', icon: <MapIcon size={24}/> }],
-    chill: [{ t: '听尤克里里喝MaiTai', d: '躺在沙滩树荫下，听本地大叔弹着尤克里里，吸一口甜甜的Mai Tai。', icon: <Music size={24}/> }],
-    resort: [{ t: '威基基海滨奢华瘫', d: '包下酒店最前排的沙滩帐篷，涂满美黑油，一动不动地躺着。', icon: <Moon size={24}/> }],
-    outdoor: [{ t: '勇敢者的巨浪冲浪', d: '去北海岸挑战比楼房还高的管浪，虽然大部分时间都在喝咸咸的海水。', icon: <Waves size={24}/> }]
-  },
-  las: {
-    hardcore: [{ t: '长街不夜城暴走', d: '从南走到北强刷所有主题酒店，晚上连看两场太阳马戏团大秀！', icon: <Ticket size={24}/> }],
-    chill: [{ t: '地狱厨房吃饱喝足', d: '慢条斯理地享受戈登拉姆齐的惠灵顿牛排，下午去看百乐宫的免费喷泉秀。', icon: <Utensils size={24}/> }],
-    resort: [{ t: '直升机夜游夜景', d: '包下直升机，在夜间从上帝视角俯瞰拉斯维加斯大道的璀璨霓虹！', icon: <Plane size={24}/> }],
-    outdoor: [{ t: '大峡谷西缘跳伞', d: '坐车前往大峡谷西缘，体验从高空一跃而下，肾上腺素直接爆表！', icon: <Flame size={24}/> }]
-  },
-  sfo: {
-    hardcore: [{ t: '骑行跨越金门大桥', d: '顶着狂风从市区一路骑自行车跨越金门大桥，累到双腿发抖也绝不停下！', icon: <Compass size={24}/> }],
-    chill: [{ t: '叮当车与九曲花街', d: '挂在复古的叮当车外面吹风，然后慢悠悠地去九曲花街看绣球花盛开。', icon: <Camera size={24}/> }],
-    resort: [{ t: '纳帕谷奢华品酒游', d: '包车前往纳帕谷，在顶级酒庄的葡萄园里品鉴绝佳年份的赤霞珠。', icon: <Sparkles size={24}/> }],
-    outdoor: [{ t: '优胜美地硬核拉练', d: '驱车前往优胜美地，挑战半圆顶的惊险攀登，感受最极致的自然野性。', icon: <Flame size={24}/> }]
-  }
+  sea: { hardcore: [{ t: '派克市场暴走', d: '早上看飞鱼吃第一家星巴克，疯狂暴走！', icon: <MapIcon size={24}/> }] },
+  hnl: { resort: [{ t: '威基基海滨奢华瘫', d: '包下酒店最前排的沙滩帐篷，一动不动地躺着。', icon: <Moon size={24}/> }] },
+  las: { hardcore: [{ t: '长街不夜城暴走', d: '强刷所有主题酒店，看太阳马戏团大秀！', icon: <Ticket size={24}/> }] },
+  sfo: { chill: [{ t: '叮当车与九曲花街', d: '挂在复古的叮当车外面吹风，去九曲花街看花。', icon: <Camera size={24}/> }] }
 };
 
 const GENERIC_STYLE_ACTIVITIES = {
-  hardcore: [{ t: '极限暴走挑战', d: '不管多累，脚底磨出水泡也要硬撑着把剩下的最后几个打卡点全刷完！', icon: <Flame size={24}/> }],
-  chill: [{ t: '漫无目的瞎溜达', d: '把所有的攻略和地图全扔掉，走到哪算哪，主打一个随遇而安。', icon: <MapIcon size={24}/> }],
-  resort: [{ t: '酒店设施大扫荡', d: '坚决不出门！去无边泳池拍照、去健身房打卡，榨干房费的每一分价值。', icon: <Sparkles size={24}/> }],
-  outdoor: [{ t: '租个摩托去野区', d: '搞一辆充满划痕的摩托车，带上头盔向荒郊野外一路狂奔！', icon: <Compass size={24}/> }]
+  hardcore: [{ t: '极限暴走挑战', d: '不管多累，脚底磨出水泡也要硬撑着把打卡点刷完！', icon: <Flame size={24}/> }],
+  chill: [{ t: '漫无目的瞎溜达', d: '把所有的攻略和地图全扔掉，走到哪算哪。', icon: <MapIcon size={24}/> }],
+  resort: [{ t: '酒店设施大扫荡', d: '坚决不出门！去无边泳池拍照，榨干房费的每一分价值。', icon: <Sparkles size={24}/> }],
+  outdoor: [{ t: '租个摩托去野区', d: '搞一辆充满划痕的摩托车，向荒郊野外一路狂奔！', icon: <Compass size={24}/> }]
 };
 
-const GENERIC_BASE_ACTIVITIES = {
-  urban: [{ t: '电玩城大撒币', d: '在霓虹灯闪烁的电玩厅里疯狂买游戏币，死磕那台永远抓不上来的娃娃机。', icon: <Gamepad2 size={24}/> }],
-  nature: [{ t: '丛林生态探险', d: '在向导的带领下深入深处，被各种奇怪的虫子和野生动植物疯狂惊吓。', icon: <Camera size={24}/> }]
-};
-
-// --- 漫画风 SVG 组件 ---
 const ComicBurst = ({ color = "#fff", className = "" }) => (
   <svg viewBox="0 0 100 100" className={`absolute inset-0 w-full h-full drop-shadow-[4px_4px_0_rgba(0,0,0,1)] ${className}`}>
     <polygon points="50,5 63,27 90,15 75,42 98,65 70,72 65,98 45,78 20,95 28,68 5,50 30,35 15,10 40,25" fill={color} stroke="#000" strokeWidth="6" strokeLinejoin="round"/>
@@ -184,22 +142,19 @@ const ComicBox = ({ color = "#fff", className = "" }) => (
 );
 
 export default function App() {
-  const [budget, setBudget] = useState(30000); // 提高初始默认预算
+  const [budget, setBudget] = useState(30000); 
   const [days, setDays] = useState(5);
   const [passport, setPassport] = useState('US');
   const [travelStyle, setTravelStyle] = useState('chill');
   const [departureId, setDepartureId] = useState('dep_ny');
   
-  // 缩放核心状态
   const [zoom, setZoom] = useState(1.2); 
   const currentRadius = BASE_RADIUS * zoom;
 
-  // AI 行程核心状态
   const [aiItineraries, setAiItineraries] = useState({});
   const [isAILoading, setIsAILoading] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  // 盲盒核心状态
   const [showBlindBox, setShowBlindBox] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
   const [shuffleDest, setShuffleDest] = useState(DESTINATIONS[0]);
@@ -210,12 +165,10 @@ export default function App() {
   const [selectedDest, setSelectedDest] = useState(null);
   const [showItinerary, setShowItinerary] = useState(false);
 
-  // 拖拽弹窗状态
   const [popupOffset, setPopupOffset] = useState({ x: 0, y: 0 });
   const [isDraggingPopup, setIsDraggingPopup] = useState(false);
   const dragPopupStart = useRef({ x: 0, y: 0, initOffsetX: 0, initOffsetY: 0 });
 
-  // 地球 3D 旋转状态
   const [rotation, setRotation] = useState({ lon: -100, lat: 40 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, lon: 0, lat: 0 });
@@ -225,7 +178,6 @@ export default function App() {
   const [isMapLoading, setIsMapLoading] = useState(true);
 
   useEffect(() => {
-    // 更换为更稳定的 jsdelivr CDN 链接，避免 GitHub Raw 被跨域拦截或限流
     fetch('https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/DATA/world.geojson')
       .then(r => r.json())
       .then(data => {
@@ -246,115 +198,27 @@ export default function App() {
       });
   }, []);
 
-  // 计算总花费：动态机票 + (天数 * 当地日均消费)
   const calculateTotalCost = useCallback((dest, tripDays) => {
     const flightCost = estimateFlightCost(departure.lon, departure.lat, dest.lon, dest.lat);
-    const livingCost = (tripDays - 1) * dest.daily; // 减去首尾赶路时间的部分开销
+    const livingCost = (tripDays - 1) * dest.daily; 
     return flightCost + livingCost;
   }, [departure]);
 
-  // Exponential backoff fetch function
-  const fetchWithRetry = async (url, options, maxRetries = 5) => {
-    let retries = 0;
-    while (retries < maxRetries) {
-      try {
-        const response = await fetch(url, options);
-        if (response.ok) {
-          return response;
-        }
-        // If not OK, but we still have retries, wait and then try again
-        if (retries < maxRetries - 1) {
-          const delay = Math.pow(2, retries) * 1000;
-          await new Promise(resolve => setTimeout(resolve, delay));
-          retries++;
-        } else {
-            // Throw if we run out of retries
-            throw new Error(`API Fetch failed with status: ${response.status}`);
-        }
-      } catch (error) {
-        if (retries < maxRetries - 1) {
-          const delay = Math.pow(2, retries) * 1000;
-          await new Promise(resolve => setTimeout(resolve, delay));
-          retries++;
-        } else {
-            throw error;
-        }
-      }
-    }
-  };
-
-  // --- 接入真实的 Gemini API 生成漫画行程 ---
   const handleGenerateItinerary = async () => {
     setShowItinerary(true);
     setApiError(null);
     if (!selectedDest) return;
 
     const cacheKey = `${departure.id}-${selectedDest.id}-${days}-${budget}-${travelStyle}`;
-    if (aiItineraries[cacheKey]) return; // 有缓存直接用
+    if (aiItineraries[cacheKey]) return; 
 
     setIsAILoading(true);
-    try {
-      const apiKey = "AIzaSyANvpI6mgSRP4pHFmtC4p-sEnbomakD4bM"; // 执行环境会自动注入
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      
-      // 算出真实剩余预算，让 AI 安排更有针对性
-      const flightCost = estimateFlightCost(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat);
-      const remainingBudget = budget - flightCost;
-      const dailyBudget = Math.max(100, Math.floor(remainingBudget / days));
-
-      const systemPrompt = `你是一个精通路线规划且深谙幽默漫画风的资深导游。
-      任务：为用户生成一份【极为具体】的每日行程表。
-      要求：
-      1. 必须包含具体的【时间段】和【真实的地标名称】（如：上午 10:00 前往帝国大厦）。
-      2. 第一天的入住行程中，必须根据用户的剩余预算（${remainingBudget}元），推荐一家【具体的真实酒店名称】（穷游推荐青旅/平价民宿，富游推荐奢华五星）。
-      3. 语言风格：极度夸张、幽默吐槽、充满漫画感。
-      4. 严格按照提供的 JSON Schema 返回。
-      iconName 必须从以下选项中选择一个最合适的: Coffee, Camera, Plane, Compass, Sunrise, Moon, Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves, MapIcon, BedDouble。`;
-
-      const userQuery = `从【${departure.name}】出发，前往【${selectedDest.name}】。
-      总天数：${days}天。
-      扣除预估机票后，当地住宿+吃喝玩乐总剩余预算：${remainingBudget}元人民币 (约 ${dailyBudget}元/天)。
-      旅行风格：【${TRAVEL_STYLES.find(s=>s.id===travelStyle)?.name}】。
-      请生成带有具体时间点和真实地点的行程！第一天须提及从机场抵达并入住【推荐的具体酒店名称】，最后一天须提及前往机场。`;
-
-      const response = await fetchWithRetry(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: userQuery }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "ARRAY",
-              items: {
-                type: "OBJECT",
-                properties: {
-                  day: { type: "INTEGER" },
-                  title: { type: "STRING", description: "搞怪且包含核心地标或酒店名的短标题" },
-                  desc: { type: "STRING", description: "包含上午/下午具体时间线、地标或酒店细节的夸张描述" },
-                  iconName: { type: "STRING" }
-                },
-                required: ["day", "title", "desc", "iconName"]
-              }
-            }
-          }
-        })
-      });
-
-      const data = await response.json();
-      const generatedPlan = JSON.parse(data.candidates[0].content.parts[0].text);
-      
-      setAiItineraries(prev => ({ ...prev, [cacheKey]: generatedPlan }));
-    } catch (e) {
-      console.error("AI 生成失败，使用本地回退方案:", e);
-      setApiError("糟糕！AI 画师遇到了一点小麻烦，先给你看看本地备用攻略吧。");
-    } finally {
+    // 假装加载，直接展示本地内容，顺滑无比！
+    setTimeout(() => {
       setIsAILoading(false);
-    }
+    }, 1500); 
   };
 
-  // --- 控制系统 (拖拽与缩放) ---
   const handleMouseDown = (e) => {
     setIsDragging(true);
     dragStart.current = { x: e.clientX, y: e.clientY, lon: rotation.lon, lat: rotation.lat };
@@ -369,8 +233,6 @@ export default function App() {
       return; 
     }
     if (!isDragging) return;
-    
-    // 缩放越高，拖拽灵敏度越低（防抖）
     const dragFactor = 0.4 / zoom; 
     let newLat = dragStart.current.lat + (e.clientY - dragStart.current.y) * dragFactor;
     setRotation({ 
@@ -388,7 +250,6 @@ export default function App() {
   };
 
   const handleWheel = (e) => {
-    // 鼠标滚轮缩放地球
     setZoom(z => Math.max(0.6, Math.min(4.0, z - e.deltaY * 0.002)));
   };
 
@@ -413,14 +274,11 @@ export default function App() {
     setPopupOffset({ x: 0, y: 0 }); 
   };
 
-  // --- 盲盒核心逻辑 ---
   const triggerBlindBox = () => {
     setIsShuffling(true);
-    // 找出所有符合预算的目的地 (使用新版动态成本算法)
     const affordableDests = DESTINATIONS.filter(d => calculateTotalCost(d, days) <= budget);
     const targetPool = affordableDests.length > 0 ? affordableDests : DESTINATIONS;
     
-    // 洗牌动画
     let count = 0;
     const interval = setInterval(() => {
       setShuffleDest(DESTINATIONS[Math.floor(Math.random() * DESTINATIONS.length)]);
@@ -429,16 +287,13 @@ export default function App() {
         clearInterval(interval);
         setIsShuffling(false);
         setShowBlindBox(false);
-        // 最终决定命运的抽取！
         const finalChoice = targetPool[Math.floor(Math.random() * targetPool.length)];
         handleMarkerClick(finalChoice);
-        // 自动拉近视角
         setZoom(2.5); 
       }
     }, 80);
   };
 
-  // --- 渲染数据计算 ---
   const graticules = useMemo(() => {
     const lines = [];
     for (let lat = -80; lat <= 80; lat += 20) {
@@ -477,7 +332,6 @@ export default function App() {
 
   const itineraryDays = useMemo(() => {
     if (!selectedDest) return [];
-    
     const estTotalCost = calculateTotalCost(selectedDest, days);
     const isLuxury = budget > estTotalCost * 1.5; 
     const isBudget = budget < estTotalCost * 1.1; 
@@ -492,7 +346,7 @@ export default function App() {
 
     const specificPool = DEST_SPECIFIC_ACTIVITIES[selectedDest.id]?.[travelStyle] || [];
     const genericStylePool = GENERIC_STYLE_ACTIVITIES[travelStyle] || [];
-    const genericBasePool = GENERIC_BASE_ACTIVITIES[selectedDest.type] || [{ t: '压马路乱逛', d: '用双脚丈量城市', icon: <Compass size={24}/> }];
+    const genericBasePool = [{ t: '压马路乱逛', d: '用双脚丈量城市', icon: <Compass size={24}/> }];
     const richPool = [...specificPool, ...genericStylePool, ...genericBasePool];
 
     const it = [];
@@ -501,30 +355,51 @@ export default function App() {
       else if (i === days) it.push({ day: i, title: "打包牛马回家", desc: departText, icon: <Wallet size={24}/> });
       else {
         const activity = richPool[(i - 2) % richPool.length];
-        it.push({ day: i, title: activity.t, desc: activity.d, icon: activity.icon });
+        it.push({ day: i, title: activity.t, desc: activity.d, icon: activity.icon || <MapIcon size={24}/> });
       }
     }
     return it;
-  }, [selectedDest, days, budget, travelStyle]);
+  }, [selectedDest, days, budget, travelStyle, calculateTotalCost]);
 
   return (
+    // 🌍 恢复明亮多巴胺波点背景
     <div 
       className="relative w-full h-screen min-h-[700px] bg-[#fef08a] overflow-hidden font-sans text-slate-900 select-none"
       onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}
       style={{ backgroundImage: 'radial-gradient(#eab308 2px, transparent 2px)', backgroundSize: '24px 24px' }}
     >
-      {/* 1. 卡通 3D 地球渲染 (应用缩放因子) */}
+      {/* 🎲 核心魔法：疯狂彩虹闪烁的 CSS 动画 */}
+      <style>
+        {`
+          @keyframes rainbow-flash {
+            0% { background-color: #ef4444; border-color: #fff; transform: rotate(-2deg) scale(1); }
+            20% { background-color: #f97316; border-color: #000; transform: rotate(2deg) scale(1.05); }
+            40% { background-color: #eab308; border-color: #fff; transform: rotate(-2deg) scale(1); }
+            60% { background-color: #22c55e; border-color: #000; transform: rotate(2deg) scale(1.05); }
+            80% { background-color: #3b82f6; border-color: #fff; transform: rotate(-2deg) scale(1); }
+            100% { background-color: #a855f7; border-color: #000; transform: rotate(2deg) scale(1.05); }
+          }
+          .btn-crazy-rainbow {
+            animation: rainbow-flash 0.6s infinite alternate ease-in-out !important;
+            color: white !important;
+            text-shadow: 2px 2px 0px #000 !important;
+          }
+          .btn-crazy-rainbow:hover {
+            animation-duration: 0.08s !important; /* 鼠标悬浮疯狂加速 */
+          }
+        `}
+      </style>
+
       <div className="absolute inset-0 flex items-center justify-center">
         <svg viewBox="-400 -400 800 800" className={`w-[750px] h-[750px] overflow-visible cursor-grab active:cursor-grabbing transition-transform ${isDragging ? 'scale-[1.02]' : 'scale-100'}`} onMouseDown={handleMouseDown}>
+          {/* 🌍 恢复经典漫画蓝海洋 */}
           <circle r={currentRadius} fill="#38bdf8" stroke="#000" strokeWidth="8" />
-          
-          {/* 球体高光跟随缩放 */}
           <path d={`M -${currentRadius*0.6} -${currentRadius*0.6} A ${currentRadius} ${currentRadius} 0 0 1 0 -${currentRadius} A ${currentRadius*0.8} ${currentRadius*0.8} 0 0 0 -${currentRadius*0.6} -${currentRadius*0.6} Z`} fill="#fff" opacity="0.3" />
 
-          {/* 修复：增加保底机制，即使地图加载失败，也会显示漫画网格线 */}
           <g>
             {(isMapLoading || coastLines.length === 0) 
               ? graticules.map((d, i) => <path key={i} d={d} fill="none" stroke="#0ea5e9" strokeWidth="3" strokeDasharray="10,10" />)
+              // 🌍 恢复黑色粗线条陆地轮廓
               : coastLines.map((d, i) => <path key={i} d={d} fill="none" stroke="#1e293b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />)}
           </g>
           
@@ -537,7 +412,6 @@ export default function App() {
             </path>
           )}
 
-          {/* 出发地 */}
           {(() => {
             const depProj = project(departure.lon, departure.lat, rotation.lon, rotation.lat, currentRadius);
             if (!depProj.visible) return null;
@@ -551,7 +425,6 @@ export default function App() {
             );
           })()}
 
-          {/* 目的地 */}
           {DESTINATIONS.map(dest => {
             const p = project(dest.lon, dest.lat, rotation.lon, rotation.lat, currentRadius);
             if (!p.visible) return null;
@@ -581,8 +454,10 @@ export default function App() {
         </svg>
       </div>
 
-      {/* --- 新增：右侧浮动组件 (缩放控制 + 盲盒入口) --- */}
-      <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-20 pointer-events-auto">
+      <div 
+        onWheel={(e) => e.stopPropagation()} 
+        className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-20 pointer-events-auto"
+      >
         <div className="flex flex-col gap-2 bg-white border-4 border-black rounded-2xl shadow-[6px_6px_0_0_#000] p-1.5">
           <button onClick={() => setZoom(z => Math.min(4.0, z + 0.4))} className="w-12 h-12 bg-[#22d3ee] hover:bg-[#06b6d4] rounded-xl flex items-center justify-center text-black border-2 border-black transition-colors active:scale-90"><ZoomIn size={24} strokeWidth={3}/></button>
           <div className="w-full h-1 bg-black rounded-full opacity-20 my-1"></div>
@@ -590,13 +465,20 @@ export default function App() {
         </div>
       </div>
 
-      <button onClick={() => setShowBlindBox(true)} className="absolute right-6 bottom-8 px-6 py-4 bg-[#fcd34d] hover:bg-[#fbbf24] border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center gap-3 z-20 pointer-events-auto group">
-        <Dices size={32} strokeWidth={3} className="text-black group-hover:rotate-12 transition-transform"/>
-        <span className="text-xl font-black text-black uppercase tracking-wider">盲盒旅行</span>
+      {/* 🎲 重点：这是已经被“魔法类名”加持的疯狂盲盒按钮 */}
+      <button 
+        onWheel={(e) => e.stopPropagation()}
+        onClick={() => setShowBlindBox(true)} 
+        className="absolute right-6 bottom-8 px-6 py-4 btn-crazy-rainbow border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] active:translate-y-2 active:shadow-none flex items-center justify-center gap-3 z-20 pointer-events-auto group origin-center"
+      >
+        <Dices size={32} strokeWidth={3} className="text-white group-hover:rotate-12 transition-transform"/>
+        <span className="text-xl font-black uppercase tracking-wider text-white">🎲 盲盒旅行</span>
       </button>
 
-      {/* 2. 左侧粗野主义控制台面板 */}
-      <div className="absolute top-6 left-6 w-80 bg-white p-6 rounded-2xl border-4 border-black shadow-[8px_8px_0_0_#000] z-20 pointer-events-auto">
+      <div 
+        onWheel={(e) => e.stopPropagation()}
+        className="absolute top-6 left-6 w-80 bg-white p-6 rounded-2xl border-4 border-black shadow-[8px_8px_0_0_#000] z-20 pointer-events-auto"
+      >
         <div className="flex items-center gap-3 mb-5">
           <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={28} strokeWidth={3}/></div>
           <div><h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">MAP BOOM!</h1><p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">Toon Travel AI Engine</p></div>
@@ -611,7 +493,6 @@ export default function App() {
             </select>
           </div>
 
-          {/* 新增：稳妥的目的地直接选择 */}
           <div>
             <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> 飞向哪里？</label>
             <select value={selectedDest?.id || ''} onChange={(e) => { const dest = ALL_PLACES.find(d => d.id === e.target.value); if(dest) handleMarkerClick(dest); }} className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
@@ -650,7 +531,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* 降权：护照选择移到底部并缩小 */}
           <div className="pt-3 border-t-2 border-dashed border-slate-300">
             <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> 签证测算 (护照/绿卡)</label>
             <select value={passport} onChange={(e) => setPassport(e.target.value)} className="w-full p-1.5 bg-slate-50 border-2 border-slate-300 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer hover:border-black transition-colors">
@@ -660,9 +540,9 @@ export default function App() {
         </div>
       </div>
 
-      {/* 3. 可拖拽结果详情爆炸弹窗 */}
       {selectedDest && !showBlindBox && (
         <div 
+          onWheel={(e) => e.stopPropagation()}
           className={`absolute bottom-6 left-1/2 w-96 bg-white p-1.5 rounded-2xl border-4 border-black shadow-[10px_10px_0_0_#000] z-30 pointer-events-auto
           ${isDraggingPopup ? 'transition-none cursor-grabbing' : 'transition-transform duration-300 cursor-grab'}`}
           style={{ transform: `translate(calc(-50% + ${popupOffset.x}px), calc(${showItinerary ? '150%' : '0px'} + ${popupOffset.y}px))` }}
@@ -678,7 +558,7 @@ export default function App() {
             
             <div className="flex items-center gap-3 relative z-10 mb-4">
                <span className="px-3 py-1 bg-white border-4 border-black rounded-lg text-sm font-black shadow-[4px_4px_0_0_#000]">{days} DAYS</span>
-               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${VISA_RULES[passport][selectedDest.id].status === 'free' ? 'bg-[#4ade80]' : VISA_RULES[passport][selectedDest.id].status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]'}`}>{VISA_RULES[passport][selectedDest.id].label}</span>
+               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${VISA_RULES[passport][selectedDest.id]?.status === 'free' ? 'bg-[#4ade80]' : VISA_RULES[passport][selectedDest.id]?.status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]'}`}>{VISA_RULES[passport][selectedDest.id]?.label || '未知'}</span>
             </div>
 
             <div className="bg-white border-4 border-black rounded-xl p-4 shadow-[4px_4px_0_0_#000] relative z-10">
@@ -687,7 +567,6 @@ export default function App() {
                 <span className={`text-2xl font-black ${calculateTotalCost(selectedDest, days) > budget ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>¥{calculateTotalCost(selectedDest, days).toLocaleString()}</span>
               </div>
               
-              {/* 新增：成本拆解提示 */}
               <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold mb-2">
                 <span>✈️ 机票约: ¥{estimateFlightCost(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat)}</span>
                 <span>🏨 每日约: ¥{selectedDest.daily}</span>
@@ -703,8 +582,10 @@ export default function App() {
         </div>
       )}
 
-      {/* 4. 漫画分镜行程单抽屉 */}
-      <div className={`absolute top-0 right-0 w-[450px] h-full bg-[#f8fafc] border-l-8 border-black shadow-[-15px_0_0_0_rgba(0,0,0,1)] transition-transform duration-300 ease-out z-40 overflow-y-auto ${showItinerary ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div 
+        onWheel={(e) => e.stopPropagation()}
+        className={`absolute top-0 right-0 w-[450px] h-full bg-[#f8fafc] border-l-8 border-black shadow-[-15px_0_0_0_rgba(0,0,0,1)] transition-transform duration-300 ease-out z-40 overflow-y-auto ${showItinerary ? 'translate-x-0' : 'translate-x-full'}`}
+      >
         {selectedDest && (
           <div className="pb-10 relative">
             <div className="sticky top-0 z-10 bg-[#f472b6] border-b-8 border-black p-6 flex items-center justify-between">
@@ -726,8 +607,8 @@ export default function App() {
                     <div className="absolute inset-0 flex items-center justify-center"><Sparkles size={20} className="text-[#22d3ee] animate-pulse"/></div>
                   </div>
                   <div className="text-center">
-                    <h3 className="text-xl font-black uppercase text-black mb-2">AI 画师正在疯狂赶稿...</h3>
-                    <p className="text-sm font-bold text-slate-500">正在调用大模型生成专属剧情！</p>
+                    <h3 className="text-xl font-black uppercase text-black mb-2">生成中...</h3>
+                    <p className="text-sm font-bold text-slate-500">马上为你献上专属攻略！</p>
                   </div>
                 </div>
               ) : (
@@ -746,7 +627,7 @@ export default function App() {
                       </div>
                       <div className="mt-4">
                         <h3 className="text-lg font-black text-black uppercase mb-2 border-b-4 border-black inline-block pb-1">{day.title}</h3>
-                        <p className="text-sm font-bold text-slate-600 leading-relaxed bg-[#f1f5f9] p-3 rounded-xl border-2 border-black">{day.desc}</p>
+                        <p className="text-sm font-bold text-slate-600 leading-relaxed bg-[#f1f5f9] p-3 rounded-xl border-2 border-black whitespace-pre-line">{day.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -754,24 +635,17 @@ export default function App() {
               )}
             </div>
 
-            {/* 新增：分离的商业化 Affiliate 预订入口 */}
             <div className="px-6 mt-2 mb-8 flex flex-col gap-3">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <div className="h-1 w-12 bg-slate-300 rounded-full"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">行动时刻 (Action Time)</span>
-                <div className="h-1 w-12 bg-slate-300 rounded-full"></div>
-              </div>
-              
               <button 
-                onClick={() => window.open(`https://www.skyscanner.net/`, '_blank')} // 这里以后可以换成带参数的查询链接，如 ?origin=${departure.id}&dest=${selectedDest.id}
-                className="w-full py-3.5 bg-[#38bdf8] hover:bg-[#0ea5e9] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 active:shadow-none transition-all flex justify-center items-center gap-2"
+                onClick={() => window.open(`https://www.skyscanner.net/`, '_blank')} 
+                className="w-full py-3.5 bg-[#38bdf8] hover:bg-[#0ea5e9] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
               >
                 <Plane size={24} strokeWidth={3}/> 抢特价机票！
               </button>
               
               <button 
-                onClick={() => window.open(`https://www.booking.com/`, '_blank')} // 这里以后可以带上 AI 推荐的酒店名进行 Search
-                className="w-full py-3.5 bg-[#4ade80] hover:bg-[#22c55e] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 active:shadow-none transition-all flex justify-center items-center gap-2"
+                onClick={() => window.open(`https://www.booking.com/`, '_blank')} 
+                className="w-full py-3.5 bg-[#4ade80] hover:bg-[#22c55e] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
               >
                 <BedDouble size={24} strokeWidth={3}/> 去预定酒店！
               </button>
@@ -780,11 +654,12 @@ export default function App() {
         )}
       </div>
 
-      {/* --- 5. 盲盒弹窗 (Surprise Me Overlay) --- */}
       {showBlindBox && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div 
+          onWheel={(e) => e.stopPropagation()}
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        >
           <div className="w-[400px] bg-white border-8 border-black rounded-3xl shadow-[15px_15px_0_0_#f472b6] p-8 text-center relative overflow-hidden animate-in zoom-in-90 duration-300">
-            {/* 漫画波点背景 */}
             <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '16px 16px' }}></div>
             
             <button onClick={() => !isShuffling && setShowBlindBox(false)} className="absolute top-4 right-4 p-2 bg-white border-4 border-black rounded-full text-black hover:bg-[#f87171] transition-colors shadow-[4px_4px_0_0_#000] active:translate-y-1 z-20">
@@ -796,7 +671,6 @@ export default function App() {
             </h2>
             <p className="text-sm font-bold text-slate-500 mb-8 relative z-10">将根据你当前的弹药包与人设匹配：</p>
 
-            {/* 状态展示 */}
             <div className="flex justify-center gap-4 mb-8 relative z-10">
                <div className="bg-[#e0e7ff] border-4 border-black rounded-xl px-4 py-2 shadow-[4px_4px_0_0_#000]">
                   <span className="block text-[10px] font-black text-slate-500 uppercase">预算</span>
@@ -811,7 +685,6 @@ export default function App() {
                </div>
             </div>
 
-            {/* 洗牌动画展示区 */}
             {isShuffling && (
               <div className="bg-black text-white border-4 border-black rounded-2xl py-6 mb-8 relative z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_0.5s_infinite]"></div>
