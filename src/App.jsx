@@ -222,8 +222,8 @@ export default function App() {
       // 如果你在本地 VS Code 运行，请将此行改回：const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
+     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+     
       const prompt = `你是一个脑洞大开、极度幽默的旅行规划师。
       请为从【${departure.name}】出发去【${selectedDest.name}】规划一个【${days}】天的旅行行程。
       总预算：${budget}元人民币。
