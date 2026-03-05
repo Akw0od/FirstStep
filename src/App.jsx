@@ -294,7 +294,7 @@ export default function App() {
 
     setIsAILoading(true);
     try {
-      const apiKey = "AIzaSyBACN2qypbf_Ud2KDXrSrvGHxD8QOsGwuY"; // 执行环境会自动注入
+      const apiKey = "AIzaSyANvpI6mgSRP4pHFmtC4p-sEnbomakD4bM"; // 执行环境会自动注入
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
       
       // 算出真实剩余预算，让 AI 安排更有针对性
