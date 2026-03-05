@@ -220,7 +220,7 @@ export default function App() {
 
       // ⚠️ 修复 401 报错：Canvas 预览环境严格要求 apiKey 必须直接等于 ""
       // 如果你在本地 VS Code 运行，请将此行改回：const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      const apiKey = "import.meta.env.VITE_GEMINI_API_KEY"; 
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
       
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
