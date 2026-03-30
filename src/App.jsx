@@ -268,6 +268,7 @@ export default function App() {
             body: JSON.stringify(payload)
           });
 
+          if (res.status === 429) throw { rate_limited: true, message: "AI 太火爆了，免费额度已用完，请等一分钟再试！" };
           if (!res.ok) throw new Error(`HTTP 报错啦: 状态码 ${res.status}`);
 
           const data = await res.json();
@@ -278,6 +279,7 @@ export default function App() {
           break; // 成功解析 JSON 后跳出重试循环
 
         } catch (e) {
+          if (e.rate_limited) throw new Error(e.message); // 429 不重试，直接报错
           console.warn(`第 ${attempt + 1} 次召唤 AI 失败:`, e);
           attempt++;
           if (attempt >= 5) {
