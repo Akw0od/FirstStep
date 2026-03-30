@@ -205,6 +205,7 @@ export default function App() {
 
   // --- 核心更新：安全的 API 调用与重试逻辑 ---
   const handleGenerateItinerary = async () => {
+    if (isAILoading) return; // 防止重复请求
     setShowItinerary(true);
     setApiError(null);
     if (!selectedDest) return;
@@ -256,7 +257,7 @@ export default function App() {
         }
       };
 
-      const delays = [1000, 2000, 4000, 8000, 16000];
+      const delays = [2000, 5000, 10000, 20000, 40000];
       let attempt = 0;
       let resultData = null;
 
@@ -268,7 +269,13 @@ export default function App() {
             body: JSON.stringify(payload)
           });
 
-          if (res.status === 429) throw { rate_limited: true, message: "AI 太火爆了，免费额度已用完，请等一分钟再试！" };
+          if (res.status === 429) {
+            console.warn(`第 ${attempt + 1} 次请求被限流 (429)，等待后重试...`);
+            attempt++;
+            if (attempt >= 5) throw new Error("AI 太火爆了，已重试多次仍被限流，请等一分钟再试！");
+            await new Promise(r => setTimeout(r, delays[attempt - 1]));
+            continue;
+          }
           if (!res.ok) throw new Error(`HTTP 报错啦: 状态码 ${res.status}`);
 
           const data = await res.json();
@@ -276,14 +283,14 @@ export default function App() {
           if (!text) throw new Error("AI 返回了空空如也的脑洞");
 
           resultData = JSON.parse(text);
-          break; // 成功解析 JSON 后跳出重试循环
+          break;
 
         } catch (e) {
-          if (e.rate_limited) throw new Error(e.message); // 429 不重试，直接报错
+          if (e.message?.includes('限流')) throw e;
           console.warn(`第 ${attempt + 1} 次召唤 AI 失败:`, e);
           attempt++;
           if (attempt >= 5) {
-            throw e; // 所有机会用尽，向上抛出错误
+            throw e;
           }
           await new Promise(r => setTimeout(r, delays[attempt - 1]));
         }
@@ -653,7 +660,7 @@ export default function App() {
               <p className="text-sm font-bold text-slate-700 leading-tight pointer-events-none">{selectedDest.desc}</p>
             </div>
 
-            <button onMouseDown={(e) => e.stopPropagation()} onClick={handleGenerateItinerary} className="w-full mt-4 py-3 bg-[#a855f7] hover:bg-[#9333ea] text-white text-lg font-black uppercase rounded-xl border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 relative z-20">
+            <button disabled={isAILoading} onMouseDown={(e) => e.stopPropagation()} onClick={handleGenerateItinerary} className={`w-full mt-4 py-3 ${isAILoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#a855f7] hover:bg-[#9333ea]'} text-white text-lg font-black uppercase rounded-xl border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 relative z-20`}>
               <Sparkles strokeWidth={3}/> 查看漫画行程指南！
             </button>
           </div>
@@ -697,8 +704,8 @@ export default function App() {
                       <div className="absolute -top-4 -right-2 text-6xl opacity-20 transform rotate-12">💥</div>
                       <p className="font-black text-black text-lg mb-1 flex items-center gap-2"><Flame className="text-[#ef4444]" size={20}/> Oops! 魔法中断</p>
                       <p className="text-sm font-bold text-slate-700 leading-tight mb-3">{apiError}</p>
-                      <button onClick={handleGenerateItinerary} className="text-xs bg-white text-black px-4 py-2 rounded-lg border-2 border-black font-black active:translate-y-1 shadow-[2px_2px_0_0_#000] hover:bg-[#fcd34d] transition-colors">
-                        🔄 重新召唤 AI
+                      <button disabled={isAILoading} onClick={handleGenerateItinerary} className={`text-xs ${isAILoading ? 'bg-gray-300 cursor-not-allowed' : 'bg-white hover:bg-[#fcd34d]'} text-black px-4 py-2 rounded-lg border-2 border-black font-black active:translate-y-1 shadow-[2px_2px_0_0_#000] transition-colors`}>
+                        {isAILoading ? '⏳ 重试中...' : '🔄 重新召唤 AI'}
                       </button>
                     </div>
                   )}
