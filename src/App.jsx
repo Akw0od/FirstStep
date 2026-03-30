@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { 
-  Wallet, Calendar, User, X, Sparkles, 
+import {
+  Wallet, Calendar, User, X, Sparkles,
   Map as MapIcon, Coffee, Camera, Plane, ChevronRight, Compass, Sunrise, Moon,
   Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves,
   ZoomIn, ZoomOut, Dices, Loader2, BedDouble
 } from 'lucide-react';
+import staticItineraries from './staticItineraries.json';
 
 const ICON_MAP = {
   Coffee, Camera, Plane, Compass, Sunrise, Moon,
@@ -203,110 +204,40 @@ export default function App() {
     return flightCost + livingCost;
   }, [departure]);
 
-  // --- 核心更新：安全的 API 调用与重试逻辑 ---
+  // --- 从预生成静态数据加载行程（假装 AI 在思考） ---
   const handleGenerateItinerary = async () => {
-    if (isAILoading) return; // 防止重复请求
+    if (isAILoading) return;
     setShowItinerary(true);
     setApiError(null);
     if (!selectedDest) return;
 
-    const cacheKey = `${departure.id}-${selectedDest.id}-${days}-${budget}-${travelStyle}`;
-    if (aiItineraries[cacheKey]) return; // 如果有缓存，直接展示，不发请求
+    const cacheKey = `${selectedDest.id}-${days}-${travelStyle}`;
+    if (aiItineraries[cacheKey]) return;
 
     setIsAILoading(true);
 
-    try {
-      const styleInfo = TRAVEL_STYLES.find(s => s.id === travelStyle);
-      const styleName = styleInfo ? styleInfo.name : '自由行';
+    // 假装 AI 在思考 1.5~3.5 秒
+    await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
 
-      // ⚠️ 修复 401 报错：Canvas 预览环境严格要求 apiKey 必须直接等于 ""
-      // 如果你在本地 VS Code 运行，请将此行改回：const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
-      
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-     
-      const prompt = `你是一个脑洞大开、极度幽默的旅行规划师。
-      请为从【${departure.name}】出发去【${selectedDest.name}】规划一个【${days}】天的旅行行程。
-      总预算：${budget}元人民币。
-      旅行风格：${styleName}。
+    const staticKey = `${selectedDest.id}-${travelStyle}`;
+    const fullItinerary = staticItineraries[staticKey];
 
-      重要要求：
-      1. 每天的标题(title)要简短、有冲击力、符合这趟旅行的基调。
-      2. 每天的描述(desc)要生动、幽默、画面感极强，让人看了就想马上订机票，千万不要冷冰冰的罗列地名。
-      3. 每天的图标(iconName)必须且只能从以下列表中选择一个最符合当天活动的英文名：Coffee, Camera, Plane, Compass, Sunrise, Moon, Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves, MapIcon, BedDouble。
-      4. 严格按照 JSON Array 格式返回，不包含任何 Markdown 代码块和其他废话。`;
-
-      const payload = {
-        contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: "You are a creative and humorous travel planner. Always return valid JSON matching the requested schema. Never use markdown codeblocks." }] },
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "ARRAY",
-            items: {
-              type: "OBJECT",
-              properties: {
-                day: { type: "INTEGER" },
-                title: { type: "STRING" },
-                desc: { type: "STRING" },
-                iconName: { type: "STRING" }
-              },
-              required: ["day", "title", "desc", "iconName"]
-            }
-          }
-        }
-      };
-
-      const delays = [2000, 5000, 10000, 20000, 40000];
-      let attempt = 0;
-      let resultData = null;
-
-      while (attempt < 5) {
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if (res.status === 429) {
-            console.warn(`第 ${attempt + 1} 次请求被限流 (429)，等待后重试...`);
-            attempt++;
-            if (attempt >= 5) throw new Error("AI 太火爆了，已重试多次仍被限流，请等一分钟再试！");
-            await new Promise(r => setTimeout(r, delays[attempt - 1]));
-            continue;
-          }
-          if (!res.ok) throw new Error(`HTTP 报错啦: 状态码 ${res.status}`);
-
-          const data = await res.json();
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) throw new Error("AI 返回了空空如也的脑洞");
-
-          resultData = JSON.parse(text);
-          break;
-
-        } catch (e) {
-          if (e.message?.includes('限流')) throw e;
-          console.warn(`第 ${attempt + 1} 次召唤 AI 失败:`, e);
-          attempt++;
-          if (attempt >= 5) {
-            throw e;
-          }
-          await new Promise(r => setTimeout(r, delays[attempt - 1]));
-        }
+    if (fullItinerary && fullItinerary.length > 0) {
+      // 从 14 天数据中截取所需天数，并重新编号最后一天
+      const sliced = fullItinerary.slice(0, days).map((day, i) => ({
+        ...day,
+        day: i + 1
+      }));
+      // 如果截取后最后一天不是原来的"离开日"，用第14天的数据替换
+      if (days < fullItinerary.length && fullItinerary.length >= 14) {
+        const lastDay = { ...fullItinerary[fullItinerary.length - 1], day: days };
+        sliced[sliced.length - 1] = lastDay;
       }
-
-      if (resultData) {
-        setAiItineraries(prev => ({ ...prev, [cacheKey]: resultData }));
-      }
-
-    } catch (error) {
-      console.error("最终 AI 生成失败:", error);
-      // 优雅降级：提示错误，但在 UI 层面会依靠下方的短路逻辑自动回落显示 itineraryDays 本地数据
-      setApiError("魔法暂时中断... 请检查一下终端日志或者稍后重试！");
-    } finally {
-      setIsAILoading(false);
+      setAiItineraries(prev => ({ ...prev, [cacheKey]: sliced }));
     }
+    // 如果静态数据里没有这个组合，不设 error，自动 fallback 到 itineraryDays
+
+    setIsAILoading(false);
   };
 
   const handleMouseDown = (e) => {
@@ -711,7 +642,7 @@ export default function App() {
                   )}
 
                   {/* 这里使用了短路逻辑：如果 AI 返回了数据就用 AI 的，否则回退使用本地自动计算的假行程 */}
-                  {(aiItineraries[`${departure.id}-${selectedDest?.id}-${days}-${budget}-${travelStyle}`] || itineraryDays).map((day, idx) => (
+                  {(aiItineraries[`${selectedDest?.id}-${days}-${travelStyle}`] || itineraryDays).map((day, idx) => (
                     <div key={idx} className={`relative bg-white border-4 border-black p-5 rounded-2xl shadow-[8px_8px_0_0_#000] transform hover:-translate-y-1 transition-transform ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}>
                       <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#22d3ee] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-xl font-black z-10">{day.day}</div>
                       <div className="absolute -top-6 right-4 w-14 h-14 bg-[#facc15] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-black z-10">
