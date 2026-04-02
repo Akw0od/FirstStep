@@ -204,7 +204,7 @@ export default function App() {
     return flightCost + livingCost;
   }, [departure]);
 
-  // --- 从预生成静态数据加载行程（假装 AI 在思考） ---
+  // --- 先调 DeepSeek API 实时生成，失败则 fallback 到静态数据 ---
   const handleGenerateItinerary = async () => {
     if (isAILoading) return;
     setShowItinerary(true);
@@ -216,26 +216,50 @@ export default function App() {
 
     setIsAILoading(true);
 
-    // 假装 AI 在思考 1.5~3.5 秒
-    await new Promise(r => setTimeout(r, 1500 + Math.random() * 2000));
+    // 1) 尝试调用 DeepSeek API
+    try {
+      const totalBudget = calculateTotalCost(selectedDest, days);
+      const res = await fetch('/api/generate-itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destination: selectedDest.name,
+          style: travelStyle,
+          days,
+          budget: totalBudget,
+          departure: departure.name
+        })
+      });
 
+      if (res.ok) {
+        const data = await res.json();
+        if (data.itinerary && data.itinerary.length > 0) {
+          setAiItineraries(prev => ({ ...prev, [cacheKey]: data.itinerary }));
+          setIsAILoading(false);
+          return;
+        }
+      }
+      // API 返回非 ok，进入 fallback
+    } catch (e) {
+      // 网络错误等，进入 fallback
+    }
+
+    // 2) Fallback: 使用预生成的静态数据
     const staticKey = `${selectedDest.id}-${travelStyle}`;
     const fullItinerary = staticItineraries[staticKey];
 
     if (fullItinerary && fullItinerary.length > 0) {
-      // 从 14 天数据中截取所需天数，并重新编号最后一天
       const sliced = fullItinerary.slice(0, days).map((day, i) => ({
         ...day,
         day: i + 1
       }));
-      // 如果截取后最后一天不是原来的"离开日"，用第14天的数据替换
       if (days < fullItinerary.length && fullItinerary.length >= 14) {
         const lastDay = { ...fullItinerary[fullItinerary.length - 1], day: days };
         sliced[sliced.length - 1] = lastDay;
       }
       setAiItineraries(prev => ({ ...prev, [cacheKey]: sliced }));
+      setApiError('AI 实时生成暂时不可用，已为你加载精选行程');
     }
-    // 如果静态数据里没有这个组合，不设 error，自动 fallback 到 itineraryDays
 
     setIsAILoading(false);
   };
