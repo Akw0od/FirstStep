@@ -676,6 +676,24 @@ export default function App() {
                       <div className="mt-4">
                         <h3 className="text-lg font-black text-black uppercase mb-2 border-b-4 border-black inline-block pb-1">{day.title}</h3>
                         <p className="text-sm font-bold text-slate-600 leading-relaxed bg-[#f1f5f9] p-3 rounded-xl border-2 border-black whitespace-pre-line">{day.desc}</p>
+                        {day.hotel && (
+                          <div className="mt-2 flex items-start gap-1.5 text-xs font-bold text-slate-500">
+                            <BedDouble size={14} className="mt-0.5 shrink-0 text-[#8b5cf6]"/>
+                            <span>{day.hotel}</span>
+                          </div>
+                        )}
+                        {day.highlights && day.highlights.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {day.highlights.map((h, i) => (
+                              <span key={i} className="text-xs font-black bg-[#fcd34d] text-black px-2 py-0.5 rounded-lg border-2 border-black">⭐ {h}</span>
+                            ))}
+                          </div>
+                        )}
+                        {day.cost && (
+                          <div className="mt-2 text-xs font-black text-[#059669] flex items-center gap-1">
+                            <Wallet size={14}/>{day.cost}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
