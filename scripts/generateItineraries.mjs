@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 批量生成 44 组静态行程数据 (11 目的地 × 4 风格 × 14天)
- * 用法: GEMINI_API_KEY=你的key node scripts/generateItineraries.mjs
+ * 用法: DEEPSEEK_API_KEY=你的key node scripts/generateItineraries.mjs
  *
  * 每次请求间隔 15 秒，避免触发 429 限流
  * 如果中途失败，会保留已生成的数据，下次运行跳过已有的组合
@@ -14,9 +14,9 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_FILE = path.join(__dirname, '..', 'src', 'staticItineraries.json');
 
-const API_KEY = process.env.GEMINI_API_KEY;
+const API_KEY = process.env.DEEPSEEK_API_KEY;
 if (!API_KEY) {
-  console.error('❌ 请设置环境变量: GEMINI_API_KEY=你的key node scripts/generateItineraries.mjs');
+  console.error('❌ 请设置环境变量: DEEPSEEK_API_KEY=你的key node scripts/generateItineraries.mjs');
   process.exit(1);
 }
 
@@ -53,38 +53,40 @@ function buildPrompt(destName, styleName) {
 2. 每天的描述(desc)要生动、幽默、画面感极强，让人看了就想马上订机票，千万不要冷冰冰的罗列地名。每天描述控制在50-80字。
 3. 第1天必须是到达日，最后一天（第14天）必须是离开日。
 4. 每天的图标(iconName)必须且只能从以下列表中选择一个最符合当天活动的英文名：Coffee, Camera, Plane, Compass, Sunrise, Moon, Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves, MapIcon, BedDouble。
-5. 严格按照 JSON Array 格式返回，不包含任何 Markdown 代码块和其他废话。`;
+5. 严格按照以下 JSON Array 格式返回，不包含任何 Markdown 代码块和其他多余内容：
+[
+  { "day": 1, "title": "标题", "desc": "描述内容", "iconName": "Plane" },
+  { "day": 2, "title": "标题", "desc": "描述内容", "iconName": "Coffee" },
+  ...
+  { "day": 14, "title": "标题", "desc": "描述内容", "iconName": "Plane" }
+]
+每个对象必须包含 day(整数)、title(字符串)、desc(字符串)、iconName(字符串) 四个字段，共 14 个对象。`;
 }
 
-async function callGemini(destName, styleName) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+async function callDeepSeek(destName, styleName) {
+  const url = 'https://api.deepseek.com/chat/completions';
 
   const payload = {
-    contents: [{ parts: [{ text: buildPrompt(destName, styleName) }] }],
-    systemInstruction: {
-      parts: [{ text: "You are a creative and humorous travel planner. Always return valid JSON matching the requested schema. Never use markdown codeblocks." }]
-    },
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: "ARRAY",
-        items: {
-          type: "OBJECT",
-          properties: {
-            day: { type: "INTEGER" },
-            title: { type: "STRING" },
-            desc: { type: "STRING" },
-            iconName: { type: "STRING" }
-          },
-          required: ["day", "title", "desc", "iconName"]
-        }
+    model: 'deepseek-chat',
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a creative and humorous travel planner. Always return valid JSON array only. Never use markdown codeblocks or any extra text outside the JSON.'
+      },
+      {
+        role: 'user',
+        content: buildPrompt(destName, styleName)
       }
-    }
+    ],
+    response_format: { type: 'json_object' }
   };
 
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    },
     body: JSON.stringify(payload)
   });
 
@@ -96,10 +98,16 @@ async function callGemini(destName, styleName) {
   }
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = data.choices?.[0]?.message?.content;
   if (!text) throw new Error('Empty response');
 
-  return JSON.parse(text);
+  // DeepSeek json_object mode returns an object; the itinerary array may be nested
+  const parsed = JSON.parse(text);
+  // Handle both direct array (if returned as array string) and wrapped object
+  const itinerary = Array.isArray(parsed) ? parsed : (parsed.itinerary || parsed.days || Object.values(parsed)[0]);
+  if (!Array.isArray(itinerary)) throw new Error('Unexpected response shape: ' + JSON.stringify(parsed).slice(0, 200));
+
+  return itinerary;
 }
 
 function sleep(ms) {
@@ -136,7 +144,7 @@ async function main() {
     let retries = 3;
     while (retries > 0) {
       try {
-        const result = await callGemini(dest.name, style.name);
+        const result = await callDeepSeek(dest.name, style.name);
         existing[key] = result;
 
         // Save after each successful generation
