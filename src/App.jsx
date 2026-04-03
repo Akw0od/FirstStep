@@ -90,19 +90,19 @@ const DEPARTURE_CITIES = [
 ];
 
 const DESTINATIONS = [
-  { id: 'th', name: '曼谷, 泰国', lon: 100.5, lat: 13.7, baseCost: 3500, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。' },
-  { id: 'jp', name: '东京, 日本', lon: 139.6, lat: 35.6, baseCost: 6500, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。' },
-  { id: 'hnl', name: '夏威夷', lon: -157.8, lat: 21.3, baseCost: 11000, daily: 1600, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。' },
-  { id: 'las', name: '拉斯维加斯', lon: -115.1, lat: 36.1, baseCost: 8000, daily: 1500, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。' },
-  { id: 'sfo', name: '旧金山', lon: -122.4, lat: 37.7, baseCost: 10000, daily: 1100, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。' },
-  { id: 'sea', name: '西雅图', lon: -122.3, lat: 47.6, baseCost: 9000, daily: 1100, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。' },
-  { id: 'gcn', name: '大峡谷', lon: -112.1, lat: 36.0, baseCost: 7000, daily: 800, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。' },
-  { id: 'ysnp', name: '黄石国家公园', lon: -110.5, lat: 44.4, baseCost: 9000, daily: 1200, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。' },
-  { id: 'mia', name: '迈阿密', lon: -80.1, lat: 25.7, baseCost: 9500, daily: 1300, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。' },
-  { id: 'chi', name: '芝加哥', lon: -87.6, lat: 41.8, baseCost: 8500, daily: 1000, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。' },
-  { id: 'msy', name: '新奥尔良', lon: -90.0, lat: 29.9, baseCost: 7500, daily: 900, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' },
-  { id: 'lax', name: '洛杉矶, 美国', lon: -118.2, lat: 34.0, baseCost: 9000, daily: 1200, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。' },
-  { id: 'sd', name: '圣地亚哥, 美国', lon: -117.1, lat: 32.7, baseCost: 8000, daily: 1000, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。' }
+  { id: 'th', name: '曼谷, 泰国', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。' },
+  { id: 'jp', name: '东京, 日本', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。' },
+  { id: 'hnl', name: '夏威夷', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。' },
+  { id: 'las', name: '拉斯维加斯', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。' },
+  { id: 'sfo', name: '旧金山', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。' },
+  { id: 'sea', name: '西雅图', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。' },
+  { id: 'gcn', name: '大峡谷', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。' },
+  { id: 'ysnp', name: '黄石国家公园', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。' },
+  { id: 'mia', name: '迈阿密', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。' },
+  { id: 'chi', name: '芝加哥', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。' },
+  { id: 'msy', name: '新奥尔良', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' },
+  { id: 'lax', name: '洛杉矶, 美国', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。' },
+  { id: 'sd', name: '圣地亚哥, 美国', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。' }
 ];
 
 const VISA_RULES = {
@@ -204,8 +204,10 @@ export default function App() {
 
   const calculateTotalCost = useCallback((dest, tripDays) => {
     const flightCost = estimateFlightCost(departure.lon, departure.lat, dest.lon, dest.lat);
-    const livingCost = (tripDays - 1) * dest.daily; 
-    return flightCost + livingCost;
+    const nights = tripDays - 1;
+    const hotelCost = nights * dest.hotel;
+    const livingCost = tripDays * dest.daily;
+    return flightCost + hotelCost + livingCost;
   }, [departure]);
 
   // --- 先调 DeepSeek API 实时生成，失败则 fallback 到静态数据 ---
@@ -611,9 +613,10 @@ export default function App() {
                 <span className={`text-2xl font-black ${calculateTotalCost(selectedDest, days) > budget ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>¥{calculateTotalCost(selectedDest, days).toLocaleString()}</span>
               </div>
               
-              <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold mb-2">
-                <span>✈️ 机票约: ¥{estimateFlightCost(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat)}</span>
-                <span>🏨 每日约: ¥{selectedDest.daily}</span>
+              <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold mb-2 flex-wrap gap-1">
+                <span>✈️ 机票: ¥{estimateFlightCost(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat)}</span>
+                <span>🏨 酒店: ¥{selectedDest.hotel}/晚</span>
+                <span>🍜 日常: ¥{selectedDest.daily}/天</span>
               </div>
               
               <p className="text-sm font-bold text-slate-700 leading-tight pointer-events-none">{selectedDest.desc}</p>
