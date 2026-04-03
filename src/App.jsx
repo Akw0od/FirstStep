@@ -100,12 +100,14 @@ const DESTINATIONS = [
   { id: 'ysnp', name: '黄石国家公园', lon: -110.5, lat: 44.4, baseCost: 9000, daily: 1200, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。' },
   { id: 'mia', name: '迈阿密', lon: -80.1, lat: 25.7, baseCost: 9500, daily: 1300, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。' },
   { id: 'chi', name: '芝加哥', lon: -87.6, lat: 41.8, baseCost: 8500, daily: 1000, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。' },
-  { id: 'msy', name: '新奥尔良', lon: -90.0, lat: 29.9, baseCost: 7500, daily: 900, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' }
+  { id: 'msy', name: '新奥尔良', lon: -90.0, lat: 29.9, baseCost: 7500, daily: 900, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' },
+  { id: 'lax', name: '洛杉矶, 美国', lon: -118.2, lat: 34.0, baseCost: 9000, daily: 1200, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。' },
+  { id: 'sd', name: '圣地亚哥, 美国', lon: -117.1, lat: 32.7, baseCost: 8000, daily: 1000, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。' }
 ];
 
 const VISA_RULES = {
-  CN: { th: { status: 'free', label: '免签' }, jp: { status: 'visa', label: '办签' }, fr: { status: 'visa', label: '申根' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'visa', label: '办签' }, ny: { status: 'visa', label: '美签' }, yvr: { status: 'visa', label: '加签' }, cun: { status: 'visa', label: '美签' }, hnl: { status: 'visa', label: '美签' }, las: { status: 'visa', label: '美签' }, sfo: { status: 'visa', label: '美签' }, sea: { status: 'visa', label: '美签' }, gcn: { status: 'visa', label: '美签' }, ysnp: { status: 'visa', label: '美签' }, mia: { status: 'visa', label: '美签' }, chi: { status: 'visa', label: '美签' }, msy: { status: 'visa', label: '美签' } },
-  US: { th: { status: 'free', label: '免签' }, jp: { status: 'free', label: '免签' }, fr: { status: 'free', label: '免签' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'eta', label: 'ETA' }, ny: { status: 'free', label: '国内' }, yvr: { status: 'free', label: '免签' }, cun: { status: 'free', label: '免签' }, hnl: { status: 'free', label: '国内' }, las: { status: 'free', label: '国内' }, sfo: { status: 'free', label: '国内' }, sea: { status: 'free', label: '国内' }, gcn: { status: 'free', label: '国内' }, ysnp: { status: 'free', label: '国内' }, mia: { status: 'free', label: '国内' }, chi: { status: 'free', label: '国内' }, msy: { status: 'free', label: '国内' } }
+  CN: { th: { status: 'free', label: '免签' }, jp: { status: 'visa', label: '办签' }, fr: { status: 'visa', label: '申根' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'visa', label: '办签' }, ny: { status: 'visa', label: '美签' }, yvr: { status: 'visa', label: '加签' }, cun: { status: 'visa', label: '美签' }, hnl: { status: 'visa', label: '美签' }, las: { status: 'visa', label: '美签' }, sfo: { status: 'visa', label: '美签' }, sea: { status: 'visa', label: '美签' }, gcn: { status: 'visa', label: '美签' }, ysnp: { status: 'visa', label: '美签' }, mia: { status: 'visa', label: '美签' }, chi: { status: 'visa', label: '美签' }, msy: { status: 'visa', label: '美签' }, lax: { status: 'visa', label: '美签' }, sd: { status: 'visa', label: '美签' } },
+  US: { th: { status: 'free', label: '免签' }, jp: { status: 'free', label: '免签' }, fr: { status: 'free', label: '免签' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'eta', label: 'ETA' }, ny: { status: 'free', label: '国内' }, yvr: { status: 'free', label: '免签' }, cun: { status: 'free', label: '免签' }, hnl: { status: 'free', label: '国内' }, las: { status: 'free', label: '国内' }, sfo: { status: 'free', label: '国内' }, sea: { status: 'free', label: '国内' }, gcn: { status: 'free', label: '国内' }, ysnp: { status: 'free', label: '国内' }, mia: { status: 'free', label: '国内' }, chi: { status: 'free', label: '国内' }, msy: { status: 'free', label: '国内' }, lax: { status: 'free', label: '国内' }, sd: { status: 'free', label: '国内' } }
 };
 
 const TRAVEL_STYLES = [
@@ -119,7 +121,9 @@ const DEST_SPECIFIC_ACTIVITIES = {
   sea: { hardcore: [{ t: '派克市场暴走', d: '早上看飞鱼吃第一家星巴克，疯狂暴走！', icon: <MapIcon size={24}/> }] },
   hnl: { resort: [{ t: '威基基海滨奢华瘫', d: '包下酒店最前排的沙滩帐篷，一动不动地躺着。', icon: <Moon size={24}/> }] },
   las: { hardcore: [{ t: '长街不夜城暴走', d: '强刷所有主题酒店，看太阳马戏团大秀！', icon: <Ticket size={24}/> }] },
-  sfo: { chill: [{ t: '叮当车与九曲花街', d: '挂在复古的叮当车外面吹风，去九曲花街看花。', icon: <Camera size={24}/> }] }
+  sfo: { chill: [{ t: '叮当车与九曲花街', d: '挂在复古的叮当车外面吹风，去九曲花街看花。', icon: <Camera size={24}/> }] },
+  lax: { hardcore: [{ t: '好莱坞星光大道暴走', d: '从日落大道刷到格里菲斯天文台，拍遍好莱坞标志！', icon: <Camera size={24}/> }], chill: [{ t: '圣莫妮卡海滩发呆', d: '在海滩栈道骑车吹海风，看街头艺人表演。', icon: <Waves size={24}/> }] },
+  sd: { outdoor: [{ t: '拉霍亚海岸冲浪', d: '在La Jolla Shores租板冲浪，和海豹共享海滩！', icon: <Waves size={24}/> }], chill: [{ t: '巴尔博亚公园漫游', d: '在全美最大城市文化公园里逛博物馆、看花园。', icon: <MapIcon size={24}/> }] }
 };
 
 const GENERIC_STYLE_ACTIVITIES = {
