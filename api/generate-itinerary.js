@@ -1,3 +1,26 @@
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+async function redisGet(key) {
+  if (!REDIS_URL || !REDIS_TOKEN) return null;
+  try {
+    const res = await fetch(`${REDIS_URL}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+    });
+    const data = await res.json();
+    return data.result ? JSON.parse(data.result) : null;
+  } catch { return null; }
+}
+
+async function redisSet(key, value, ttlSeconds = 604800) {
+  if (!REDIS_URL || !REDIS_TOKEN) return;
+  try {
+    await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}/${encodeURIComponent(JSON.stringify(value))}/ex/${ttlSeconds}`, {
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+    });
+  } catch {}
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,6 +32,13 @@ export default async function handler(req, res) {
   const { destination, style, days, budget, departure } = req.body;
   if (!destination || !style || !days) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Check Redis cache
+  const cacheKey = `itinerary:${destination}:${style}:${days}:${budget || 'any'}:${departure || 'any'}`;
+  const cached = await redisGet(cacheKey);
+  if (cached) {
+    return res.status(200).json({ itinerary: cached, cached: true });
   }
 
   const API_KEY = process.env.DEEPSEEK_API_KEY;
@@ -105,6 +135,9 @@ export default async function handler(req, res) {
     if (!Array.isArray(itinerary)) {
       return res.status(502).json({ error: 'Unexpected response format' });
     }
+
+    // Cache to Redis (7 days TTL)
+    await redisSet(cacheKey, itinerary);
 
     return res.status(200).json({ itinerary });
   } catch (err) {
