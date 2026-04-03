@@ -72,6 +72,26 @@ const calculateDistance = (lon1, lat1, lon2, lat2) => {
   return R * c;
 };
 
+const formatDate = (date) => date.toISOString().split('T')[0];
+
+const getBookingDates = (tripDays) => {
+  const depart = new Date();
+  depart.setDate(depart.getDate() + 21);
+  const ret = new Date(depart);
+  ret.setDate(ret.getDate() + tripDays - 1);
+  return { depart: formatDate(depart), ret: formatDate(ret) };
+};
+
+const buildFlightUrl = (fromCity, toCity, tripDays) => {
+  const { depart, ret } = getBookingDates(tripDays);
+  return `https://www.google.com/travel/flights?q=Flights+from+${encodeURIComponent(fromCity)}+to+${encodeURIComponent(toCity)}+on+${depart}+return+${ret}`;
+};
+
+const buildHotelUrl = (city, tripDays) => {
+  const { depart, ret } = getBookingDates(tripDays);
+  return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${depart}&checkout=${ret}&group_adults=2&no_rooms=1`;
+};
+
 const estimateFlightCost = (lon1, lat1, lon2, lat2) => {
   if (lon1 === lon2 && lat1 === lat2) return 500; 
   const dist = calculateDistance(lon1, lat1, lon2, lat2);
@@ -81,28 +101,28 @@ const estimateFlightCost = (lon1, lat1, lon2, lat2) => {
 };
 
 const DEPARTURE_CITIES = [
-  { id: 'dep_bj', name: '北京', lon: 116.4, lat: 39.9, icon: '🐼' },
-  { id: 'dep_sh', name: '上海', lon: 121.47, lat: 31.23, icon: '🏙️' }, 
-  { id: 'dep_gz', name: '广州', lon: 113.26, lat: 23.13, icon: '🥠' }, 
-  { id: 'dep_ny', name: '纽约', lon: -74.0, lat: 40.7, icon: '🗽' },
-  { id: 'dep_la', name: '洛杉矶', lon: -118.2, lat: 34.0, icon: '🌴' },
-  { id: 'dep_lon', name: '伦敦', lon: -0.1, lat: 51.5, icon: '💂' }
+  { id: 'dep_bj', name: '北京', nameEn: 'Beijing', lon: 116.4, lat: 39.9, icon: '🐼' },
+  { id: 'dep_sh', name: '上海', nameEn: 'Shanghai', lon: 121.47, lat: 31.23, icon: '🏙️' },
+  { id: 'dep_gz', name: '广州', nameEn: 'Guangzhou', lon: 113.26, lat: 23.13, icon: '🥠' },
+  { id: 'dep_ny', name: '纽约', nameEn: 'New York', lon: -74.0, lat: 40.7, icon: '🗽' },
+  { id: 'dep_la', name: '洛杉矶', nameEn: 'Los Angeles', lon: -118.2, lat: 34.0, icon: '🌴' },
+  { id: 'dep_lon', name: '伦敦', nameEn: 'London', lon: -0.1, lat: 51.5, icon: '💂' }
 ];
 
 const DESTINATIONS = [
-  { id: 'th', name: '曼谷, 泰国', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。' },
-  { id: 'jp', name: '东京, 日本', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。' },
-  { id: 'hnl', name: '夏威夷', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。' },
-  { id: 'las', name: '拉斯维加斯', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。' },
-  { id: 'sfo', name: '旧金山', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。' },
-  { id: 'sea', name: '西雅图', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。' },
-  { id: 'gcn', name: '大峡谷', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。' },
-  { id: 'ysnp', name: '黄石国家公园', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。' },
-  { id: 'mia', name: '迈阿密', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。' },
-  { id: 'chi', name: '芝加哥', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。' },
-  { id: 'msy', name: '新奥尔良', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' },
-  { id: 'lax', name: '洛杉矶, 美国', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。' },
-  { id: 'sd', name: '圣地亚哥, 美国', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。' }
+  { id: 'th', name: '曼谷, 泰国', nameEn: 'Bangkok', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。' },
+  { id: 'jp', name: '东京, 日本', nameEn: 'Tokyo', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。' },
+  { id: 'hnl', name: '夏威夷', nameEn: 'Honolulu', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。' },
+  { id: 'las', name: '拉斯维加斯', nameEn: 'Las Vegas', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。' },
+  { id: 'sfo', name: '旧金山', nameEn: 'San Francisco', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。' },
+  { id: 'sea', name: '西雅图', nameEn: 'Seattle', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。' },
+  { id: 'gcn', name: '大峡谷', nameEn: 'Grand Canyon', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。' },
+  { id: 'ysnp', name: '黄石国家公园', nameEn: 'Yellowstone', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。' },
+  { id: 'mia', name: '迈阿密', nameEn: 'Miami', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。' },
+  { id: 'chi', name: '芝加哥', nameEn: 'Chicago', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。' },
+  { id: 'msy', name: '新奥尔良', nameEn: 'New Orleans', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' },
+  { id: 'lax', name: '洛杉矶, 美国', nameEn: 'Los Angeles', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。' },
+  { id: 'sd', name: '圣地亚哥, 美国', nameEn: 'San Diego', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。' }
 ];
 
 const VISA_RULES = {
@@ -709,19 +729,21 @@ export default function App() {
             </div>
 
             <div className="px-6 mt-2 mb-8 flex flex-col gap-3">
-              <button 
-                onClick={() => window.open(`https://www.skyscanner.net/`, '_blank')} 
+              <button
+                onClick={() => window.open(buildFlightUrl(departure.nameEn, selectedDest.nameEn, days), '_blank')}
                 className="w-full py-3.5 bg-[#38bdf8] hover:bg-[#0ea5e9] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
               >
                 <Plane size={24} strokeWidth={3}/> 抢特价机票！
               </button>
-              
-              <button 
-                onClick={() => window.open(`https://www.booking.com/`, '_blank')} 
+              <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">Google Flights · {departure.name} → {selectedDest.name} · {days}天往返</p>
+
+              <button
+                onClick={() => window.open(buildHotelUrl(selectedDest.nameEn, days), '_blank')}
                 className="w-full py-3.5 bg-[#4ade80] hover:bg-[#22c55e] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
               >
                 <BedDouble size={24} strokeWidth={3}/> 去预定酒店！
               </button>
+              <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">Booking.com · {selectedDest.name} · {days - 1}晚</p>
             </div>
           </div>
         )}
