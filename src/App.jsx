@@ -3,9 +3,11 @@ import {
   Wallet, Calendar, User, X, Sparkles,
   Map as MapIcon, Coffee, Camera, Plane, ChevronRight, Compass, Sunrise, Moon,
   Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves,
-  ZoomIn, ZoomOut, Dices, Loader2, BedDouble
+  ZoomIn, ZoomOut, Dices, Loader2, BedDouble,
+  LogIn, LogOut, Heart, Share2, Trash2, BookmarkPlus, Github, ChevronDown
 } from 'lucide-react';
 import staticItineraries from './staticItineraries.json';
+import { supabase, signInWithGitHub, signOut, onAuthStateChange, saveTrip, getMyTrips, deleteTrip } from './lib/supabase';
 
 const ICON_MAP = {
   Coffee, Camera, Plane, Compass, Sunrise, Moon,
@@ -183,6 +185,14 @@ export default function App() {
   const [isShuffling, setIsShuffling] = useState(false);
   const [shuffleDest, setShuffleDest] = useState(DESTINATIONS[0]);
 
+  // --- Auth & Trip Saving State ---
+  const [user, setUser] = useState(null);
+  const [showMyTrips, setShowMyTrips] = useState(false);
+  const [savedTrips, setSavedTrips] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isLoadingTrips, setIsLoadingTrips] = useState(false);
+
   const ALL_PLACES = useMemo(() => [...DEPARTURE_CITIES, ...DESTINATIONS], []);
   const departure = useMemo(() => ALL_PLACES.find(d => d.id === departureId), [departureId, ALL_PLACES]);
   
@@ -200,6 +210,83 @@ export default function App() {
   
   const [mapLines, setMapLines] = useState([]);
   const [isMapLoading, setIsMapLoading] = useState(true);
+
+  // --- Auth State Listener ---
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = onAuthStateChange((session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    try { await signInWithGitHub(); } catch (e) { console.error('Login failed:', e); }
+  };
+
+  const handleLogout = async () => {
+    try { await signOut(); setUser(null); setSavedTrips([]); } catch (e) { console.error('Logout failed:', e); }
+  };
+
+  const handleSaveTrip = async () => {
+    if (!user || !selectedDest) return;
+    setIsSaving(true);
+    try {
+      const cacheKey = `${selectedDest.id}-${days}-${travelStyle}`;
+      const itinerary = aiItineraries[cacheKey] || itineraryDays;
+      await saveTrip({
+        destination: selectedDest.name,
+        destination_id: selectedDest.id,
+        departure: departure.name,
+        departure_id: departureId,
+        style: travelStyle,
+        days,
+        budget,
+        itinerary,
+        title: `${departure.name} → ${selectedDest.name} ${days}天`
+      });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) { console.error('Save failed:', e); }
+    setIsSaving(false);
+  };
+
+  const handleLoadMyTrips = async () => {
+    if (!user) return;
+    setShowMyTrips(true);
+    setIsLoadingTrips(true);
+    try {
+      const { trips } = await getMyTrips();
+      setSavedTrips(trips || []);
+    } catch (e) { console.error('Load trips failed:', e); }
+    setIsLoadingTrips(false);
+  };
+
+  const handleDeleteTrip = async (tripId) => {
+    try {
+      await deleteTrip(tripId);
+      setSavedTrips(prev => prev.filter(t => t.id !== tripId));
+    } catch (e) { console.error('Delete failed:', e); }
+  };
+
+  const handleLoadSavedTrip = (trip) => {
+    const dest = DESTINATIONS.find(d => d.id === trip.destination_id);
+    if (dest) {
+      handleMarkerClick(dest);
+      setDays(trip.days || 5);
+      setTravelStyle(trip.style || 'chill');
+      setBudget(trip.budget || 30000);
+      if (trip.departure_id) setDepartureId(trip.departure_id);
+    }
+    setShowMyTrips(false);
+  };
+
+  const copyShareLink = (shareId) => {
+    const url = `${window.location.origin}?share=${shareId}`;
+    navigator.clipboard.writeText(url);
+  };
 
   useEffect(() => {
     fetch('https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/DATA/world.geojson')
@@ -545,9 +632,25 @@ export default function App() {
         onWheel={(e) => e.stopPropagation()}
         className="absolute top-6 left-6 w-80 bg-white p-6 rounded-2xl border-4 border-black shadow-[8px_8px_0_0_#000] z-20 pointer-events-auto"
       >
-        <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={28} strokeWidth={3}/></div>
-          <div><h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">MAP BOOM!</h1><p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">Toon Travel AI Engine</p></div>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={28} strokeWidth={3}/></div>
+            <div><h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">MAP BOOM!</h1><p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">Toon Travel AI Engine</p></div>
+          </div>
+          {user ? (
+            <div className="flex items-center gap-1.5">
+              <button onClick={handleLoadMyTrips} className="p-1.5 bg-[#fcd34d] border-2 border-black rounded-lg hover:bg-[#fbbf24] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="我的行程">
+                <Heart size={16} strokeWidth={3}/>
+              </button>
+              <button onClick={handleLogout} className="p-1.5 bg-slate-200 border-2 border-black rounded-lg hover:bg-[#f87171] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="退出登录">
+                <LogOut size={16} strokeWidth={3}/>
+              </button>
+            </div>
+          ) : (
+            <button onClick={handleLogin} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] hover:bg-black text-white text-xs font-black rounded-lg border-2 border-black shadow-[2px_2px_0_0_#000] active:translate-y-0.5 transition-colors">
+              <Github size={14} strokeWidth={3}/> 登录
+            </button>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -744,10 +847,80 @@ export default function App() {
                 <BedDouble size={24} strokeWidth={3}/> 去预定酒店！
               </button>
               <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">Booking.com · {selectedDest.name} · {days - 1}晚</p>
+
+              {/* Save Trip Button */}
+              {user ? (
+                <button
+                  onClick={handleSaveTrip}
+                  disabled={isSaving}
+                  className={`w-full py-3.5 ${saveSuccess ? 'bg-[#10b981]' : isSaving ? 'bg-gray-400' : 'bg-[#a855f7] hover:bg-[#9333ea]'} text-white text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2`}
+                >
+                  {saveSuccess ? <><Heart size={24} strokeWidth={3}/> 已保存！</> : isSaving ? <><Loader2 size={24} className="animate-spin"/> 保存中...</> : <><BookmarkPlus size={24} strokeWidth={3}/> 收藏此行程</>}
+                </button>
+              ) : (
+                <button
+                  onClick={handleLogin}
+                  className="w-full py-3.5 bg-[#1e293b] hover:bg-black text-white text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
+                >
+                  <Github size={24} strokeWidth={3}/> 登录后保存行程
+                </button>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* ===== My Trips Modal ===== */}
+      {showMyTrips && (
+        <div onWheel={(e) => e.stopPropagation()} className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-[480px] max-h-[80vh] bg-white border-8 border-black rounded-3xl shadow-[15px_15px_0_0_#a855f7] overflow-hidden flex flex-col">
+            <div className="bg-[#a855f7] border-b-8 border-black p-6 flex items-center justify-between shrink-0">
+              <div>
+                <h2 className="text-2xl font-black text-black uppercase tracking-widest bg-white inline-block px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_#000] transform -rotate-2">我的行程</h2>
+                <p className="text-xs font-bold text-white mt-2">{savedTrips.length} 个已保存的旅行计划</p>
+              </div>
+              <button onClick={() => setShowMyTrips(false)} className="p-2 bg-white border-4 border-black rounded-full text-black hover:bg-[#fbbf24] transition-colors shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none"><X size={24} strokeWidth={4}/></button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              {isLoadingTrips ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                  <Loader2 size={40} className="animate-spin text-[#a855f7]" strokeWidth={3}/>
+                  <p className="text-sm font-bold text-slate-500">加载中...</p>
+                </div>
+              ) : savedTrips.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="text-6xl mb-4">🗺️</div>
+                  <p className="text-lg font-black text-black mb-2">还没有保存的行程</p>
+                  <p className="text-sm font-bold text-slate-500">生成一个行程后点击"收藏"按钮即可保存！</p>
+                </div>
+              ) : (
+                savedTrips.map(trip => (
+                  <div key={trip.id} className="bg-[#f8fafc] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000] hover:-translate-y-0.5 transition-transform">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1 cursor-pointer" onClick={() => handleLoadSavedTrip(trip)}>
+                        <h3 className="text-base font-black text-black">{trip.title || `${trip.departure} → ${trip.destination}`}</h3>
+                        <div className="flex gap-2 mt-1 flex-wrap">
+                          <span className="text-[10px] font-bold bg-[#e0e7ff] text-slate-700 px-2 py-0.5 rounded border border-slate-300">{trip.days}天</span>
+                          <span className="text-[10px] font-bold bg-[#dcfce7] text-slate-700 px-2 py-0.5 rounded border border-slate-300">{TRAVEL_STYLES.find(s => s.id === trip.style)?.name || trip.style}</span>
+                          <span className="text-[10px] font-bold text-slate-400">{new Date(trip.created_at).toLocaleDateString('zh-CN')}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0 ml-2">
+                        <button onClick={() => copyShareLink(trip.share_id)} className="p-1.5 bg-[#38bdf8] border-2 border-black rounded-lg hover:bg-[#0ea5e9] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="复制分享链接">
+                          <Share2 size={14} strokeWidth={3} className="text-white"/>
+                        </button>
+                        <button onClick={() => handleDeleteTrip(trip.id)} className="p-1.5 bg-[#f87171] border-2 border-black rounded-lg hover:bg-[#ef4444] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="删除">
+                          <Trash2 size={14} strokeWidth={3} className="text-white"/>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showBlindBox && (
         <div 
