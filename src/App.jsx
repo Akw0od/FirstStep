@@ -21,6 +21,9 @@ const DynamicIcon = ({ name, size = 24 }) => {
 
 // --- 地球 3D 数学投影核心函数 ---
 const BASE_RADIUS = 300; 
+const CLUSTER_DISTANCE = 64;
+const CLUSTER_ZOOM_THRESHOLD = 1.35;
+const MARKER_COLLISION_DISTANCE = 52;
 const DEG2RAD = Math.PI / 180;
 
 const project = (lon, lat, rotLon, rotLat, currentRadius) => {
@@ -168,6 +171,14 @@ const UI_COPY = {
     appSubtitle: 'Toon Travel AI Engine',
     settings: 'Settings',
     account: 'Account',
+    mapLayers: 'Map layers',
+    departuresLayer: 'Departures',
+    destinationsLayer: 'Destinations',
+    crowdedArea: 'Crowded area',
+    crowdedHint: 'Zoom in or pick directly from this list.',
+    clusterCount: (count) => `${count} places here`,
+    departureBadge: 'From',
+    destinationBadge: 'To',
     language: 'Language',
     myTripsTooltip: 'My trips',
     logoutTooltip: 'Sign out',
@@ -233,6 +244,14 @@ const UI_COPY = {
     appSubtitle: '漫画旅行 AI 引擎',
     settings: '设置',
     account: '账号',
+    mapLayers: '地图图层',
+    departuresLayer: '出发地',
+    destinationsLayer: '目的地',
+    crowdedArea: '高密度区域',
+    crowdedHint: '你可以继续放大，或者直接从列表里选择。',
+    clusterCount: (count) => `这里有 ${count} 个地点`,
+    departureBadge: '出发',
+    destinationBadge: '目的',
     language: '语言',
     myTripsTooltip: '我的行程',
     logoutTooltip: '退出登录',
@@ -338,6 +357,8 @@ export default function App() {
   const [showBlindBox, setShowBlindBox] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
   const [shuffleDest, setShuffleDest] = useState(DESTINATIONS[0]);
+  const [mapLayerVisibility, setMapLayerVisibility] = useState({ departures: true, destinations: true });
+  const [selectedClusterId, setSelectedClusterId] = useState(null);
 
   // --- Auth & Trip Saving State ---
   const [user, setUser] = useState(null);
@@ -467,6 +488,15 @@ export default function App() {
       setSavedTrips(prev => prev.filter(t => t.id !== tripId));
     } catch (e) { console.error('Delete failed:', e); }
   };
+
+  const toggleMapLayer = useCallback((layer) => {
+    setSelectedClusterId(null);
+    setMapLayerVisibility((prev) => {
+      const next = { ...prev, [layer]: !prev[layer] };
+      if (!next.departures && !next.destinations) return prev;
+      return next;
+    });
+  }, []);
 
   const handleLoadSavedTrip = (trip) => {
     const dest = DESTINATIONS.find(d => d.id === trip.destination_id);
@@ -627,7 +657,19 @@ export default function App() {
     reqFrame.current = requestAnimationFrame(step);
   }, [rotation]);
 
+  const handleDepartureSelect = useCallback((place) => {
+    setSelectedClusterId(null);
+    setDepartureId(place.id);
+    animateToTarget(place.lon, place.lat);
+    setZoom(1.5);
+    if (selectedDest?.id === place.id) {
+      setSelectedDest(null);
+      setShowItinerary(false);
+    }
+  }, [animateToTarget, selectedDest]);
+
   const handleMarkerClick = (dest) => {
+    setSelectedClusterId(null);
     animateToTarget(dest.lon, dest.lat);
     setShowItinerary(false);
     setSelectedDest(dest);
@@ -689,6 +731,110 @@ export default function App() {
     });
     return paths;
   }, [mapLines, rotation, currentRadius]);
+
+  const projectedMapMarkers = useMemo(() => {
+    const baseMarkers = [
+      ...(mapLayerVisibility.departures ? DEPARTURE_CITIES.filter((place) => place.id !== departureId).map((place) => ({
+        ...place,
+        markerType: 'departure'
+      })) : []),
+      ...(mapLayerVisibility.destinations ? DESTINATIONS.map((place) => ({
+        ...place,
+        markerType: 'destination'
+      })) : [])
+    ]
+      .map((place, index) => {
+        const projection = project(place.lon, place.lat, rotation.lon, rotation.lat, currentRadius);
+        if (!projection.visible) return null;
+        const isDestination = place.markerType === 'destination';
+        return {
+          ...place,
+          index,
+          baseX: projection.x,
+          baseY: projection.y,
+          x: projection.x,
+          y: projection.y,
+          isDestination,
+          isSelected: selectedDest?.id === place.id,
+          estCost: isDestination ? calculateTotalCost(place, days) : null
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        const score = (marker) => (marker.isSelected ? 100 : 0) + (marker.isDestination ? 10 : 0);
+        return score(b) - score(a);
+      });
+
+    const placedMarkers = [];
+    baseMarkers.forEach((marker, idx) => {
+      const overlapping = placedMarkers.filter((placed) => (
+        Math.hypot(marker.x - placed.x, marker.y - placed.y) < MARKER_COLLISION_DISTANCE
+      ));
+
+      if (overlapping.length > 0) {
+        const angle = ((idx * 137.5) % 360) * (Math.PI / 180);
+        const radius = 14 + overlapping.length * 8;
+        marker.x += Math.cos(angle) * radius;
+        marker.y += Math.sin(angle) * radius;
+      }
+
+      placedMarkers.push(marker);
+    });
+
+    return placedMarkers;
+  }, [departureId, rotation, currentRadius, selectedDest, calculateTotalCost, days, mapLayerVisibility]);
+
+  const { renderedMapMarkers, mapClusters } = useMemo(() => {
+    if (projectedMapMarkers.length === 0) {
+      return { renderedMapMarkers: [], mapClusters: [] };
+    }
+
+    if (zoom > CLUSTER_ZOOM_THRESHOLD) {
+      return { renderedMapMarkers: projectedMapMarkers, mapClusters: [] };
+    }
+
+    const clusters = [];
+    projectedMapMarkers.forEach((marker) => {
+      const existing = clusters.find((cluster) => (
+        Math.hypot(marker.baseX - cluster.baseX, marker.baseY - cluster.baseY) < CLUSTER_DISTANCE
+      ));
+
+      if (existing) {
+        existing.items.push(marker);
+        existing.baseX = existing.items.reduce((sum, item) => sum + item.baseX, 0) / existing.items.length;
+        existing.baseY = existing.items.reduce((sum, item) => sum + item.baseY, 0) / existing.items.length;
+        existing.x = existing.items.reduce((sum, item) => sum + item.x, 0) / existing.items.length;
+        existing.y = existing.items.reduce((sum, item) => sum + item.y, 0) / existing.items.length;
+        existing.lon = existing.items.reduce((sum, item) => sum + item.lon, 0) / existing.items.length;
+        existing.lat = existing.items.reduce((sum, item) => sum + item.lat, 0) / existing.items.length;
+      } else {
+        clusters.push({
+          id: `cluster-${marker.id}`,
+          baseX: marker.baseX,
+          baseY: marker.baseY,
+          x: marker.x,
+          y: marker.y,
+          lon: marker.lon,
+          lat: marker.lat,
+          items: [marker]
+        });
+      }
+    });
+
+    return {
+      renderedMapMarkers: clusters.filter((cluster) => cluster.items.length === 1).map((cluster) => cluster.items[0]),
+      mapClusters: clusters.filter((cluster) => cluster.items.length > 1)
+    };
+  }, [projectedMapMarkers, zoom]);
+  const selectedCluster = useMemo(() => (
+    mapClusters.find((cluster) => cluster.id === selectedClusterId) || null
+  ), [mapClusters, selectedClusterId]);
+
+  useEffect(() => {
+    if (selectedClusterId && !selectedCluster) {
+      setSelectedClusterId(null);
+    }
+  }, [selectedClusterId, selectedCluster]);
 
   const itineraryDays = useMemo(() => {
     if (!selectedDest) return [];
@@ -825,32 +971,89 @@ export default function App() {
             );
           })()}
 
-          {DESTINATIONS.map(dest => {
-            const p = project(dest.lon, dest.lat, rotation.lon, rotation.lat, currentRadius);
-            if (!p.visible) return null;
-            const estCost = calculateTotalCost(dest, days);
-            const isAffordable = estCost <= budget;
-            const isSelected = selectedDest?.id === dest.id;
+          {renderedMapMarkers.map((marker) => {
+            const isAffordable = marker.isDestination ? marker.estCost <= budget : true;
 
             return (
-              <g key={dest.id} transform={`translate(${p.x}, ${p.y})`} className="cursor-pointer group" onClick={(e) => { e.stopPropagation(); handleMarkerClick(dest); }}>
-                <foreignObject x="-40" y="-75" width="80" height="35" className={`overflow-visible transition-all duration-200 ${isSelected ? 'opacity-100 -translate-y-2' : 'opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 pointer-events-none'}`}>
-                  <div className={`flex items-center justify-center w-full h-8 border-4 border-black rounded shadow-[4px_4px_0_0_#000] text-xs font-black ${isAffordable ? 'bg-[#4ade80] text-black' : 'bg-[#f87171] text-black'}`}>¥{estCost}</div>
-                </foreignObject>
-                <foreignObject x="-30" y="-30" width="60" height="60" className="overflow-visible">
+              <g
+                key={marker.id}
+                transform={`translate(${marker.x}, ${marker.y})`}
+                className="cursor-pointer group"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (marker.markerType === 'departure') handleDepartureSelect(marker);
+                  else handleMarkerClick(marker);
+                }}
+              >
+                {(marker.x !== marker.baseX || marker.y !== marker.baseY) && (
+                  <path
+                    d={`M 0 0 L ${marker.baseX - marker.x} ${marker.baseY - marker.y}`}
+                    stroke="#000"
+                    strokeWidth="2"
+                    strokeDasharray="4,4"
+                    opacity="0.35"
+                    pointerEvents="none"
+                  />
+                )}
+
+                {marker.isDestination && (
+                  <foreignObject x="-40" y="-75" width="80" height="35" className={`overflow-visible transition-all duration-200 ${marker.isSelected ? 'opacity-100 -translate-y-2' : 'opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 pointer-events-none'}`}>
+                    <div className={`flex items-center justify-center w-full h-8 border-4 border-black rounded shadow-[4px_4px_0_0_#000] text-xs font-black ${isAffordable ? 'bg-[#4ade80] text-black' : 'bg-[#f87171] text-black'}`}>¥{marker.estCost}</div>
+                  </foreignObject>
+                )}
+
+                <foreignObject x={marker.markerType === 'departure' ? -24 : -30} y={marker.markerType === 'departure' ? -24 : -30} width={marker.markerType === 'departure' ? 48 : 60} height={marker.markerType === 'departure' ? 48 : 60} className="overflow-visible">
                   <div className="w-full h-full flex items-center justify-center relative transition-transform duration-200">
-                    {isSelected ? (
-                      <><ComicBurst color="#fcd34d" className="scale-125 transition-transform" /><span className="relative z-10 text-3xl transition-transform scale-110 drop-shadow-sm">{dest.icon}</span></>
+                    {marker.markerType === 'departure' ? (
+                      <div className="relative w-10 h-10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <ComicBurst color="#ffffff" className="scale-110" />
+                        <span className="relative z-10 text-lg drop-shadow-sm">{marker.icon}</span>
+                      </div>
+                    ) : marker.isSelected ? (
+                      <><ComicBurst color="#fcd34d" className="scale-125 transition-transform" /><span className="relative z-10 text-3xl transition-transform scale-110 drop-shadow-sm">{marker.icon}</span></>
                     ) : isAffordable ? (
-                      <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform"><ComicBox color="#a7f3d0" className="rotate-3 group-hover:rotate-12 transition-transform" /><span className="relative z-10 text-xl">{dest.icon}</span></div>
+                      <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform"><ComicBox color="#a7f3d0" className="rotate-3 group-hover:rotate-12 transition-transform" /><span className="relative z-10 text-xl">{marker.icon}</span></div>
                     ) : (
-                      <div className="relative w-12 h-12 flex items-center justify-center grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all"><ComicBox color="#cbd5e1" className="-rotate-3 group-hover:rotate-0 transition-transform" /><span className="relative z-10 text-xl">{dest.icon}</span></div>
+                      <div className="relative w-12 h-12 flex items-center justify-center grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all"><ComicBox color="#cbd5e1" className="-rotate-3 group-hover:rotate-0 transition-transform" /><span className="relative z-10 text-xl">{marker.icon}</span></div>
                     )}
                   </div>
                 </foreignObject>
+
+                {marker.markerType === 'departure' && (
+                  <foreignObject x="-52" y="-62" width="104" height="28" className="overflow-visible pointer-events-none">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="px-2 py-1 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0_0_#000] text-[10px] font-black whitespace-nowrap">
+                        {getPlaceShortName(marker)}
+                      </span>
+                    </div>
+                  </foreignObject>
+                )}
               </g>
             );
           })}
+
+          {mapClusters.map((cluster) => (
+            <g
+              key={cluster.id}
+              transform={`translate(${cluster.x}, ${cluster.y})`}
+              className="cursor-pointer group"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedClusterId(cluster.id);
+                animateToTarget(cluster.lon, cluster.lat);
+                setZoom((prev) => Math.max(prev, CLUSTER_ZOOM_THRESHOLD + 0.15));
+              }}
+            >
+              <foreignObject x="-34" y="-34" width="68" height="68" className="overflow-visible">
+                <div className="w-full h-full flex items-center justify-center relative transition-transform duration-200 group-hover:scale-110">
+                  <ComicBurst color={selectedClusterId === cluster.id ? '#fcd34d' : '#ffffff'} className="scale-110" />
+                  <span className="relative z-10 text-sm font-black text-black">
+                    +{cluster.items.length}
+                  </span>
+                </div>
+              </foreignObject>
+            </g>
+          ))}
         </svg>
       </div>
 
@@ -881,6 +1084,28 @@ export default function App() {
 
           {showSettingsMenu && (
             <div className="absolute right-0 top-full mt-3 w-64 bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_#000] p-4 space-y-4">
+              <div>
+                <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{ui.mapLayers}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => toggleMapLayer('departures')}
+                    className={`px-3 py-2 rounded-xl border-2 border-black text-[11px] font-black shadow-[2px_2px_0_0_#000] transition-colors ${
+                      mapLayerVisibility.departures ? 'bg-[#22d3ee] text-black' : 'bg-white text-slate-400'
+                    }`}
+                  >
+                    {ui.departuresLayer}
+                  </button>
+                  <button
+                    onClick={() => toggleMapLayer('destinations')}
+                    className={`px-3 py-2 rounded-xl border-2 border-black text-[11px] font-black shadow-[2px_2px_0_0_#000] transition-colors ${
+                      mapLayerVisibility.destinations ? 'bg-[#fcd34d] text-black' : 'bg-white text-slate-400'
+                    }`}
+                  >
+                    {ui.destinationsLayer}
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{ui.language}</p>
                 <div className="bg-[#f8fafc] border-2 border-black rounded-2xl p-1 shadow-[2px_2px_0_0_#000]">
@@ -944,6 +1169,55 @@ export default function App() {
           )}
         </div>
       </div>
+
+      {selectedCluster && (
+        <div
+          onWheel={(e) => e.stopPropagation()}
+          className="absolute top-24 right-6 z-30 w-72 bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_#000] p-4 pointer-events-auto"
+        >
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-500">{ui.crowdedArea}</p>
+              <h3 className="text-base font-black text-black">{ui.clusterCount(selectedCluster.items.length)}</h3>
+              <p className="text-[11px] font-bold text-slate-500 mt-1">{ui.crowdedHint}</p>
+            </div>
+            <button
+              onClick={() => setSelectedClusterId(null)}
+              className="p-1.5 bg-white border-2 border-black rounded-full hover:bg-[#f1f5f9] transition-colors"
+            >
+              <X size={14} strokeWidth={3} />
+            </button>
+          </div>
+
+          <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+            {selectedCluster.items.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.markerType === 'departure') handleDepartureSelect(item);
+                  else handleMarkerClick(item);
+                }}
+                className="w-full flex items-center gap-3 p-2.5 bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-transform text-left"
+              >
+                <div className="w-10 h-10 rounded-xl border-2 border-black bg-white flex items-center justify-center text-lg shrink-0">
+                  {item.icon}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border border-black ${item.markerType === 'departure' ? 'bg-[#22d3ee]' : 'bg-[#fcd34d]'}`}>
+                      {item.markerType === 'departure' ? ui.departureBadge : ui.destinationBadge}
+                    </span>
+                    {item.isDestination && (
+                      <span className="text-[10px] font-black text-slate-500">¥{item.estCost}</span>
+                    )}
+                  </div>
+                  <p className="text-sm font-black text-black truncate mt-1">{getPlaceName(item)}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <button 
         onWheel={(e) => e.stopPropagation()}
