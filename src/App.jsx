@@ -114,25 +114,60 @@ const DEPARTURE_CITIES = [
   { id: 'dep_lon', name: '伦敦', nameEn: 'London', lon: -0.1, lat: 51.5, icon: '💂' }
 ];
 
+const DESTINATION_REGIONS = [
+  { id: 'region_japan', visaKey: 'jp', name: '日本', nameEn: 'Japan', lon: 138.2, lat: 36.2, baseCost: 6800, hotel: 850, daily: 800, icon: '🇯🇵', desc: '霓虹都市、温泉小镇与神社古都一次打包。', descEn: 'Neon cities, hot spring escapes, and temple-filled old capitals in one trip.' },
+  { id: 'region_thailand', visaKey: 'th', name: '泰国', nameEn: 'Thailand', lon: 101.0, lat: 15.2, baseCost: 4200, hotel: 350, daily: 500, icon: '🇹🇭', desc: '海岛、夜市、寺庙和按摩，节奏怎么选都成立。', descEn: 'Islands, night markets, temples, and massages with room for any pace.' },
+  { id: 'region_california', visaKey: 'us_domestic', name: '加州', nameEn: 'California', lon: -119.5, lat: 36.5, baseCost: 9200, hotel: 1100, daily: 850, icon: '🌴', desc: '公路、海岸、电影工业和永远不嫌多的阳光。', descEn: 'Road trips, coastline, movie culture, and more sunshine than you can spend.' },
+  { id: 'region_pnw', visaKey: 'us_domestic', name: '太平洋西北', nameEn: 'Pacific Northwest', lon: -122.7, lat: 45.8, baseCost: 8800, hotel: 950, daily: 750, icon: '🌲', desc: '咖啡、森林、海湾与阴天里的文艺感。', descEn: 'Coffee, forests, bays, and a moody creative atmosphere.' },
+  { id: 'region_southwest', visaKey: 'us_domestic', name: '美国西南', nameEn: 'American Southwest', lon: -113.7, lat: 35.8, baseCost: 8200, hotel: 850, daily: 700, icon: '🏜️', desc: '沙漠奇观、公路大片和夸张地貌轮番上场。', descEn: 'Desert drama, road-trip energy, and landscapes that look unreal.' },
+  { id: 'region_hawaii', visaKey: 'us_domestic', name: '夏威夷州', nameEn: 'Hawaii', lon: -157.9, lat: 20.9, baseCost: 11200, hotel: 1500, daily: 1000, icon: '🌺', desc: '火山、冲浪、海滩和热带度假状态拉满。', descEn: 'Volcanoes, surf, beaches, and full-power tropical vacation mode.' },
+  { id: 'region_florida', visaKey: 'us_domestic', name: '佛罗里达州', nameEn: 'Florida', lon: -81.5, lat: 27.8, baseCost: 9200, hotel: 1050, daily: 800, icon: '🦩', desc: '海风、艺术装饰区和湿地生态一起上。', descEn: 'Sea breeze, art deco color, and wild wetlands in one sweep.' },
+  { id: 'region_midwest', visaKey: 'us_domestic', name: '美国中西部', nameEn: 'American Midwest', lon: -88.4, lat: 41.7, baseCost: 8600, hotel: 900, daily: 700, icon: '🏙️', desc: '建筑、湖景、爵士、深盘披萨和大城质感。', descEn: 'Architecture, lake views, jazz, deep-dish, and big-city substance.' },
+  { id: 'region_france', visaKey: 'fr', name: '法国', nameEn: 'France', lon: 2.4, lat: 46.6, baseCost: 11800, hotel: 1300, daily: 1000, icon: '🥐', desc: '巴黎街区、南法海岸和博物馆级浪漫。', descEn: 'Paris streets, Riviera light, and museum-grade romance.' },
+  { id: 'region_italy', visaKey: 'fr', name: '意大利', nameEn: 'Italy', lon: 12.6, lat: 42.6, baseCost: 11600, hotel: 1200, daily: 950, icon: '🍝', desc: '古迹、咖啡馆、海滨和碳水幸福感。', descEn: 'Ruins, cafes, seaside escapes, and elite carb energy.' },
+  { id: 'region_uk', visaKey: 'uk', name: '英国', nameEn: 'United Kingdom', lon: -2.5, lat: 54.0, baseCost: 11300, hotel: 1250, daily: 900, icon: '🎡', desc: '伦敦都市、古堡、酒馆和阴天滤镜。', descEn: 'London energy, old castles, pub culture, and cinematic cloud cover.' },
+  { id: 'region_korea', visaKey: 'kr', name: '韩国', nameEn: 'South Korea', lon: 127.8, lat: 36.3, baseCost: 6500, hotel: 750, daily: 700, icon: '🇰🇷', desc: '首尔夜生活、海边城市和高密度好吃。', descEn: 'Seoul nights, coastal cities, and extremely efficient eating.' },
+  { id: 'region_australia', visaKey: 'au', name: '澳大利亚', nameEn: 'Australia', lon: 134.0, lat: -25.2, baseCost: 13800, hotel: 1400, daily: 1100, icon: '🐨', desc: '海港城市、珊瑚海岸和野性公路感。', descEn: 'Harbor cities, reef coastlines, and wild long-haul road-trip appeal.' },
+  { id: 'region_peru', name: '秘鲁', nameEn: 'Peru', lon: -75.1, lat: -9.2, baseCost: 12800, hotel: 900, daily: 850, icon: '🦙', desc: '高原遗迹、安第斯山脉和拉美风味暴击。', descEn: 'Highland ruins, Andes drama, and a sharp hit of Latin American flavor.' },
+  { id: 'region_morocco', name: '摩洛哥', nameEn: 'Morocco', lon: -6.5, lat: 31.8, baseCost: 10600, hotel: 850, daily: 750, icon: '🐫', desc: '老城迷宫、沙漠营地与北非配色审美。', descEn: 'Medina mazes, desert camps, and North African color everywhere.' }
+];
+
 const DESTINATIONS = [
-  { id: 'th', name: '曼谷, 泰国', nameEn: 'Bangkok', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。', descEn: 'A tropical street-food overload with unbeatable value for hungry travelers.' },
-  { id: 'jp', name: '东京, 日本', nameEn: 'Tokyo', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。', descEn: 'Anime energy, ramen runs, neon nights, and relentless shopping.' },
-  { id: 'hnl', name: '夏威夷', nameEn: 'Honolulu', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。', descEn: 'Aloha vibes with hula shows, surf breaks, and volcanic drama.' },
-  { id: 'las', name: '拉斯维加斯', nameEn: 'Las Vegas', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。', descEn: 'Casino chaos, giant buffets, and world-class shows in the desert.' },
-  { id: 'sfo', name: '旧金山', nameEn: 'San Francisco', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。', descEn: 'Golden Gate views, steep streets, and a tech-meets-arts attitude.' },
-  { id: 'sea', name: '西雅图', nameEn: 'Seattle', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。', descEn: 'The emerald city of rain, coffee, and waterfront charm.' },
-  { id: 'gcn', name: '大峡谷', nameEn: 'Grand Canyon', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。', descEn: 'One of Earth\'s most jaw-dropping natural spectacles.' },
-  { id: 'ysnp', name: '黄石国家公园', nameEn: 'Yellowstone', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。', descEn: 'Geysers, wildlife, and raw American wilderness.' },
-  { id: 'mia', name: '迈阿密', nameEn: 'Miami', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。', descEn: 'Sun, sand, Latin rhythms, and all-night energy.' },
-  { id: 'chi', name: '芝加哥', nameEn: 'Chicago', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。', descEn: 'Deep-dish pizza, bold architecture, and skyline drama.' },
-  { id: 'msy', name: '新奥尔良', nameEn: 'New Orleans', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。', descEn: 'Jazz, voodoo lore, and unforgettable Southern food.' },
-  { id: 'lax', name: '洛杉矶, 美国', nameEn: 'Los Angeles', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。', descEn: 'Hollywood dreams, Santa Monica sunsets, and nonstop ambition.' },
-  { id: 'sd', name: '圣地亚哥, 美国', nameEn: 'San Diego', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。', descEn: 'Perfect weather, blue coastline, and one of the world\'s best zoos.' }
+  { id: 'th', regionId: 'region_thailand', name: '曼谷, 泰国', nameEn: 'Bangkok', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。', descEn: 'A tropical street-food overload with unbeatable value for hungry travelers.' },
+  { id: 'jp', regionId: 'region_japan', name: '东京, 日本', nameEn: 'Tokyo', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。', descEn: 'Anime energy, ramen runs, neon nights, and relentless shopping.' },
+  { id: 'osa', regionId: 'region_japan', name: '大阪, 日本', nameEn: 'Osaka', lon: 135.5, lat: 34.7, baseCost: 6200, hotel: 700, daily: 750, icon: '🍢', type: 'food', desc: '道顿堀、章鱼烧与关西式快乐轰炸。', descEn: 'Dotonbori lights, takoyaki runs, and peak Kansai energy.' },
+  { id: 'kyo', regionId: 'region_japan', name: '京都, 日本', nameEn: 'Kyoto', lon: 135.8, lat: 35.0, baseCost: 6400, hotel: 820, daily: 760, icon: '⛩️', type: 'culture', desc: '神社、枫叶、町屋和慢一点的日本。', descEn: 'Shrines, maple leaves, machiya lanes, and a slower side of Japan.' },
+  { id: 'hnl', regionId: 'region_hawaii', name: '檀香山, 夏威夷', nameEn: 'Honolulu', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。', descEn: 'Aloha vibes with hula shows, surf breaks, and volcanic drama.' },
+  { id: 'maui', regionId: 'region_hawaii', name: '毛伊岛, 夏威夷', nameEn: 'Maui', lon: -156.3, lat: 20.8, baseCost: 11800, hotel: 1600, daily: 1050, icon: '🌊', type: 'beach', desc: '公路日落、鲸鱼海岸和更松弛的海岛节奏。', descEn: 'Road-to-Hana moods, whale coastlines, and a looser island tempo.' },
+  { id: 'las', regionId: 'region_southwest', name: '拉斯维加斯', nameEn: 'Las Vegas', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。', descEn: 'Casino chaos, giant buffets, and world-class shows in the desert.' },
+  { id: 'sfo', regionId: 'region_california', name: '旧金山', nameEn: 'San Francisco', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。', descEn: 'Golden Gate views, steep streets, and a tech-meets-arts attitude.' },
+  { id: 'sea', regionId: 'region_pnw', name: '西雅图', nameEn: 'Seattle', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。', descEn: 'The emerald city of rain, coffee, and waterfront charm.' },
+  { id: 'gcn', regionId: 'region_southwest', name: '大峡谷', nameEn: 'Grand Canyon', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。', descEn: 'One of Earth\'s most jaw-dropping natural spectacles.' },
+  { id: 'ysnp', regionId: 'region_pnw', name: '黄石国家公园', nameEn: 'Yellowstone', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。', descEn: 'Geysers, wildlife, and raw American wilderness.' },
+  { id: 'mia', regionId: 'region_florida', name: '迈阿密', nameEn: 'Miami', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。', descEn: 'Sun, sand, Latin rhythms, and all-night energy.' },
+  { id: 'chi', regionId: 'region_midwest', name: '芝加哥', nameEn: 'Chicago', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。', descEn: 'Deep-dish pizza, bold architecture, and skyline drama.' },
+  { id: 'msy', regionId: 'region_midwest', name: '新奥尔良', nameEn: 'New Orleans', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。', descEn: 'Jazz, voodoo lore, and unforgettable Southern food.' },
+  { id: 'lax', regionId: 'region_california', name: '洛杉矶, 美国', nameEn: 'Los Angeles', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。', descEn: 'Hollywood dreams, Santa Monica sunsets, and nonstop ambition.' },
+  { id: 'sd', regionId: 'region_california', name: '圣地亚哥, 美国', nameEn: 'San Diego', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。', descEn: 'Perfect weather, blue coastline, and one of the world\'s best zoos.' },
+  { id: 'par', regionId: 'region_france', name: '巴黎, 法国', nameEn: 'Paris', lon: 2.35, lat: 48.86, baseCost: 12500, hotel: 1450, daily: 1100, icon: '🗼', type: 'culture', desc: '博物馆、街角咖啡馆和永不过时的浪漫滤镜。', descEn: 'Museums, sidewalk cafes, and romance with no off switch.' },
+  { id: 'nic', regionId: 'region_france', name: '尼斯, 法国', nameEn: 'Nice', lon: 7.26, lat: 43.7, baseCost: 12100, hotel: 1400, daily: 1000, icon: '🌞', type: 'beach', desc: '南法海岸线、旧城色彩和蔚蓝海边散步。', descEn: 'Riviera light, pastel old town streets, and endless seaside walking.' },
+  { id: 'rom', regionId: 'region_italy', name: '罗马, 意大利', nameEn: 'Rome', lon: 12.5, lat: 41.9, baseCost: 11800, hotel: 1250, daily: 980, icon: '🏛️', type: 'culture', desc: '古罗马遗迹和意面碳水从早轰到晚。', descEn: 'Ancient ruins and pasta-fueled days from morning to midnight.' },
+  { id: 'mil', regionId: 'region_italy', name: '米兰, 意大利', nameEn: 'Milan', lon: 9.19, lat: 45.46, baseCost: 11500, hotel: 1180, daily: 940, icon: '👜', type: 'urban', desc: '时装、设计、浓缩咖啡和北意效率感。', descEn: 'Fashion, design, espresso, and crisp northern Italian polish.' },
+  { id: 'ldn', regionId: 'region_uk', name: '伦敦, 英国', nameEn: 'London', lon: -0.1, lat: 51.5, baseCost: 11400, hotel: 1280, daily: 930, icon: '🎡', type: 'urban', desc: '剧院、博物馆、红巴士和老派都市气场。', descEn: 'Theater nights, museums, red buses, and heavyweight city energy.' },
+  { id: 'edi', regionId: 'region_uk', name: '爱丁堡, 英国', nameEn: 'Edinburgh', lon: -3.19, lat: 55.95, baseCost: 11000, hotel: 1100, daily: 860, icon: '🏰', type: 'culture', desc: '石头城堡、山丘天际线和苏格兰戏剧感。', descEn: 'Stone castles, hilltop skylines, and full Scottish drama.' },
+  { id: 'sel', regionId: 'region_korea', name: '首尔, 韩国', nameEn: 'Seoul', lon: 126.98, lat: 37.56, baseCost: 6800, hotel: 780, daily: 720, icon: '🛍️', type: 'urban', desc: '深夜韩食、潮流街区和高密度购物快乐。', descEn: 'Late-night food, trend districts, and extremely efficient shopping.' },
+  { id: 'pus', regionId: 'region_korea', name: '釜山, 韩国', nameEn: 'Busan', lon: 129.07, lat: 35.18, baseCost: 6400, hotel: 720, daily: 680, icon: '🌊', type: 'beach', desc: '海边城市、海鲜市场和坡地夜景。', descEn: 'A coastal city with seafood markets and hillside night views.' },
+  { id: 'syd', regionId: 'region_australia', name: '悉尼, 澳大利亚', nameEn: 'Sydney', lon: 151.21, lat: -33.87, baseCost: 14200, hotel: 1450, daily: 1150, icon: '🎭', type: 'urban', desc: '海港大桥、歌剧院与海滩生活无缝切换。', descEn: 'Harbor icons, beach access, and an outdoors-first city rhythm.' },
+  { id: 'mel', regionId: 'region_australia', name: '墨尔本, 澳大利亚', nameEn: 'Melbourne', lon: 144.96, lat: -37.81, baseCost: 13900, hotel: 1350, daily: 1080, icon: '☕', type: 'culture', desc: '巷子咖啡、艺术街区和南半球文艺浓度。', descEn: 'Laneway coffee, arts districts, and dense southern-hemisphere cool.' },
+  { id: 'lim', regionId: 'region_peru', name: '利马, 秘鲁', nameEn: 'Lima', lon: -77.04, lat: -12.05, baseCost: 12600, hotel: 850, daily: 820, icon: '🌮', type: 'food', desc: '海岸悬崖、拉美美食和历史街区一次吃满。', descEn: 'Clifftop coastline, strong food culture, and historic neighborhoods.' },
+  { id: 'cus', regionId: 'region_peru', name: '库斯科, 秘鲁', nameEn: 'Cusco', lon: -71.97, lat: -13.53, baseCost: 12900, hotel: 900, daily: 860, icon: '🦙', type: 'nature', desc: '安第斯高地门户，往马丘比丘出发的前站。', descEn: 'Andean gateway city and the launch point for Machu Picchu.' },
+  { id: 'rak', regionId: 'region_morocco', name: '马拉喀什, 摩洛哥', nameEn: 'Marrakech', lon: -7.99, lat: 31.63, baseCost: 10700, hotel: 820, daily: 760, icon: '🧿', type: 'culture', desc: '露天市场、庭院旅馆和红城气氛拉满。', descEn: 'Souks, riads, and full-saturation red-city atmosphere.' },
+  { id: 'cbl', regionId: 'region_morocco', name: '卡萨布兰卡, 摩洛哥', nameEn: 'Casablanca', lon: -7.59, lat: 33.57, baseCost: 10400, hotel: 780, daily: 720, icon: '🌴', type: 'urban', desc: '海边大城、清真寺地标和北非现代感。', descEn: 'A coastal metropolis with mosque landmarks and a modern edge.' }
 ];
 
 const VISA_RULES = {
-  CN: { th: { status: 'free', label: '免签' }, jp: { status: 'visa', label: '办签' }, fr: { status: 'visa', label: '申根' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'visa', label: '办签' }, ny: { status: 'visa', label: '美签' }, yvr: { status: 'visa', label: '加签' }, cun: { status: 'visa', label: '美签' }, hnl: { status: 'visa', label: '美签' }, las: { status: 'visa', label: '美签' }, sfo: { status: 'visa', label: '美签' }, sea: { status: 'visa', label: '美签' }, gcn: { status: 'visa', label: '美签' }, ysnp: { status: 'visa', label: '美签' }, mia: { status: 'visa', label: '美签' }, chi: { status: 'visa', label: '美签' }, msy: { status: 'visa', label: '美签' }, lax: { status: 'visa', label: '美签' }, sd: { status: 'visa', label: '美签' } },
-  US: { th: { status: 'free', label: '免签' }, jp: { status: 'free', label: '免签' }, fr: { status: 'free', label: '免签' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'eta', label: 'ETA' }, ny: { status: 'free', label: '国内' }, yvr: { status: 'free', label: '免签' }, cun: { status: 'free', label: '免签' }, hnl: { status: 'free', label: '国内' }, las: { status: 'free', label: '国内' }, sfo: { status: 'free', label: '国内' }, sea: { status: 'free', label: '国内' }, gcn: { status: 'free', label: '国内' }, ysnp: { status: 'free', label: '国内' }, mia: { status: 'free', label: '国内' }, chi: { status: 'free', label: '国内' }, msy: { status: 'free', label: '国内' }, lax: { status: 'free', label: '国内' }, sd: { status: 'free', label: '国内' } }
+  CN: { th: { status: 'free', label: '免签' }, jp: { status: 'visa', label: '办签' }, fr: { status: 'visa', label: '申根' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'visa', label: '办签' }, uk: { status: 'visa', label: '办签' }, us_domestic: { status: 'visa', label: '美签' }, ny: { status: 'visa', label: '美签' }, yvr: { status: 'visa', label: '加签' }, cun: { status: 'visa', label: '美签' }, hnl: { status: 'visa', label: '美签' }, las: { status: 'visa', label: '美签' }, sfo: { status: 'visa', label: '美签' }, sea: { status: 'visa', label: '美签' }, gcn: { status: 'visa', label: '美签' }, ysnp: { status: 'visa', label: '美签' }, mia: { status: 'visa', label: '美签' }, chi: { status: 'visa', label: '美签' }, msy: { status: 'visa', label: '美签' }, lax: { status: 'visa', label: '美签' }, sd: { status: 'visa', label: '美签' } },
+  US: { th: { status: 'free', label: '免签' }, jp: { status: 'free', label: '免签' }, fr: { status: 'free', label: '免签' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'eta', label: 'ETA' }, uk: { status: 'free', label: '免签' }, us_domestic: { status: 'free', label: '国内' }, ny: { status: 'free', label: '国内' }, yvr: { status: 'free', label: '免签' }, cun: { status: 'free', label: '免签' }, hnl: { status: 'free', label: '国内' }, las: { status: 'free', label: '国内' }, sfo: { status: 'free', label: '国内' }, sea: { status: 'free', label: '国内' }, gcn: { status: 'free', label: '国内' }, ysnp: { status: 'free', label: '国内' }, mia: { status: 'free', label: '国内' }, chi: { status: 'free', label: '国内' }, msy: { status: 'free', label: '国内' }, lax: { status: 'free', label: '国内' }, sd: { status: 'free', label: '国内' } }
 };
 
 const TRAVEL_STYLES = [
@@ -186,10 +221,15 @@ const UI_COPY = {
     signInGoogle: 'Sign in with Google',
     signInGithub: 'Sign in with GitHub',
     fromLabel: 'Where from?',
+    broadLabel: 'Trip region',
+    allRegions: '🌐 Explore all regions',
+    selectBroad: 'Pick a country, state, or region...',
     toLabel: 'Where to?',
+    specificLabel: 'Specific stop',
     hubsLabel: '🌐 Main Hubs',
     placesLabel: '📍 All Places',
-    selectDestination: '🌍 Click the map or choose here...',
+    selectDestination: '🌍 Choose a broad region first or click the map...',
+    regionTripTag: 'Whole region',
     styleLabel: 'Pick your vibe',
     budgetLabel: 'Budget (RMB)',
     daysLabel: 'How many days?',
@@ -259,10 +299,15 @@ const UI_COPY = {
     signInGoogle: 'Google 登录',
     signInGithub: 'GitHub 登录',
     fromLabel: '从哪里起飞？',
+    broadLabel: '大方向去哪玩？',
+    allRegions: '🌐 浏览全部大区',
+    selectBroad: '先选国家、州或旅行大区...',
     toLabel: '飞向哪里？',
+    specificLabel: '具体落点',
     hubsLabel: '🌐 主要枢纽',
     placesLabel: '📍 所有地点',
-    selectDestination: '🌍 点击地图或在此选择...',
+    selectDestination: '🌍 先选大区，或者直接点地图...',
+    regionTripTag: '整个区域都玩',
     styleLabel: '选个姿势浪？',
     budgetLabel: '弹药包(RMB)',
     daysLabel: '浪几天？',
@@ -346,6 +391,7 @@ export default function App() {
   const [passport, setPassport] = useState('US');
   const [travelStyle, setTravelStyle] = useState('chill');
   const [departureId, setDepartureId] = useState('dep_ny');
+  const [selectedRegionId, setSelectedRegionId] = useState('all');
   
   const [zoom, setZoom] = useState(1.2); 
   const currentRadius = BASE_RADIUS * zoom;
@@ -369,7 +415,11 @@ export default function App() {
   const [isLoadingTrips, setIsLoadingTrips] = useState(false);
 
   const ALL_PLACES = useMemo(() => [...DEPARTURE_CITIES, ...DESTINATIONS], []);
+  const ALL_DESTINATION_PLACES = useMemo(() => [...DESTINATION_REGIONS, ...DESTINATIONS], []);
   const departure = useMemo(() => ALL_PLACES.find(d => d.id === departureId), [departureId, ALL_PLACES]);
+  const selectedRegion = useMemo(() => (
+    selectedRegionId === 'all' ? null : DESTINATION_REGIONS.find((region) => region.id === selectedRegionId)
+  ), [selectedRegionId]);
   
   const [selectedDest, setSelectedDest] = useState(null);
   const [showItinerary, setShowItinerary] = useState(false);
@@ -417,8 +467,11 @@ export default function App() {
     if (!style) return styleId;
     return isEnglish ? (style.nameEn || style.name) : style.name;
   }, [isEnglish]);
-  const getVisaLabel = useCallback((passportCode, destId) => {
-    const rule = VISA_RULES[passportCode]?.[destId];
+  const getVisaLabel = useCallback((passportCode, place) => {
+    if (!place) return ui.unknown;
+    const region = place.regionId ? DESTINATION_REGIONS.find((item) => item.id === place.regionId) : null;
+    const visaKey = place.visaKey || region?.visaKey || place.id;
+    const rule = VISA_RULES[passportCode]?.[visaKey];
     if (!rule) return ui.unknown;
     if (!isEnglish) return rule.label || ui.unknown;
     return VISA_LABEL_TRANSLATIONS.English[rule.label] || rule.label || ui.unknown;
@@ -499,9 +552,14 @@ export default function App() {
   }, []);
 
   const handleLoadSavedTrip = (trip) => {
-    const dest = DESTINATIONS.find(d => d.id === trip.destination_id);
+    const dest = ALL_DESTINATION_PLACES.find(d => d.id === trip.destination_id);
     if (dest) {
-      handleMarkerClick(dest);
+      if (DESTINATION_REGIONS.some((region) => region.id === dest.id)) {
+        handleRegionChange(dest.id);
+        setSelectedDest(dest);
+      } else {
+        handleMarkerClick(dest);
+      }
       setDays(trip.days || 5);
       setTravelStyle(trip.style || 'chill');
       setBudget(trip.budget || 30000);
@@ -657,6 +715,31 @@ export default function App() {
     reqFrame.current = requestAnimationFrame(step);
   }, [rotation]);
 
+  const handleRegionChange = useCallback((regionId) => {
+    setSelectedClusterId(null);
+    if (regionId === 'all') {
+      setSelectedRegionId('all');
+      if (selectedDest && (selectedDest.regionId || DESTINATION_REGIONS.some((region) => region.id === selectedDest.id))) {
+        setSelectedDest(null);
+        setShowItinerary(false);
+      }
+      setZoom(1.2);
+      return;
+    }
+
+    const region = DESTINATION_REGIONS.find((item) => item.id === regionId);
+    if (!region) return;
+
+    setSelectedRegionId(regionId);
+    animateToTarget(region.lon, region.lat);
+    setZoom(1.8);
+    if (selectedDest && selectedDest.regionId !== regionId && selectedDest.id !== regionId) {
+      setSelectedDest(region);
+      setShowItinerary(false);
+      setPopupOffset({ x: 0, y: 0 });
+    }
+  }, [animateToTarget, selectedDest]);
+
   const handleDepartureSelect = useCallback((place) => {
     setSelectedClusterId(null);
     setDepartureId(place.id);
@@ -668,8 +751,19 @@ export default function App() {
     }
   }, [animateToTarget, selectedDest]);
 
+  const handleRegionSelect = useCallback((region) => {
+    setSelectedClusterId(null);
+    setSelectedRegionId(region.id);
+    animateToTarget(region.lon, region.lat);
+    setZoom(1.9);
+    setShowItinerary(false);
+    setSelectedDest(region);
+    setPopupOffset({ x: 0, y: 0 });
+  }, [animateToTarget]);
+
   const handleMarkerClick = (dest) => {
     setSelectedClusterId(null);
+    if (dest.regionId) setSelectedRegionId(dest.regionId);
     animateToTarget(dest.lon, dest.lat);
     setShowItinerary(false);
     setSelectedDest(dest);
@@ -678,12 +772,15 @@ export default function App() {
 
   const triggerBlindBox = () => {
     setIsShuffling(true);
-    const affordableDests = DESTINATIONS.filter(d => calculateTotalCost(d, days) <= budget);
-    const targetPool = affordableDests.length > 0 ? affordableDests : DESTINATIONS;
+    const candidateDestinations = selectedRegionId === 'all'
+      ? DESTINATIONS
+      : DESTINATIONS.filter((dest) => dest.regionId === selectedRegionId);
+    const affordableDests = candidateDestinations.filter(d => calculateTotalCost(d, days) <= budget);
+    const targetPool = affordableDests.length > 0 ? affordableDests : candidateDestinations;
     
     let count = 0;
     const interval = setInterval(() => {
-      setShuffleDest(DESTINATIONS[Math.floor(Math.random() * DESTINATIONS.length)]);
+      setShuffleDest(candidateDestinations[Math.floor(Math.random() * candidateDestinations.length)] || DESTINATIONS[Math.floor(Math.random() * DESTINATIONS.length)]);
       count++;
       if (count > 20) {
         clearInterval(interval);
@@ -732,13 +829,29 @@ export default function App() {
     return paths;
   }, [mapLines, rotation, currentRadius]);
 
+  const visibleDestinationPlaces = useMemo(() => {
+    if (selectedRegionId === 'all') return DESTINATION_REGIONS;
+    return [
+      ...DESTINATION_REGIONS.filter((region) => region.id === selectedRegionId),
+      ...DESTINATIONS.filter((place) => place.regionId === selectedRegionId)
+    ];
+  }, [selectedRegionId]);
+
+  const visibleSpecificDestinations = useMemo(() => {
+    if (selectedRegionId === 'all') return [];
+    return [
+      ...DESTINATION_REGIONS.filter((region) => region.id === selectedRegionId),
+      ...DESTINATIONS.filter((place) => place.regionId === selectedRegionId)
+    ];
+  }, [selectedRegionId]);
+
   const projectedMapMarkers = useMemo(() => {
     const baseMarkers = [
       ...(mapLayerVisibility.departures ? DEPARTURE_CITIES.filter((place) => place.id !== departureId).map((place) => ({
         ...place,
         markerType: 'departure'
       })) : []),
-      ...(mapLayerVisibility.destinations ? DESTINATIONS.map((place) => ({
+      ...(mapLayerVisibility.destinations ? visibleDestinationPlaces.map((place) => ({
         ...place,
         markerType: 'destination'
       })) : [])
@@ -782,7 +895,7 @@ export default function App() {
     });
 
     return placedMarkers;
-  }, [departureId, rotation, currentRadius, selectedDest, calculateTotalCost, days, mapLayerVisibility]);
+  }, [departureId, rotation, currentRadius, selectedDest, calculateTotalCost, days, mapLayerVisibility, visibleDestinationPlaces]);
 
   const { renderedMapMarkers, mapClusters } = useMemo(() => {
     if (projectedMapMarkers.length === 0) {
@@ -982,6 +1095,7 @@ export default function App() {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (marker.markerType === 'departure') handleDepartureSelect(marker);
+                  else if (DESTINATION_REGIONS.some((region) => region.id === marker.id)) handleRegionSelect(marker);
                   else handleMarkerClick(marker);
                 }}
               >
@@ -1195,6 +1309,7 @@ export default function App() {
                 key={item.id}
                 onClick={() => {
                   if (item.markerType === 'departure') handleDepartureSelect(item);
+                  else if (DESTINATION_REGIONS.some((region) => region.id === item.id)) handleRegionSelect(item);
                   else handleMarkerClick(item);
                 }}
                 className="w-full flex items-center gap-3 p-2.5 bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-transform text-left"
@@ -1252,10 +1367,38 @@ export default function App() {
           </div>
 
           <div>
-            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> {ui.toLabel}</label>
-            <select value={selectedDest?.id || ''} onChange={(e) => { const dest = ALL_PLACES.find(d => d.id === e.target.value); if(dest) handleMarkerClick(dest); }} className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
+            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Compass size={14} strokeWidth={3} /> {ui.broadLabel}</label>
+            <select
+              value={selectedRegionId}
+              onChange={(e) => handleRegionChange(e.target.value)}
+              className="w-full p-2.5 bg-[#dcfce7] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer"
+            >
+              <option value="all">{ui.allRegions}</option>
+              {DESTINATION_REGIONS.map((region) => (
+                <option key={region.id} value={region.id}>{region.icon} {getPlaceName(region)}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> {ui.specificLabel}</label>
+            <select
+              value={selectedDest?.id || ''}
+              onChange={(e) => {
+                const dest = visibleSpecificDestinations.find((item) => item.id === e.target.value);
+                if (!dest) return;
+                if (DESTINATION_REGIONS.some((region) => region.id === dest.id)) handleRegionSelect(dest);
+                else handleMarkerClick(dest);
+              }}
+              disabled={selectedRegionId === 'all'}
+              className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
               <option value="" disabled>{ui.selectDestination}</option>
-              {ALL_PLACES.filter(c => c.id !== departureId).map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}
+              {visibleSpecificDestinations.map((place) => (
+                <option key={place.id} value={place.id}>
+                  {place.icon} {getPlaceName(place)} {DESTINATION_REGIONS.some((region) => region.id === place.id) ? `· ${ui.regionTripTag}` : ''}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -1316,7 +1459,12 @@ export default function App() {
             
             <div className="flex items-center gap-3 relative z-10 mb-4">
                <span className="px-3 py-1 bg-white border-4 border-black rounded-lg text-sm font-black shadow-[4px_4px_0_0_#000]">{isEnglish ? `${days} DAYS` : `${days}天`}</span>
-               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${VISA_RULES[passport][selectedDest.id]?.status === 'free' ? 'bg-[#4ade80]' : VISA_RULES[passport][selectedDest.id]?.status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]'}`}>{getVisaLabel(passport, selectedDest.id)}</span>
+               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${(() => {
+                 const region = selectedDest.regionId ? DESTINATION_REGIONS.find((item) => item.id === selectedDest.regionId) : null;
+                 const visaKey = selectedDest.visaKey || region?.visaKey || selectedDest.id;
+                 const status = VISA_RULES[passport]?.[visaKey]?.status;
+                 return status === 'free' ? 'bg-[#4ade80]' : status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]';
+               })()}`}>{getVisaLabel(passport, selectedDest)}</span>
             </div>
 
             <div className="bg-white border-4 border-black rounded-xl p-4 shadow-[4px_4px_0_0_#000] relative z-10">
