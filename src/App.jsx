@@ -25,6 +25,7 @@ const CLUSTER_DISTANCE = 64;
 const CLUSTER_ZOOM_THRESHOLD = 1.35;
 const MARKER_COLLISION_DISTANCE = 52;
 const DEG2RAD = Math.PI / 180;
+const BURST_POINTS = '50,5 63,27 90,15 75,42 98,65 70,72 65,98 45,78 20,95 28,68 5,50 30,35 15,10 40,25';
 
 const project = (lon, lat, rotLon, rotLat, currentRadius) => {
   const lambda = lon * DEG2RAD;
@@ -127,8 +128,8 @@ const DESTINATION_REGIONS = [
   { id: 'region_italy', visaKey: 'fr', name: '意大利', nameEn: 'Italy', lon: 12.6, lat: 42.6, baseCost: 11600, hotel: 1200, daily: 950, icon: '🍝', desc: '古迹、咖啡馆、海滨和碳水幸福感。', descEn: 'Ruins, cafes, seaside escapes, and elite carb energy.' },
   { id: 'region_uk', visaKey: 'uk', name: '英国', nameEn: 'United Kingdom', lon: -2.5, lat: 54.0, baseCost: 11300, hotel: 1250, daily: 900, icon: '🎡', desc: '伦敦都市、古堡、酒馆和阴天滤镜。', descEn: 'London energy, old castles, pub culture, and cinematic cloud cover.' },
   { id: 'region_korea', visaKey: 'kr', name: '韩国', nameEn: 'South Korea', lon: 127.8, lat: 36.3, baseCost: 6500, hotel: 750, daily: 700, icon: '🇰🇷', desc: '首尔夜生活、海边城市和高密度好吃。', descEn: 'Seoul nights, coastal cities, and extremely efficient eating.' },
-  { id: 'region_australia', visaKey: 'au', name: '澳大利亚', nameEn: 'Australia', lon: 134.0, lat: -25.2, baseCost: 13800, hotel: 1400, daily: 1100, icon: '🐨', desc: '海港城市、珊瑚海岸和野性公路感。', descEn: 'Harbor cities, reef coastlines, and wild long-haul road-trip appeal.' },
-  { id: 'region_peru', name: '秘鲁', nameEn: 'Peru', lon: -75.1, lat: -9.2, baseCost: 12800, hotel: 900, daily: 850, icon: '🦙', desc: '高原遗迹、安第斯山脉和拉美风味暴击。', descEn: 'Highland ruins, Andes drama, and a sharp hit of Latin American flavor.' },
+  { id: 'region_australia', visaKey: 'au', name: '澳大利亚', nameEn: 'Australia', lon: 134.0, lat: -25.2, baseCost: 13800, hotel: 1400, daily: 1100, icon: '🇦🇺', desc: '海港城市、珊瑚海岸和野性公路感。', descEn: 'Harbor cities, reef coastlines, and wild long-haul road-trip appeal.' },
+  { id: 'region_peru', name: '秘鲁', nameEn: 'Peru', lon: -75.1, lat: -9.2, baseCost: 12800, hotel: 900, daily: 850, icon: '🇵🇪', desc: '高原遗迹、安第斯山脉和拉美风味暴击。', descEn: 'Highland ruins, Andes drama, and a sharp hit of Latin American flavor.' },
   { id: 'region_morocco', name: '摩洛哥', nameEn: 'Morocco', lon: -6.5, lat: 31.8, baseCost: 10600, hotel: 850, daily: 750, icon: '🐫', desc: '老城迷宫、沙漠营地与北非配色审美。', descEn: 'Medina mazes, desert camps, and North African color everywhere.' }
 ];
 
@@ -211,6 +212,8 @@ const UI_COPY = {
     destinationsLayer: 'Destinations',
     crowdedArea: 'Crowded area',
     crowdedHint: 'Zoom in or pick directly from this list.',
+    farSideTitle: 'Far side of globe',
+    farSideHint: 'Tap any hidden place to rotate there.',
     clusterCount: (count) => `${count} places here`,
     departureBadge: 'From',
     destinationBadge: 'To',
@@ -289,6 +292,8 @@ const UI_COPY = {
     destinationsLayer: '目的地',
     crowdedArea: '高密度区域',
     crowdedHint: '你可以继续放大，或者直接从列表里选择。',
+    farSideTitle: '地球背面',
+    farSideHint: '点一下隐藏地点就会自动转过去。',
     clusterCount: (count) => `这里有 ${count} 个地点`,
     departureBadge: '出发',
     destinationBadge: '目的',
@@ -382,6 +387,74 @@ const ComicBox = ({ color = "#fff", className = "" }) => (
   <svg viewBox="0 0 100 100" className={`absolute inset-0 w-full h-full drop-shadow-[4px_4px_0_rgba(0,0,0,1)] ${className}`}>
      <rect x="12" y="12" width="76" height="76" rx="12" fill={color} stroke="#000" strokeWidth="6" strokeLinejoin="round"/>
   </svg>
+);
+
+const SvgMarkerFace = ({ marker, affordable }) => {
+  const isDeparture = marker.markerType === 'departure';
+  const fill = isDeparture ? '#ffffff' : marker.isSelected ? '#fcd34d' : affordable ? '#a7f3d0' : '#cbd5e1';
+  const iconSize = isDeparture ? 18 : marker.isSelected ? 28 : 20;
+
+  return (
+    <g className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
+      {isDeparture || marker.isSelected ? (
+        <polygon
+          points={BURST_POINTS}
+          fill={fill}
+          stroke="#000"
+          strokeWidth="6"
+          strokeLinejoin="round"
+          transform={isDeparture ? 'translate(-22 -22) scale(0.44)' : 'translate(-26 -26) scale(0.52)'}
+        />
+      ) : (
+        <rect
+          x="-24"
+          y="-24"
+          width="48"
+          height="48"
+          rx="10"
+          fill={fill}
+          stroke="#000"
+          strokeWidth="6"
+          transform={affordable ? 'rotate(3)' : 'rotate(-3)'}
+        />
+      )}
+      <text
+        x="0"
+        y="1"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={iconSize}
+        style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '3px' }}
+      >
+        {marker.icon}
+      </text>
+    </g>
+  );
+};
+
+const SvgClusterFace = ({ count, active }) => (
+  <g className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
+    <polygon
+      points={BURST_POINTS}
+      fill={active ? '#fcd34d' : '#ffffff'}
+      stroke="#000"
+      strokeWidth="6"
+      strokeLinejoin="round"
+      transform="translate(-30 -30) scale(0.6)"
+    />
+    <text
+      x="0"
+      y="2"
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize="15"
+      fontWeight="900"
+      fill="#000"
+      style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '3px' }}
+    >
+      +{count}
+    </text>
+  </g>
 );
 
 export default function App() {
@@ -845,17 +918,19 @@ export default function App() {
     ];
   }, [selectedRegionId]);
 
+  const baseMapPlaces = useMemo(() => ([
+    ...(mapLayerVisibility.departures ? DEPARTURE_CITIES.filter((place) => place.id !== departureId).map((place) => ({
+      ...place,
+      markerType: 'departure'
+    })) : []),
+    ...(mapLayerVisibility.destinations ? visibleDestinationPlaces.map((place) => ({
+      ...place,
+      markerType: 'destination'
+    })) : [])
+  ]), [departureId, mapLayerVisibility, visibleDestinationPlaces]);
+
   const projectedMapMarkers = useMemo(() => {
-    const baseMarkers = [
-      ...(mapLayerVisibility.departures ? DEPARTURE_CITIES.filter((place) => place.id !== departureId).map((place) => ({
-        ...place,
-        markerType: 'departure'
-      })) : []),
-      ...(mapLayerVisibility.destinations ? visibleDestinationPlaces.map((place) => ({
-        ...place,
-        markerType: 'destination'
-      })) : [])
-    ]
+    const baseMarkers = baseMapPlaces
       .map((place, index) => {
         const projection = project(place.lon, place.lat, rotation.lon, rotation.lat, currentRadius);
         if (!projection.visible) return null;
@@ -869,7 +944,8 @@ export default function App() {
           y: projection.y,
           isDestination,
           isSelected: selectedDest?.id === place.id,
-          estCost: isDestination ? calculateTotalCost(place, days) : null
+          estCost: isDestination ? calculateTotalCost(place, days) : null,
+          isAffordable: isDestination ? calculateTotalCost(place, days) <= budget : true
         };
       })
       .filter(Boolean)
@@ -895,7 +971,24 @@ export default function App() {
     });
 
     return placedMarkers;
-  }, [departureId, rotation, currentRadius, selectedDest, calculateTotalCost, days, mapLayerVisibility, visibleDestinationPlaces]);
+  }, [baseMapPlaces, rotation, currentRadius, selectedDest, calculateTotalCost, days, budget]);
+
+  const hiddenMapMarkers = useMemo(() => (
+    baseMapPlaces
+      .map((place) => {
+        const projection = project(place.lon, place.lat, rotation.lon, rotation.lat, currentRadius);
+        if (projection.visible) return null;
+        return {
+          ...place,
+          isDestination: place.markerType === 'destination'
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        const score = (marker) => (marker.isDestination ? 10 : 0) + (selectedDest?.id === marker.id ? 100 : 0);
+        return score(b) - score(a);
+      })
+  ), [baseMapPlaces, rotation, currentRadius, selectedDest]);
 
   const { renderedMapMarkers, mapClusters } = useMemo(() => {
     if (projectedMapMarkers.length === 0) {
@@ -1085,8 +1178,6 @@ export default function App() {
           })()}
 
           {renderedMapMarkers.map((marker) => {
-            const isAffordable = marker.isDestination ? marker.estCost <= budget : true;
-
             return (
               <g
                 key={marker.id}
@@ -1112,26 +1203,13 @@ export default function App() {
 
                 {marker.isDestination && (
                   <foreignObject x="-40" y="-75" width="80" height="35" className={`overflow-visible transition-all duration-200 ${marker.isSelected ? 'opacity-100 -translate-y-2' : 'opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 pointer-events-none'}`}>
-                    <div className={`flex items-center justify-center w-full h-8 border-4 border-black rounded shadow-[4px_4px_0_0_#000] text-xs font-black ${isAffordable ? 'bg-[#4ade80] text-black' : 'bg-[#f87171] text-black'}`}>¥{marker.estCost}</div>
+                    <div className={`flex items-center justify-center w-full h-8 border-4 border-black rounded shadow-[4px_4px_0_0_#000] text-xs font-black ${marker.isAffordable ? 'bg-[#4ade80] text-black' : 'bg-[#f87171] text-black'}`}>¥{marker.estCost}</div>
                   </foreignObject>
                 )}
 
-                <foreignObject x={marker.markerType === 'departure' ? -24 : -30} y={marker.markerType === 'departure' ? -24 : -30} width={marker.markerType === 'departure' ? 48 : 60} height={marker.markerType === 'departure' ? 48 : 60} className="overflow-visible">
-                  <div className="w-full h-full flex items-center justify-center relative transition-transform duration-200">
-                    {marker.markerType === 'departure' ? (
-                      <div className="relative w-10 h-10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <ComicBurst color="#ffffff" className="scale-110" />
-                        <span className="relative z-10 text-lg drop-shadow-sm">{marker.icon}</span>
-                      </div>
-                    ) : marker.isSelected ? (
-                      <><ComicBurst color="#fcd34d" className="scale-125 transition-transform" /><span className="relative z-10 text-3xl transition-transform scale-110 drop-shadow-sm">{marker.icon}</span></>
-                    ) : isAffordable ? (
-                      <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform"><ComicBox color="#a7f3d0" className="rotate-3 group-hover:rotate-12 transition-transform" /><span className="relative z-10 text-xl">{marker.icon}</span></div>
-                    ) : (
-                      <div className="relative w-12 h-12 flex items-center justify-center grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all"><ComicBox color="#cbd5e1" className="-rotate-3 group-hover:rotate-0 transition-transform" /><span className="relative z-10 text-xl">{marker.icon}</span></div>
-                    )}
-                  </div>
-                </foreignObject>
+                <g className="transition-transform duration-200 group-hover:scale-110">
+                  <SvgMarkerFace marker={marker} affordable={marker.isAffordable} />
+                </g>
 
                 {marker.markerType === 'departure' && (
                   <foreignObject x="-52" y="-62" width="104" height="28" className="overflow-visible pointer-events-none">
@@ -1158,18 +1236,47 @@ export default function App() {
                 setZoom((prev) => Math.max(prev, CLUSTER_ZOOM_THRESHOLD + 0.15));
               }}
             >
-              <foreignObject x="-34" y="-34" width="68" height="68" className="overflow-visible">
-                <div className="w-full h-full flex items-center justify-center relative transition-transform duration-200 group-hover:scale-110">
-                  <ComicBurst color={selectedClusterId === cluster.id ? '#fcd34d' : '#ffffff'} className="scale-110" />
-                  <span className="relative z-10 text-sm font-black text-black">
-                    +{cluster.items.length}
-                  </span>
-                </div>
-              </foreignObject>
+              <g className="transition-transform duration-200 group-hover:scale-110">
+                <SvgClusterFace count={cluster.items.length} active={selectedClusterId === cluster.id} />
+              </g>
             </g>
           ))}
         </svg>
       </div>
+
+      {hiddenMapMarkers.length > 0 && (
+        <div
+          onWheel={(e) => e.stopPropagation()}
+          className="absolute left-1/2 bottom-28 -translate-x-1/2 z-20 max-w-[min(44rem,calc(100%-8rem))] bg-white/95 backdrop-blur border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] px-4 py-3 pointer-events-auto"
+        >
+          <div className="flex items-baseline justify-between gap-3 mb-2">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-500">{ui.farSideTitle}</p>
+              <p className="text-[11px] font-bold text-slate-500 mt-0.5">{ui.farSideHint}</p>
+            </div>
+            <span className="text-[10px] font-black px-2 py-1 rounded-full border-2 border-black bg-[#fef08a] text-black">
+              {hiddenMapMarkers.length}
+            </span>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {hiddenMapMarkers.map((marker) => (
+              <button
+                key={`hidden-${marker.id}`}
+                onClick={() => {
+                  if (marker.markerType === 'departure') handleDepartureSelect(marker);
+                  else if (DESTINATION_REGIONS.some((region) => region.id === marker.id)) handleRegionSelect(marker);
+                  else handleMarkerClick(marker);
+                }}
+                className="shrink-0 flex items-center gap-2 px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-transform"
+              >
+                <span className="text-lg leading-none">{marker.icon}</span>
+                <span className="text-xs font-black text-black whitespace-nowrap">{getPlaceShortName(marker)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div 
         onWheel={(e) => e.stopPropagation()} 
