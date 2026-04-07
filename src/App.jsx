@@ -10,7 +10,7 @@ import staticItineraries from './staticItineraries.json';
 import { supabase, signInWithGitHub, signInWithGoogle, signOut, onAuthStateChange, saveTrip, getMyTrips, deleteTrip } from './lib/supabase';
 
 const ICON_MAP = {
-  Coffee, Camera, Plane, Compass, Sunrise, Moon,
+  Coffee, Camera, Plane, Compass, Sunrise, Moon, Wallet,
   Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves, MapIcon, BedDouble
 };
 
@@ -112,19 +112,19 @@ const DEPARTURE_CITIES = [
 ];
 
 const DESTINATIONS = [
-  { id: 'th', name: '曼谷, 泰国', nameEn: 'Bangkok', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。' },
-  { id: 'jp', name: '东京, 日本', nameEn: 'Tokyo', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。' },
-  { id: 'hnl', name: '夏威夷', nameEn: 'Honolulu', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。' },
-  { id: 'las', name: '拉斯维加斯', nameEn: 'Las Vegas', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。' },
-  { id: 'sfo', name: '旧金山', nameEn: 'San Francisco', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。' },
-  { id: 'sea', name: '西雅图', nameEn: 'Seattle', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。' },
-  { id: 'gcn', name: '大峡谷', nameEn: 'Grand Canyon', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。' },
-  { id: 'ysnp', name: '黄石国家公园', nameEn: 'Yellowstone', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。' },
-  { id: 'mia', name: '迈阿密', nameEn: 'Miami', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。' },
-  { id: 'chi', name: '芝加哥', nameEn: 'Chicago', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。' },
-  { id: 'msy', name: '新奥尔良', nameEn: 'New Orleans', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。' },
-  { id: 'lax', name: '洛杉矶, 美国', nameEn: 'Los Angeles', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。' },
-  { id: 'sd', name: '圣地亚哥, 美国', nameEn: 'San Diego', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。' }
+  { id: 'th', name: '曼谷, 泰国', nameEn: 'Bangkok', lon: 100.5, lat: 13.7, baseCost: 3500, hotel: 300, daily: 500, icon: '🛺', type: 'food', desc: '热带街头美食大爆炸！高性价比的吃货天堂。', descEn: 'A tropical street-food overload with unbeatable value for hungry travelers.' },
+  { id: 'jp', name: '东京, 日本', nameEn: 'Tokyo', lon: 139.6, lat: 35.6, baseCost: 6500, hotel: 800, daily: 800, icon: '🍣', type: 'culture', desc: '二次元发源地！拉面、霓虹灯与疯狂购物。', descEn: 'Anime energy, ramen runs, neon nights, and relentless shopping.' },
+  { id: 'hnl', name: '夏威夷', nameEn: 'Honolulu', lon: -157.8, lat: 21.3, baseCost: 11000, hotel: 1500, daily: 1000, icon: '🏄', type: 'beach', desc: 'Aloha！草裙舞与活火山的热情碰撞。', descEn: 'Aloha vibes with hula shows, surf breaks, and volcanic drama.' },
+  { id: 'las', name: '拉斯维加斯', nameEn: 'Las Vegas', lon: -115.1, lat: 36.1, baseCost: 8000, hotel: 1000, daily: 1000, icon: '🎰', type: 'urban', desc: '罪恶之城！赌场、豪华自助与世界级大秀。', descEn: 'Casino chaos, giant buffets, and world-class shows in the desert.' },
+  { id: 'sfo', name: '旧金山', nameEn: 'San Francisco', lon: -122.4, lat: 37.7, baseCost: 10000, hotel: 1200, daily: 800, icon: '🌉', type: 'culture', desc: '金门大桥与陡峭街道，科技与文艺的交汇点。', descEn: 'Golden Gate views, steep streets, and a tech-meets-arts attitude.' },
+  { id: 'sea', name: '西雅图', nameEn: 'Seattle', lon: -122.3, lat: 47.6, baseCost: 9000, hotel: 1000, daily: 800, icon: '☕', type: 'urban', desc: '星巴克故乡，被雨水与咖啡香气浸泡的翡翠之城。', descEn: 'The emerald city of rain, coffee, and waterfront charm.' },
+  { id: 'gcn', name: '大峡谷', nameEn: 'Grand Canyon', lon: -112.1, lat: 36.0, baseCost: 7000, hotel: 600, daily: 500, icon: '🏜️', type: 'nature', desc: '地球上最震撼的裂痕，大自然的鬼斧神工。', descEn: 'One of Earth\'s most jaw-dropping natural spectacles.' },
+  { id: 'ysnp', name: '黄石国家公园', nameEn: 'Yellowstone', lon: -110.5, lat: 44.4, baseCost: 9000, hotel: 800, daily: 700, icon: '🐻', type: 'nature', desc: '间歇泉与野生动物天堂，真正的西部荒野。', descEn: 'Geysers, wildlife, and raw American wilderness.' },
+  { id: 'mia', name: '迈阿密', nameEn: 'Miami', lon: -80.1, lat: 25.7, baseCost: 9500, hotel: 1200, daily: 800, icon: '🦩', type: 'beach', desc: '阳光、沙滩、拉丁风情与彻夜狂欢。', descEn: 'Sun, sand, Latin rhythms, and all-night energy.' },
+  { id: 'chi', name: '芝加哥', nameEn: 'Chicago', lon: -87.6, lat: 41.8, baseCost: 8500, hotel: 900, daily: 700, icon: '🍕', type: 'urban', desc: '深盘披萨与壮丽天际线，风之城的魅力。', descEn: 'Deep-dish pizza, bold architecture, and skyline drama.' },
+  { id: 'msy', name: '新奥尔良', nameEn: 'New Orleans', lon: -90.0, lat: 29.9, baseCost: 7500, hotel: 700, daily: 600, icon: '🎷', type: 'culture', desc: '爵士乐的故乡，巫毒文化与绝妙的南方美食。', descEn: 'Jazz, voodoo lore, and unforgettable Southern food.' },
+  { id: 'lax', name: '洛杉矶, 美国', nameEn: 'Los Angeles', lon: -118.2, lat: 34.0, baseCost: 9000, hotel: 1100, daily: 800, icon: '🎬', type: 'urban', desc: '好莱坞星光大道与圣莫妮卡海滩，追梦人的天使之城。', descEn: 'Hollywood dreams, Santa Monica sunsets, and nonstop ambition.' },
+  { id: 'sd', name: '圣地亚哥, 美国', nameEn: 'San Diego', lon: -117.1, lat: 32.7, baseCost: 8000, hotel: 900, daily: 700, icon: '🐳', type: 'beach', desc: '完美气候、碧蓝海岸与全球顶级动物园的阳光之城。', descEn: 'Perfect weather, blue coastline, and one of the world\'s best zoos.' }
 ];
 
 const VISA_RULES = {
@@ -133,26 +133,175 @@ const VISA_RULES = {
 };
 
 const TRAVEL_STYLES = [
-  { id: 'hardcore', name: '特种兵打卡', icon: '🏃' },
-  { id: 'chill', name: '佛系休闲党', icon: '🍵' },
-  { id: 'resort', name: '度假全躺平', icon: '🛏️' },
-  { id: 'outdoor', name: '户外狂人', icon: '🧗' }
+  { id: 'hardcore', name: '特种兵打卡', nameEn: 'Hardcore Sprint', icon: '🏃' },
+  { id: 'chill', name: '佛系休闲党', nameEn: 'Chill Wanderer', icon: '🍵' },
+  { id: 'resort', name: '度假全躺平', nameEn: 'Resort Mode', icon: '🛏️' },
+  { id: 'outdoor', name: '户外狂人', nameEn: 'Outdoor Rush', icon: '🧗' }
 ];
 
 const DEST_SPECIFIC_ACTIVITIES = {
-  sea: { hardcore: [{ t: '派克市场暴走', d: '早上看飞鱼吃第一家星巴克，疯狂暴走！', icon: <MapIcon size={24}/> }] },
-  hnl: { resort: [{ t: '威基基海滨奢华瘫', d: '包下酒店最前排的沙滩帐篷，一动不动地躺着。', icon: <Moon size={24}/> }] },
-  las: { hardcore: [{ t: '长街不夜城暴走', d: '强刷所有主题酒店，看太阳马戏团大秀！', icon: <Ticket size={24}/> }] },
-  sfo: { chill: [{ t: '叮当车与九曲花街', d: '挂在复古的叮当车外面吹风，去九曲花街看花。', icon: <Camera size={24}/> }] },
-  lax: { hardcore: [{ t: '好莱坞星光大道暴走', d: '从日落大道刷到格里菲斯天文台，拍遍好莱坞标志！', icon: <Camera size={24}/> }], chill: [{ t: '圣莫妮卡海滩发呆', d: '在海滩栈道骑车吹海风，看街头艺人表演。', icon: <Waves size={24}/> }] },
-  sd: { outdoor: [{ t: '拉霍亚海岸冲浪', d: '在La Jolla Shores租板冲浪，和海豹共享海滩！', icon: <Waves size={24}/> }], chill: [{ t: '巴尔博亚公园漫游', d: '在全美最大城市文化公园里逛博物馆、看花园。', icon: <MapIcon size={24}/> }] }
+  sea: { hardcore: [{ title: '派克市场暴走', titleEn: 'Pike Place Blitz', desc: '早上看飞鱼吃第一家星巴克，疯狂暴走！', descEn: 'Start with flying fish and the original Starbucks, then power-walk the city like a machine.', iconName: 'MapIcon' }] },
+  hnl: { resort: [{ title: '威基基海滨奢华瘫', titleEn: 'Waikiki Lounge Mode', desc: '包下酒店最前排的沙滩帐篷，一动不动地躺着。', descEn: 'Claim a front-row beach cabana and commit to doing gloriously nothing all day.', iconName: 'Moon' }] },
+  las: { hardcore: [{ title: '长街不夜城暴走', titleEn: 'Vegas Strip Marathon', desc: '强刷所有主题酒店，看太阳马戏团大秀！', descEn: 'Grind through themed casinos, neon chaos, and a Cirque du Soleil spectacle before midnight.', iconName: 'Ticket' }] },
+  sfo: { chill: [{ title: '叮当车与九曲花街', titleEn: 'Cable Cars and Curves', desc: '挂在复古的叮当车外面吹风，去九曲花街看花。', descEn: 'Hang off a vintage cable car, feel the breeze, and drift toward Lombard Street in no hurry.', iconName: 'Camera' }] },
+  lax: {
+    hardcore: [{ title: '好莱坞星光大道暴走', titleEn: 'Hollywood Hustle', desc: '从日落大道刷到格里菲斯天文台，拍遍好莱坞标志！', descEn: 'Sprint from Sunset Boulevard to Griffith Observatory and treat the Hollywood sign like a mandatory boss fight.', iconName: 'Camera' }],
+    chill: [{ title: '圣莫妮卡海滩发呆', titleEn: 'Santa Monica Slowdown', desc: '在海滩栈道骑车吹海风，看街头艺人表演。', descEn: 'Cruise the beach path, catch the ocean breeze, and watch buskers without checking the time once.', iconName: 'Waves' }]
+  },
+  sd: {
+    outdoor: [{ title: '拉霍亚海岸冲浪', titleEn: 'La Jolla Surf Run', desc: '在La Jolla Shores租板冲浪，和海豹共享海滩！', descEn: 'Rent a board at La Jolla Shores and chase waves while the local seals judge your balance.', iconName: 'Waves' }],
+    chill: [{ title: '巴尔博亚公园漫游', titleEn: 'Balboa Park Drift', desc: '在全美最大城市文化公园里逛博物馆、看花园。', descEn: 'Wander through Balboa Park museums and gardens at a pace that barely qualifies as movement.', iconName: 'MapIcon' }]
+  }
 };
 
 const GENERIC_STYLE_ACTIVITIES = {
-  hardcore: [{ t: '极限暴走挑战', d: '不管多累，脚底磨出水泡也要硬撑着把打卡点刷完！', icon: <Flame size={24}/> }],
-  chill: [{ t: '漫无目的瞎溜达', d: '把所有的攻略和地图全扔掉，走到哪算哪。', icon: <MapIcon size={24}/> }],
-  resort: [{ t: '酒店设施大扫荡', d: '坚决不出门！去无边泳池拍照，榨干房费的每一分价值。', icon: <Sparkles size={24}/> }],
-  outdoor: [{ t: '租个摩托去野区', d: '搞一辆充满划痕的摩托车，向荒郊野外一路狂奔！', icon: <Compass size={24}/> }]
+  hardcore: [{ title: '极限暴走挑战', titleEn: 'Full-Speed Check-In', desc: '不管多累，脚底磨出水泡也要硬撑着把打卡点刷完！', descEn: 'No excuses, no mercy, no sitting down until every must-see pin has been conquered.', iconName: 'Flame' }],
+  chill: [{ title: '漫无目的瞎溜达', titleEn: 'Aimless Wandering', desc: '把所有的攻略和地图全扔掉，走到哪算哪。', descEn: 'Ignore every itinerary, ditch the map, and let the neighborhood decide your next move.', iconName: 'MapIcon' }],
+  resort: [{ title: '酒店设施大扫荡', titleEn: 'Resort Takeover', desc: '坚决不出门！去无边泳池拍照，榨干房费的每一分价值。', descEn: 'Refuse to leave the resort, rotate between the infinity pool and spa, and extract full value from the room rate.', iconName: 'Sparkles' }],
+  outdoor: [{ title: '租个摩托去野区', titleEn: 'Wild Route Detour', desc: '搞一辆充满划痕的摩托车，向荒郊野外一路狂奔！', descEn: 'Grab something with wheels and head straight for the rough edges of the map.', iconName: 'Compass' }]
+};
+
+const UI_COPY = {
+  English: {
+    pageTitle: 'MAP BOOM!',
+    appTitle: 'MAP BOOM!',
+    appSubtitle: 'Toon Travel AI Engine',
+    language: 'Language',
+    myTripsTooltip: 'My trips',
+    logoutTooltip: 'Sign out',
+    signIn: 'Sign in',
+    signInGoogle: 'Sign in with Google',
+    signInGithub: 'Sign in with GitHub',
+    fromLabel: 'Where from?',
+    toLabel: 'Where to?',
+    hubsLabel: '🌐 Main Hubs',
+    placesLabel: '📍 All Places',
+    selectDestination: '🌍 Click the map or choose here...',
+    styleLabel: 'Pick your vibe',
+    budgetLabel: 'Budget (RMB)',
+    daysLabel: 'How many days?',
+    visaLabel: 'Visa estimator (passport/green card)',
+    passportCn: '🇨🇳 Mainland China (CN)',
+    passportUs: '🇺🇸 U.S. Passport (US)',
+    blindBoxButton: '🎲 Surprise Trip',
+    blindBoxTitle: 'Not sure where to go?',
+    blindBoxTitleAccent: 'Let AI decide.',
+    blindBoxSubtitle: 'Matched from your current budget and travel vibe:',
+    budgetShort: 'Budget',
+    daysShort: 'Days',
+    drawDestination: 'Draw a destination!',
+    totalCost: 'Estimated total cost (incl. flights)',
+    flightCost: 'Flight',
+    hotelCost: 'Hotel',
+    dailyCost: 'Daily',
+    perNight: '/night',
+    perDay: '/day',
+    generateButton: 'Generate comic itinerary',
+    itineraryHeader: 'BOOM! ITINERARY',
+    loadingTitle: 'Generating...',
+    loadingDesc: 'Building a custom itinerary for you now.',
+    errorTitle: 'Oops! Magic interrupted',
+    retry: 'Retry AI',
+    retrying: 'Retrying...',
+    fallbackError: 'Live AI generation is temporarily unavailable. Loaded a fallback itinerary for now.',
+    flightButton: 'Find cheap flights',
+    hotelButton: 'Book hotels',
+    saved: 'Saved!',
+    saving: 'Saving...',
+    saveTrip: 'Save this trip',
+    myTripsTitle: 'My Trips',
+    savedTripsCount: (count) => `${count} saved trip${count === 1 ? '' : 's'}`,
+    loading: 'Loading...',
+    noSavedTrips: 'No saved trips yet',
+    noSavedTripsDesc: 'Generate an itinerary and save it here.',
+    copyShare: 'Copy share link',
+    delete: 'Delete',
+    unknown: 'Unknown',
+    daysUnit: 'days',
+    tripDays: (count) => `${count} days`,
+    visaHeader: 'Visa',
+    itineraryPanelFallback: 'Comic itinerary',
+    googleFlightsCaption: 'Google Flights',
+    bookingCaption: 'Booking.com',
+    guideLoading: 'Custom plan incoming'
+  },
+  中文: {
+    pageTitle: '地图爆走！',
+    appTitle: '地图爆走！',
+    appSubtitle: '漫画旅行 AI 引擎',
+    language: '语言',
+    myTripsTooltip: '我的行程',
+    logoutTooltip: '退出登录',
+    signIn: '登录',
+    signInGoogle: 'Google 登录',
+    signInGithub: 'GitHub 登录',
+    fromLabel: '从哪里起飞？',
+    toLabel: '飞向哪里？',
+    hubsLabel: '🌐 主要枢纽',
+    placesLabel: '📍 所有地点',
+    selectDestination: '🌍 点击地图或在此选择...',
+    styleLabel: '选个姿势浪？',
+    budgetLabel: '弹药包(RMB)',
+    daysLabel: '浪几天？',
+    visaLabel: '签证测算 (护照/绿卡)',
+    passportCn: '🇨🇳 中国大陆 (CN)',
+    passportUs: '🇺🇸 美国护照 (US)',
+    blindBoxButton: '🎲 盲盒旅行',
+    blindBoxTitle: '不知道去哪？',
+    blindBoxTitleAccent: '让 AI 替你决定！',
+    blindBoxSubtitle: '将根据你当前的弹药包与人设匹配：',
+    budgetShort: '预算',
+    daysShort: '天数',
+    drawDestination: '抽取目的地！',
+    totalCost: '总花费预估(含机票)',
+    flightCost: '机票',
+    hotelCost: '酒店',
+    dailyCost: '日常',
+    perNight: '/晚',
+    perDay: '/天',
+    generateButton: '查看漫画行程指南！',
+    itineraryHeader: 'BOOM! ITINERARY',
+    loadingTitle: '生成中...',
+    loadingDesc: '正在为你定制专属疯狂攻略！',
+    errorTitle: 'Oops! 魔法中断',
+    retry: '重新召唤 AI',
+    retrying: '重试中...',
+    fallbackError: 'AI 实时生成暂时不可用，已为你加载精选行程',
+    flightButton: '抢特价机票！',
+    hotelButton: '去预定酒店！',
+    saved: '已保存！',
+    saving: '保存中...',
+    saveTrip: '收藏此行程',
+    myTripsTitle: '我的行程',
+    savedTripsCount: (count) => `${count} 个已保存的旅行计划`,
+    loading: '加载中...',
+    noSavedTrips: '还没有保存的行程',
+    noSavedTripsDesc: '生成一个行程后点击"收藏"按钮即可保存！',
+    copyShare: '复制分享链接',
+    delete: '删除',
+    unknown: '未知',
+    daysUnit: '天',
+    tripDays: (count) => `${count}天`,
+    visaHeader: '签证',
+    itineraryPanelFallback: '漫画行程',
+    googleFlightsCaption: 'Google Flights',
+    bookingCaption: 'Booking.com',
+    guideLoading: '专属攻略生成中'
+  }
+};
+
+const VISA_LABEL_TRANSLATIONS = {
+  English: {
+    '免签': 'Visa-free',
+    '办签': 'Visa required',
+    '申根': 'Schengen visa',
+    '落地': 'Visa on arrival',
+    '美签': 'U.S. visa',
+    '加签': 'Canada visa',
+    '国内': 'Domestic',
+    'ETA': 'ETA'
+  },
+  中文: {}
 };
 
 const ComicBurst = ({ color = "#fff", className = "" }) => (
@@ -170,6 +319,7 @@ const ComicBox = ({ color = "#fff", className = "" }) => (
 export default function App() {
   const [budget, setBudget] = useState(30000); 
   const [days, setDays] = useState(5);
+  const [language, setLanguage] = useState('English');
   const [passport, setPassport] = useState('US');
   const [travelStyle, setTravelStyle] = useState('chill');
   const [departureId, setDepartureId] = useState('dep_ny');
@@ -223,6 +373,43 @@ export default function App() {
   }, []);
 
   const [showLoginMenu, setShowLoginMenu] = useState(false);
+  const isEnglish = language === 'English';
+  const ui = UI_COPY[language];
+  const getPlaceName = useCallback((place) => {
+    if (!place) return '';
+    return isEnglish ? (place.nameEn || place.name) : place.name;
+  }, [isEnglish]);
+  const getPlaceShortName = useCallback((place) => {
+    if (!place) return '';
+    return isEnglish ? (place.nameEn || place.name) : place.name.split(',')[0];
+  }, [isEnglish]);
+  const getPlaceDescription = useCallback((place) => {
+    if (!place) return '';
+    return isEnglish ? (place.descEn || place.desc || '') : (place.desc || '');
+  }, [isEnglish]);
+  const getTravelStyleName = useCallback((styleId) => {
+    const style = TRAVEL_STYLES.find((item) => item.id === styleId);
+    if (!style) return styleId;
+    return isEnglish ? (style.nameEn || style.name) : style.name;
+  }, [isEnglish]);
+  const getVisaLabel = useCallback((passportCode, destId) => {
+    const rule = VISA_RULES[passportCode]?.[destId];
+    if (!rule) return ui.unknown;
+    if (!isEnglish) return rule.label || ui.unknown;
+    return VISA_LABEL_TRANSLATIONS.English[rule.label] || rule.label || ui.unknown;
+  }, [isEnglish, ui.unknown]);
+  const formatTripTitle = useCallback((fromPlace, toPlace, tripDays) => {
+    const from = getPlaceName(fromPlace);
+    const to = getPlaceName(toPlace);
+    return isEnglish ? `${from} → ${to} ${tripDays} days` : `${from} → ${to} ${tripDays}天`;
+  }, [getPlaceName, isEnglish]);
+  const itineraryCacheKey = useMemo(() => (
+    selectedDest ? `${selectedDest.id}-${days}-${travelStyle}-${language}` : null
+  ), [selectedDest, days, travelStyle, language]);
+
+  useEffect(() => {
+    document.title = ui.pageTitle;
+  }, [ui.pageTitle]);
 
   const handleLogin = async (provider = 'github') => {
     try {
@@ -239,18 +426,17 @@ export default function App() {
     if (!user || !selectedDest) return;
     setIsSaving(true);
     try {
-      const cacheKey = `${selectedDest.id}-${days}-${travelStyle}`;
-      const itinerary = aiItineraries[cacheKey] || itineraryDays;
+      const itinerary = displayedItinerary;
       await saveTrip({
-        destination: selectedDest.name,
+        destination: getPlaceName(selectedDest),
         destination_id: selectedDest.id,
-        departure: departure.name,
+        departure: getPlaceName(departure),
         departure_id: departureId,
         style: travelStyle,
         days,
         budget,
         itinerary,
-        title: `${departure.name} → ${selectedDest.name} ${days}天`
+        title: formatTripTitle(departure, selectedDest, days)
       });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -329,8 +515,7 @@ export default function App() {
     setApiError(null);
     if (!selectedDest) return;
 
-    const cacheKey = `${selectedDest.id}-${days}-${travelStyle}`;
-    if (aiItineraries[cacheKey]) return;
+    if (itineraryCacheKey && aiItineraries[itineraryCacheKey]) return;
 
     setIsAILoading(true);
 
@@ -341,18 +526,19 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          destination: selectedDest.name,
+          destination: getPlaceName(selectedDest),
           style: travelStyle,
           days,
           budget: totalBudget,
-          departure: departure.name
+          departure: getPlaceName(departure),
+          language
         })
       });
 
       if (res.ok) {
         const data = await res.json();
         if (data.itinerary && data.itinerary.length > 0) {
-          setAiItineraries(prev => ({ ...prev, [cacheKey]: data.itinerary }));
+          setAiItineraries(prev => ({ ...prev, [itineraryCacheKey]: data.itinerary }));
           setIsAILoading(false);
           return;
         }
@@ -363,20 +549,25 @@ export default function App() {
     }
 
     // 2) Fallback: 使用预生成的静态数据
-    const staticKey = `${selectedDest.id}-${travelStyle}`;
-    const fullItinerary = staticItineraries[staticKey];
-
-    if (fullItinerary && fullItinerary.length > 0) {
-      const sliced = fullItinerary.slice(0, days).map((day, i) => ({
-        ...day,
-        day: i + 1
-      }));
-      if (days < fullItinerary.length && fullItinerary.length >= 14) {
-        const lastDay = { ...fullItinerary[fullItinerary.length - 1], day: days };
-        sliced[sliced.length - 1] = lastDay;
+    let fallbackItinerary = itineraryDays;
+    if (!isEnglish) {
+      const staticKey = `${selectedDest.id}-${travelStyle}`;
+      const fullItinerary = staticItineraries[staticKey];
+      if (fullItinerary && fullItinerary.length > 0) {
+        fallbackItinerary = fullItinerary.slice(0, days).map((day, i) => ({
+          ...day,
+          day: i + 1
+        }));
+        if (days < fullItinerary.length && fullItinerary.length >= 14) {
+          const lastDay = { ...fullItinerary[fullItinerary.length - 1], day: days };
+          fallbackItinerary[fallbackItinerary.length - 1] = lastDay;
+        }
       }
-      setAiItineraries(prev => ({ ...prev, [cacheKey]: sliced }));
-      setApiError('AI 实时生成暂时不可用，已为你加载精选行程');
+    }
+
+    if (fallbackItinerary && fallbackItinerary.length > 0) {
+      setAiItineraries(prev => ({ ...prev, [itineraryCacheKey]: fallbackItinerary }));
+      setApiError('fallback');
     }
 
     setIsAILoading(false);
@@ -498,31 +689,75 @@ export default function App() {
     const estTotalCost = calculateTotalCost(selectedDest, days);
     const isLuxury = budget > estTotalCost * 1.5; 
     const isBudget = budget < estTotalCost * 1.1; 
-    const cityName = selectedDest.name.split(',')[0];
+    const cityName = getPlaceShortName(selectedDest);
     
-    const arrivalText = isLuxury ? `💰土豪驾到：高级黑车司机在机场举牌接机，直接入驻${cityName}最顶级的奢华五星套房或私人别墅，开香槟！` 
-      : isBudget ? `🎒极限穷游：提着破旧行李箱挤上了便宜的机场大巴，入驻${cityName}一家评分极高的神仙青旅，准备干饭！`
-      : `🚕平稳落地：搭乘出租车一路看风景前往市区，办理入住一家极具特色的高分精品酒店，放下行李出发。`;
-    const departText = isLuxury ? "专车送至机场VIP通道，在头等舱休息室吃着高级茶点，买几个名牌包，完美结束这趟奢华之旅。" 
-      : isBudget ? "去街角便利店买点便宜零食，狂奔去挤公交前往机场，翻看着一路拍下的照片准备登机回家打工。"
-      : "上午再去市中心采买一波当地特色伴手礼，随后前往机场办理退税与托运，准备返程。";
+    const arrivalText = isEnglish
+      ? (isLuxury
+          ? `VIP pickup at the airport, a seamless check-in at one of ${cityName}'s most lavish suites, then champagne before your first walk.`
+          : isBudget
+            ? `Budget mode activated: bus from the airport, clever check-in at a high-rated hostel in ${cityName}, and straight into food-hunting mode.`
+            : `Smooth landing, city transfer, boutique hotel check-in, and just enough energy left for a first neighborhood roam.`)
+      : (isLuxury
+          ? `💰土豪驾到：高级黑车司机在机场举牌接机，直接入驻${cityName}最顶级的奢华五星套房或私人别墅，开香槟！`
+          : isBudget
+            ? `🎒极限穷游：提着破旧行李箱挤上了便宜的机场大巴，入驻${cityName}一家评分极高的神仙青旅，准备干饭！`
+            : `🚕平稳落地：搭乘出租车一路看风景前往市区，办理入住一家极具特色的高分精品酒店，放下行李出发。`);
+    const departText = isEnglish
+      ? (isLuxury
+          ? 'Private airport transfer, lounge snacks, one last round of indulgent shopping, and a very smug ride home.'
+          : isBudget
+            ? 'Convenience-store snacks, a hustle to the airport, and one final photo scroll before boarding back to reality.'
+            : 'Squeeze in some city-center souvenir shopping, then head to the airport for check-in and the flight home.')
+      : (isLuxury
+          ? '专车送至机场VIP通道，在头等舱休息室吃着高级茶点，买几个名牌包，完美结束这趟奢华之旅。'
+          : isBudget
+            ? '去街角便利店买点便宜零食，狂奔去挤公交前往机场，翻看着一路拍下的照片准备登机回家打工。'
+            : '上午再去市中心采买一波当地特色伴手礼，随后前往机场办理退税与托运，准备返程。');
 
     const specificPool = DEST_SPECIFIC_ACTIVITIES[selectedDest.id]?.[travelStyle] || [];
     const genericStylePool = GENERIC_STYLE_ACTIVITIES[travelStyle] || [];
-    const genericBasePool = [{ t: '压马路乱逛', d: '用双脚丈量城市', iconName: 'Compass' }];
+    const genericBasePool = [{
+      title: '压马路乱逛',
+      titleEn: 'Street-Level Roaming',
+      desc: '用双脚丈量城市',
+      descEn: 'Measure the city one stubborn step at a time.',
+      iconName: 'Compass'
+    }];
     const richPool = [...specificPool, ...genericStylePool, ...genericBasePool];
 
     const it = [];
     for (let i = 1; i <= days; i++) {
-      if (i === 1) it.push({ day: i, title: `BOOM! 空降${cityName}`, desc: arrivalText, iconName: 'Plane' });
-      else if (i === days) it.push({ day: i, title: "打包牛马回家", desc: departText, iconName: 'Wallet' });
+      if (i === 1) {
+        it.push({
+          day: i,
+          title: isEnglish ? `BOOM! Land in ${cityName}` : `BOOM! 空降${cityName}`,
+          desc: arrivalText,
+          iconName: 'Plane'
+        });
+      } else if (i === days) {
+        it.push({
+          day: i,
+          title: isEnglish ? 'Pack Up and Fly Home' : '打包牛马回家',
+          desc: departText,
+          iconName: 'Wallet'
+        });
+      }
       else {
         const activity = richPool[(i - 2) % richPool.length];
-        it.push({ day: i, title: activity.t, desc: activity.d, iconName: activity.iconName || 'MapIcon', icon: activity.icon });
+        it.push({
+          day: i,
+          title: isEnglish ? (activity.titleEn || activity.title) : activity.title,
+          desc: isEnglish ? (activity.descEn || activity.desc) : activity.desc,
+          iconName: activity.iconName || 'MapIcon'
+        });
       }
     }
     return it;
-  }, [selectedDest, days, budget, travelStyle, calculateTotalCost]);
+  }, [selectedDest, days, budget, travelStyle, calculateTotalCost, getPlaceShortName, isEnglish]);
+
+  const displayedItinerary = useMemo(() => (
+    itineraryCacheKey ? (aiItineraries[itineraryCacheKey] || itineraryDays) : itineraryDays
+  ), [aiItineraries, itineraryCacheKey, itineraryDays]);
 
   return (
     <div 
@@ -579,7 +814,7 @@ export default function App() {
                 <foreignObject x="-30" y="-30" width="60" height="60" className="overflow-visible">
                   <div className="w-full h-full flex items-center justify-center relative"><ComicBurst color="#fff" /><span className="relative z-10 text-2xl drop-shadow-sm">{departure.icon}</span></div>
                 </foreignObject>
-                <text y="42" textAnchor="middle" fill="#000" fontSize="16" fontWeight="900" style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '5px' }}>{departure.name}</text>
+                <text y="42" textAnchor="middle" fill="#000" fontSize="16" fontWeight="900" style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '5px' }}>{getPlaceShortName(departure)}</text>
               </g>
             );
           })()}
@@ -630,7 +865,7 @@ export default function App() {
         className="absolute right-6 bottom-8 px-6 py-4 btn-crazy-rainbow border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] active:translate-y-2 active:shadow-none flex items-center justify-center gap-3 z-20 pointer-events-auto group origin-center"
       >
         <Dices size={32} strokeWidth={3} className="text-white group-hover:rotate-12 transition-transform"/>
-        <span className="text-xl font-black uppercase tracking-wider text-white">🎲 盲盒旅行</span>
+        <span className="text-xl font-black uppercase tracking-wider text-white">{ui.blindBoxButton}</span>
       </button>
 
       <div 
@@ -640,62 +875,85 @@ export default function App() {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={28} strokeWidth={3}/></div>
-            <div><h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">MAP BOOM!</h1><p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">Toon Travel AI Engine</p></div>
+            <div>
+              <h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">{ui.appTitle}</h1>
+              <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">{ui.appSubtitle}</p>
+            </div>
           </div>
-          {user ? (
-            <div className="flex items-center gap-1.5">
-              <button onClick={handleLoadMyTrips} className="p-1.5 bg-[#fcd34d] border-2 border-black rounded-lg hover:bg-[#fbbf24] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="我的行程">
-                <Heart size={16} strokeWidth={3}/>
-              </button>
-              <button onClick={handleLogout} className="p-1.5 bg-slate-200 border-2 border-black rounded-lg hover:bg-[#f87171] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="退出登录">
-                <LogOut size={16} strokeWidth={3}/>
-              </button>
-            </div>
-          ) : (
-            <div className="relative">
-              <button onClick={() => setShowLoginMenu(!showLoginMenu)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] hover:bg-black text-white text-xs font-black rounded-lg border-2 border-black shadow-[2px_2px_0_0_#000] active:translate-y-0.5 transition-colors">
-                <LogIn size={14} strokeWidth={3}/> 登录
-              </button>
-              {showLoginMenu && (
-                <div className="absolute right-0 top-full mt-2 w-44 bg-white border-4 border-black rounded-xl shadow-[6px_6px_0_0_#000] overflow-hidden z-50">
-                  <button onClick={() => { handleLogin('google'); setShowLoginMenu(false); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-xs font-black text-black hover:bg-[#fef08a] transition-colors border-b-2 border-black">
-                    <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                    Google 登录
+          <div className="flex flex-col items-end gap-2">
+            <div className="bg-[#f8fafc] border-2 border-black rounded-2xl p-1 shadow-[2px_2px_0_0_#000]">
+              <div className="flex items-center gap-1">
+                {['English', '中文'].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => setLanguage(option)}
+                    className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all ${
+                      language === option
+                        ? 'bg-[#22d3ee] text-black border-2 border-black shadow-[2px_2px_0_0_#000]'
+                        : 'text-slate-500 hover:bg-white'
+                    }`}
+                    aria-label={`${ui.language}: ${option}`}
+                  >
+                    {option}
                   </button>
-                  <button onClick={() => { handleLogin('github'); setShowLoginMenu(false); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-xs font-black text-black hover:bg-[#f1f5f9] transition-colors">
-                    <Github size={14} strokeWidth={3}/> GitHub 登录
-                  </button>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          )}
+            {user ? (
+              <div className="flex items-center gap-1.5">
+                <button onClick={handleLoadMyTrips} className="p-1.5 bg-[#fcd34d] border-2 border-black rounded-lg hover:bg-[#fbbf24] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title={ui.myTripsTooltip}>
+                  <Heart size={16} strokeWidth={3}/>
+                </button>
+                <button onClick={handleLogout} className="p-1.5 bg-slate-200 border-2 border-black rounded-lg hover:bg-[#f87171] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title={ui.logoutTooltip}>
+                  <LogOut size={16} strokeWidth={3}/>
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <button onClick={() => setShowLoginMenu(!showLoginMenu)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] hover:bg-black text-white text-xs font-black rounded-lg border-2 border-black shadow-[2px_2px_0_0_#000] active:translate-y-0.5 transition-colors">
+                  <LogIn size={14} strokeWidth={3}/> {ui.signIn}
+                </button>
+                {showLoginMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-44 bg-white border-4 border-black rounded-xl shadow-[6px_6px_0_0_#000] overflow-hidden z-50">
+                    <button onClick={() => { handleLogin('google'); setShowLoginMenu(false); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-xs font-black text-black hover:bg-[#fef08a] transition-colors border-b-2 border-black">
+                      <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                      {ui.signInGoogle}
+                    </button>
+                    <button onClick={() => { handleLogin('github'); setShowLoginMenu(false); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-xs font-black text-black hover:bg-[#f1f5f9] transition-colors">
+                      <Github size={14} strokeWidth={3}/> {ui.signInGithub}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><MapIcon size={14} strokeWidth={3} /> 从哪里起飞？</label>
+            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><MapIcon size={14} strokeWidth={3} /> {ui.fromLabel}</label>
             <select value={departureId} onChange={(e) => { setDepartureId(e.target.value); const newDep = ALL_PLACES.find(d => d.id === e.target.value); if(newDep) { animateToTarget(newDep.lon, newDep.lat); setZoom(1.5); } }} className="w-full p-2.5 bg-[#e0e7ff] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
-              <optgroup label="🌐 主要枢纽">{DEPARTURE_CITIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</optgroup>
-              <optgroup label="📍 所有地点">{DESTINATIONS.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}</optgroup>
+              <optgroup label={ui.hubsLabel}>{DEPARTURE_CITIES.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
+              <optgroup label={ui.placesLabel}>{DESTINATIONS.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
             </select>
           </div>
 
           <div>
-            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> 飞向哪里？</label>
+            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> {ui.toLabel}</label>
             <select value={selectedDest?.id || ''} onChange={(e) => { const dest = ALL_PLACES.find(d => d.id === e.target.value); if(dest) handleMarkerClick(dest); }} className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
-              <option value="" disabled>🌍 点击地图或在此选择...</option>
-              {ALL_PLACES.filter(c => c.id !== departureId).map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+              <option value="" disabled>{ui.selectDestination}</option>
+              {ALL_PLACES.filter(c => c.id !== departureId).map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Sparkles size={14} strokeWidth={3}/> 选个姿势浪？</label>
+            <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Sparkles size={14} strokeWidth={3}/> {ui.styleLabel}</label>
             <div className="grid grid-cols-2 gap-2">
               {TRAVEL_STYLES.map(s => (
                 <button key={s.id} onClick={() => setTravelStyle(s.id)} 
                   className={`py-2 px-1 text-[11px] font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none
                   ${travelStyle === s.id ? 'bg-[#fcd34d] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>
-                  {s.icon} {s.name}
+                  {s.icon} {isEnglish ? (s.nameEn || s.name) : s.name}
                 </button>
               ))}
             </div>
@@ -703,25 +961,25 @@ export default function App() {
 
           <div className="pt-2 border-t-4 border-black">
             <div className="flex justify-between items-end mb-1">
-              <label className="text-xs font-black text-black uppercase flex items-center gap-1.5"><Wallet size={14} strokeWidth={3}/> 弹药包(RMB)</label>
+              <label className="text-xs font-black text-black uppercase flex items-center gap-1.5"><Wallet size={14} strokeWidth={3}/> {ui.budgetLabel}</label>
               <span className="text-[#ec4899] font-black text-lg bg-[#fce7f3] px-2 py-0.5 border-2 border-black rounded shadow-[2px_2px_0_0_#000]">¥{budget.toLocaleString()}</span>
             </div>
             <input type="range" min="5000" max="100000" step="5000" value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full h-4 bg-black rounded-full appearance-none cursor-pointer accent-[#22d3ee] shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] outline-none mt-2"/>
           </div>
 
           <div>
-            <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Calendar size={14} strokeWidth={3}/> 浪几天？</label>
+            <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Calendar size={14} strokeWidth={3}/> {ui.daysLabel}</label>
             <div className="flex gap-2">
               {[3, 5, 7, 10, 14].map(d => (
-                <button key={d} onClick={() => setDays(d)} className={`flex-1 py-1.5 text-sm font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none ${days === d ? 'bg-[#22d3ee] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>{d}</button>
+                <button key={d} onClick={() => setDays(d)} className={`flex-1 py-1.5 text-sm font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none ${days === d ? 'bg-[#22d3ee] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>{isEnglish ? d : d}</button>
               ))}
             </div>
           </div>
 
           <div className="pt-3 border-t-2 border-dashed border-slate-300">
-            <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> 签证测算 (护照/绿卡)</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> {ui.visaLabel}</label>
             <select value={passport} onChange={(e) => setPassport(e.target.value)} className="w-full p-1.5 bg-slate-50 border-2 border-slate-300 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer hover:border-black transition-colors">
-              <option value="CN">🇨🇳 中国大陆 (CN)</option><option value="US">🇺🇸 美国护照 (US)</option>
+              <option value="CN">{ui.passportCn}</option><option value="US">{ui.passportUs}</option>
             </select>
           </div>
         </div>
@@ -741,30 +999,30 @@ export default function App() {
             <button onMouseDown={(e) => e.stopPropagation()} onClick={() => setSelectedDest(null)} className="absolute top-2 right-2 p-1.5 bg-white border-4 border-black rounded-full text-black hover:bg-[#f87171] transition-colors shadow-[2px_2px_0_0_#000] z-20 active:translate-y-1 active:shadow-none"><X size={16} strokeWidth={4} /></button>
             <div className="absolute -bottom-8 -right-4 text-8xl opacity-30 pointer-events-none">{selectedDest.icon}</div>
             
-            <h2 className="text-3xl font-black text-black tracking-tight mb-3 uppercase relative z-10">{selectedDest.name}</h2>
+            <h2 className="text-3xl font-black text-black tracking-tight mb-3 uppercase relative z-10">{getPlaceName(selectedDest)}</h2>
             
             <div className="flex items-center gap-3 relative z-10 mb-4">
-               <span className="px-3 py-1 bg-white border-4 border-black rounded-lg text-sm font-black shadow-[4px_4px_0_0_#000]">{days} DAYS</span>
-               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${VISA_RULES[passport][selectedDest.id]?.status === 'free' ? 'bg-[#4ade80]' : VISA_RULES[passport][selectedDest.id]?.status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]'}`}>{VISA_RULES[passport][selectedDest.id]?.label || '未知'}</span>
+               <span className="px-3 py-1 bg-white border-4 border-black rounded-lg text-sm font-black shadow-[4px_4px_0_0_#000]">{isEnglish ? `${days} DAYS` : `${days}天`}</span>
+               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${VISA_RULES[passport][selectedDest.id]?.status === 'free' ? 'bg-[#4ade80]' : VISA_RULES[passport][selectedDest.id]?.status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]'}`}>{getVisaLabel(passport, selectedDest.id)}</span>
             </div>
 
             <div className="bg-white border-4 border-black rounded-xl p-4 shadow-[4px_4px_0_0_#000] relative z-10">
               <div className="flex justify-between items-end mb-2 border-b-4 border-black pb-2">
-                <span className="font-black text-sm uppercase">总花费预估(含机票)</span>
+                <span className="font-black text-sm uppercase">{ui.totalCost}</span>
                 <span className={`text-2xl font-black ${calculateTotalCost(selectedDest, days) > budget ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>¥{calculateTotalCost(selectedDest, days).toLocaleString()}</span>
               </div>
               
               <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold mb-2 flex-wrap gap-1">
-                <span>✈️ 机票: ¥{estimateFlightCost(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat)}</span>
-                <span>🏨 酒店: ¥{selectedDest.hotel}/晚</span>
-                <span>🍜 日常: ¥{selectedDest.daily}/天</span>
+                <span>✈️ {ui.flightCost}: ¥{estimateFlightCost(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat)}</span>
+                <span>🏨 {ui.hotelCost}: ¥{selectedDest.hotel}{ui.perNight}</span>
+                <span>🍜 {ui.dailyCost}: ¥{selectedDest.daily}{ui.perDay}</span>
               </div>
               
-              <p className="text-sm font-bold text-slate-700 leading-tight pointer-events-none">{selectedDest.desc}</p>
+              <p className="text-sm font-bold text-slate-700 leading-tight pointer-events-none">{getPlaceDescription(selectedDest)}</p>
             </div>
 
             <button disabled={isAILoading} onMouseDown={(e) => e.stopPropagation()} onClick={handleGenerateItinerary} className={`w-full mt-4 py-3 ${isAILoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#a855f7] hover:bg-[#9333ea]'} text-white text-lg font-black uppercase rounded-xl border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 relative z-20`}>
-              <Sparkles strokeWidth={3}/> 查看漫画行程指南！
+              <Sparkles strokeWidth={3}/> {ui.generateButton}
             </button>
           </div>
         </div>
@@ -778,10 +1036,10 @@ export default function App() {
           <div className="pb-10 relative">
             <div className="sticky top-0 z-10 bg-[#f472b6] border-b-8 border-black p-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-black uppercase tracking-widest bg-white inline-block px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_#000] transform -rotate-2">BOOM! ITINERARY</h2>
+                <h2 className="text-2xl font-black text-black uppercase tracking-widest bg-white inline-block px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_#000] transform -rotate-2">{ui.itineraryHeader}</h2>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="bg-black text-white px-2 py-0.5 rounded text-xs font-bold">{selectedDest.name.split(',')[0]}</span>
-                  <span className="bg-[#fcd34d] text-black border-2 border-black px-2 py-0.5 rounded text-xs font-bold shadow-[2px_2px_0_0_#000]">{TRAVEL_STYLES.find(s=>s.id===travelStyle)?.icon} {TRAVEL_STYLES.find(s=>s.id===travelStyle)?.name}</span>
+                  <span className="bg-black text-white px-2 py-0.5 rounded text-xs font-bold">{getPlaceShortName(selectedDest)}</span>
+                  <span className="bg-[#fcd34d] text-black border-2 border-black px-2 py-0.5 rounded text-xs font-bold shadow-[2px_2px_0_0_#000]">{TRAVEL_STYLES.find(s=>s.id===travelStyle)?.icon} {getTravelStyleName(travelStyle)}</span>
                 </div>
               </div>
               <button onClick={() => setShowItinerary(false)} className="p-2 bg-white border-4 border-black rounded-full text-black hover:bg-[#fbbf24] transition-colors shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none"><X size={24} strokeWidth={4} /></button>
@@ -795,8 +1053,8 @@ export default function App() {
                     <div className="absolute inset-0 flex items-center justify-center"><Sparkles size={20} className="text-[#22d3ee] animate-pulse"/></div>
                   </div>
                   <div className="text-center">
-                    <h3 className="text-xl font-black uppercase text-black mb-2">生成中...</h3>
-                    <p className="text-sm font-bold text-slate-500">正在为你定制专属疯狂攻略！</p>
+                    <h3 className="text-xl font-black uppercase text-black mb-2">{ui.loadingTitle}</h3>
+                    <p className="text-sm font-bold text-slate-500">{ui.loadingDesc}</p>
                   </div>
                 </div>
               ) : (
@@ -805,16 +1063,16 @@ export default function App() {
                   {apiError && (
                     <div className="bg-[#fee2e2] border-4 border-black rounded-xl p-4 mb-4 shadow-[4px_4px_0_0_#000] relative overflow-hidden">
                       <div className="absolute -top-4 -right-2 text-6xl opacity-20 transform rotate-12">💥</div>
-                      <p className="font-black text-black text-lg mb-1 flex items-center gap-2"><Flame className="text-[#ef4444]" size={20}/> Oops! 魔法中断</p>
-                      <p className="text-sm font-bold text-slate-700 leading-tight mb-3">{apiError}</p>
+                      <p className="font-black text-black text-lg mb-1 flex items-center gap-2"><Flame className="text-[#ef4444]" size={20}/> {ui.errorTitle}</p>
+                      <p className="text-sm font-bold text-slate-700 leading-tight mb-3">{apiError === 'fallback' ? ui.fallbackError : apiError}</p>
                       <button disabled={isAILoading} onClick={handleGenerateItinerary} className={`text-xs ${isAILoading ? 'bg-gray-300 cursor-not-allowed' : 'bg-white hover:bg-[#fcd34d]'} text-black px-4 py-2 rounded-lg border-2 border-black font-black active:translate-y-1 shadow-[2px_2px_0_0_#000] transition-colors`}>
-                        {isAILoading ? '⏳ 重试中...' : '🔄 重新召唤 AI'}
+                        {isAILoading ? `⏳ ${ui.retrying}` : `🔄 ${ui.retry}`}
                       </button>
                     </div>
                   )}
 
                   {/* 这里使用了短路逻辑：如果 AI 返回了数据就用 AI 的，否则回退使用本地自动计算的假行程 */}
-                  {(aiItineraries[`${selectedDest?.id}-${days}-${travelStyle}`] || itineraryDays).map((day, idx) => (
+                  {displayedItinerary.map((day, idx) => (
                     <div key={idx} className={`relative bg-white border-4 border-black p-5 rounded-2xl shadow-[8px_8px_0_0_#000] transform hover:-translate-y-1 transition-transform ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}>
                       <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#22d3ee] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-xl font-black z-10">{day.day}</div>
                       <div className="absolute -top-6 right-4 w-14 h-14 bg-[#facc15] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-black z-10">
@@ -854,17 +1112,17 @@ export default function App() {
                 onClick={() => window.open(buildFlightUrl(departure.nameEn, selectedDest.nameEn, days), '_blank')}
                 className="w-full py-3.5 bg-[#38bdf8] hover:bg-[#0ea5e9] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
               >
-                <Plane size={24} strokeWidth={3}/> 抢特价机票！
+                <Plane size={24} strokeWidth={3}/> {ui.flightButton}
               </button>
-              <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">Google Flights · {departure.name} → {selectedDest.name} · {days}天往返</p>
+              <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">{ui.googleFlightsCaption} · {getPlaceName(departure)} → {getPlaceName(selectedDest)} · {isEnglish ? `${days} days round trip` : `${days}天往返`}</p>
 
               <button
                 onClick={() => window.open(buildHotelUrl(selectedDest.nameEn, days), '_blank')}
                 className="w-full py-3.5 bg-[#4ade80] hover:bg-[#22c55e] text-black text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
               >
-                <BedDouble size={24} strokeWidth={3}/> 去预定酒店！
+                <BedDouble size={24} strokeWidth={3}/> {ui.hotelButton}
               </button>
-              <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">Booking.com · {selectedDest.name} · {days - 1}晚</p>
+              <p className="text-[10px] text-slate-400 font-bold text-center -mt-1">{ui.bookingCaption} · {getPlaceName(selectedDest)} · {isEnglish ? `${days - 1} nights` : `${days - 1}晚`}</p>
 
               {/* Save Trip Button */}
               {user ? (
@@ -873,7 +1131,7 @@ export default function App() {
                   disabled={isSaving}
                   className={`w-full py-3.5 ${saveSuccess ? 'bg-[#10b981]' : isSaving ? 'bg-gray-400' : 'bg-[#a855f7] hover:bg-[#9333ea]'} text-white text-lg font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2`}
                 >
-                  {saveSuccess ? <><Heart size={24} strokeWidth={3}/> 已保存！</> : isSaving ? <><Loader2 size={24} className="animate-spin"/> 保存中...</> : <><BookmarkPlus size={24} strokeWidth={3}/> 收藏此行程</>}
+                  {saveSuccess ? <><Heart size={24} strokeWidth={3}/> {ui.saved}</> : isSaving ? <><Loader2 size={24} className="animate-spin"/> {ui.saving}</> : <><BookmarkPlus size={24} strokeWidth={3}/> {ui.saveTrip}</>}
                 </button>
               ) : (
                 <div className="flex gap-2">
@@ -882,13 +1140,13 @@ export default function App() {
                   className="flex-1 py-3.5 bg-white hover:bg-[#f1f5f9] text-black text-sm font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                  Google 登录
+                  {ui.signInGoogle}
                 </button>
                 <button
                   onClick={() => handleLogin('github')}
                   className="flex-1 py-3.5 bg-[#1e293b] hover:bg-black text-white text-sm font-black uppercase rounded-2xl border-4 border-black shadow-[6px_6px_0_0_#000] active:translate-y-1.5 transition-all flex justify-center items-center gap-2"
                 >
-                  <Github size={20} strokeWidth={3}/> GitHub
+                  <Github size={20} strokeWidth={3}/> {isEnglish ? 'GitHub' : 'GitHub'}
                 </button>
               </div>
               )}
@@ -903,8 +1161,8 @@ export default function App() {
           <div className="w-[480px] max-h-[80vh] bg-white border-8 border-black rounded-3xl shadow-[15px_15px_0_0_#a855f7] overflow-hidden flex flex-col">
             <div className="bg-[#a855f7] border-b-8 border-black p-6 flex items-center justify-between shrink-0">
               <div>
-                <h2 className="text-2xl font-black text-black uppercase tracking-widest bg-white inline-block px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_#000] transform -rotate-2">我的行程</h2>
-                <p className="text-xs font-bold text-white mt-2">{savedTrips.length} 个已保存的旅行计划</p>
+                <h2 className="text-2xl font-black text-black uppercase tracking-widest bg-white inline-block px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_#000] transform -rotate-2">{ui.myTripsTitle}</h2>
+                <p className="text-xs font-bold text-white mt-2">{ui.savedTripsCount(savedTrips.length)}</p>
               </div>
               <button onClick={() => setShowMyTrips(false)} className="p-2 bg-white border-4 border-black rounded-full text-black hover:bg-[#fbbf24] transition-colors shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none"><X size={24} strokeWidth={4}/></button>
             </div>
@@ -912,13 +1170,13 @@ export default function App() {
               {isLoadingTrips ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-4">
                   <Loader2 size={40} className="animate-spin text-[#a855f7]" strokeWidth={3}/>
-                  <p className="text-sm font-bold text-slate-500">加载中...</p>
+                  <p className="text-sm font-bold text-slate-500">{ui.loading}</p>
                 </div>
               ) : savedTrips.length === 0 ? (
                 <div className="text-center py-16">
                   <div className="text-6xl mb-4">🗺️</div>
-                  <p className="text-lg font-black text-black mb-2">还没有保存的行程</p>
-                  <p className="text-sm font-bold text-slate-500">生成一个行程后点击"收藏"按钮即可保存！</p>
+                  <p className="text-lg font-black text-black mb-2">{ui.noSavedTrips}</p>
+                  <p className="text-sm font-bold text-slate-500">{ui.noSavedTripsDesc}</p>
                 </div>
               ) : (
                 savedTrips.map(trip => (
@@ -927,16 +1185,16 @@ export default function App() {
                       <div className="flex-1 cursor-pointer" onClick={() => handleLoadSavedTrip(trip)}>
                         <h3 className="text-base font-black text-black">{trip.title || `${trip.departure} → ${trip.destination}`}</h3>
                         <div className="flex gap-2 mt-1 flex-wrap">
-                          <span className="text-[10px] font-bold bg-[#e0e7ff] text-slate-700 px-2 py-0.5 rounded border border-slate-300">{trip.days}天</span>
-                          <span className="text-[10px] font-bold bg-[#dcfce7] text-slate-700 px-2 py-0.5 rounded border border-slate-300">{TRAVEL_STYLES.find(s => s.id === trip.style)?.name || trip.style}</span>
-                          <span className="text-[10px] font-bold text-slate-400">{new Date(trip.created_at).toLocaleDateString('zh-CN')}</span>
+                          <span className="text-[10px] font-bold bg-[#e0e7ff] text-slate-700 px-2 py-0.5 rounded border border-slate-300">{isEnglish ? `${trip.days} days` : `${trip.days}天`}</span>
+                          <span className="text-[10px] font-bold bg-[#dcfce7] text-slate-700 px-2 py-0.5 rounded border border-slate-300">{getTravelStyleName(trip.style) || trip.style}</span>
+                          <span className="text-[10px] font-bold text-slate-400">{new Date(trip.created_at).toLocaleDateString(isEnglish ? 'en-US' : 'zh-CN')}</span>
                         </div>
                       </div>
                       <div className="flex gap-1.5 shrink-0 ml-2">
-                        <button onClick={() => copyShareLink(trip.share_id)} className="p-1.5 bg-[#38bdf8] border-2 border-black rounded-lg hover:bg-[#0ea5e9] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="复制分享链接">
+                        <button onClick={() => copyShareLink(trip.share_id)} className="p-1.5 bg-[#38bdf8] border-2 border-black rounded-lg hover:bg-[#0ea5e9] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title={ui.copyShare}>
                           <Share2 size={14} strokeWidth={3} className="text-white"/>
                         </button>
-                        <button onClick={() => handleDeleteTrip(trip.id)} className="p-1.5 bg-[#f87171] border-2 border-black rounded-lg hover:bg-[#ef4444] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title="删除">
+                        <button onClick={() => handleDeleteTrip(trip.id)} className="p-1.5 bg-[#f87171] border-2 border-black rounded-lg hover:bg-[#ef4444] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5" title={ui.delete}>
                           <Trash2 size={14} strokeWidth={3} className="text-white"/>
                         </button>
                       </div>
@@ -962,18 +1220,18 @@ export default function App() {
             </button>
 
             <h2 className="text-3xl font-black text-black tracking-tight uppercase mb-2 relative z-10">
-              不知道去哪？<br/>让 AI 替你决定！
+              {ui.blindBoxTitle}<br/>{ui.blindBoxTitleAccent}
             </h2>
-            <p className="text-sm font-bold text-slate-500 mb-8 relative z-10">将根据你当前的弹药包与人设匹配：</p>
+            <p className="text-sm font-bold text-slate-500 mb-8 relative z-10">{ui.blindBoxSubtitle}</p>
 
             <div className="flex justify-center gap-4 mb-8 relative z-10">
                <div className="bg-[#e0e7ff] border-4 border-black rounded-xl px-4 py-2 shadow-[4px_4px_0_0_#000]">
-                  <span className="block text-[10px] font-black text-slate-500 uppercase">预算</span>
+                  <span className="block text-[10px] font-black text-slate-500 uppercase">{ui.budgetShort}</span>
                   <span className="text-lg font-black text-[#ec4899]">¥{budget.toLocaleString()}</span>
                </div>
                <div className="bg-[#dcfce7] border-4 border-black rounded-xl px-4 py-2 shadow-[4px_4px_0_0_#000]">
-                  <span className="block text-[10px] font-black text-slate-500 uppercase">天数</span>
-                  <span className="text-lg font-black text-black">{days} 天</span>
+                  <span className="block text-[10px] font-black text-slate-500 uppercase">{ui.daysShort}</span>
+                  <span className="text-lg font-black text-black">{isEnglish ? `${days} days` : `${days} 天`}</span>
                </div>
                <div className="bg-[#fef08a] border-4 border-black rounded-xl px-4 py-2 shadow-[4px_4px_0_0_#000] flex items-center">
                   <span className="text-2xl">{TRAVEL_STYLES.find(s=>s.id===travelStyle)?.icon}</span>
@@ -984,13 +1242,13 @@ export default function App() {
               <div className="bg-black text-white border-4 border-black rounded-2xl py-6 mb-8 relative z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_0.5s_infinite]"></div>
                 <div className="text-6xl mb-2 animate-bounce">{shuffleDest.icon}</div>
-                <div className="text-xl font-black tracking-widest">{shuffleDest.name}</div>
+                <div className="text-xl font-black tracking-widest">{getPlaceName(shuffleDest)}</div>
               </div>
             )}
 
             {!isShuffling && (
                <button onClick={triggerBlindBox} className="w-full py-4 bg-[#fcd34d] hover:bg-[#fbbf24] text-black text-2xl font-black uppercase rounded-2xl border-4 border-black shadow-[8px_8px_0_0_#000] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center gap-3 relative z-10">
-                  <Flame size={28} strokeWidth={4}/> 抽取目的地！
+                  <Flame size={28} strokeWidth={4}/> {ui.drawDestination}
                </button>
             )}
           </div>

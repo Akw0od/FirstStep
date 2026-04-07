@@ -29,13 +29,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { destination, style, days, budget, departure } = req.body;
+  const { destination, style, days, budget, departure, language = 'English' } = req.body;
   if (!destination || !style || !days) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   // Check Redis cache
-  const cacheKey = `itinerary:${destination}:${style}:${days}:${budget || 'any'}:${departure || 'any'}`;
+  const cacheKey = `itinerary:${destination}:${style}:${days}:${budget || 'any'}:${departure || 'any'}:${language}`;
   const cached = await redisGet(cacheKey);
   if (cached) {
     return res.status(200).json({ itinerary: cached, cached: true });
@@ -47,15 +47,93 @@ export default async function handler(req, res) {
   }
 
   const STYLE_MAP = {
-    hardcore: { label: '特种兵打卡', budget: '经济型', hotel: '青旅、经济型连锁酒店、胶囊旅馆', pace: '高强度暴走，一天至少5个景点' },
-    chill: { label: '佛系休闲党', budget: '中等', hotel: '精品民宿、三四星酒店', pace: '慢节奏，每天2-3个地方，留够咖啡和发呆时间' },
-    resort: { label: '度假全躺平', budget: '奢华', hotel: '五星级度假酒店、度假村、海景套房', pace: '以酒店为中心，偶尔出门，SPA和泳池是重点' },
-    outdoor: { label: '户外狂人', budget: '中等偏高', hotel: '营地、山间小屋、靠近自然的Lodge', pace: '徒步、骑行、水上运动为主，追求肾上腺素' }
+    hardcore: {
+      label: '特种兵打卡',
+      labelEn: 'Hardcore Sprint',
+      budget: '经济型',
+      budgetEn: 'Budget-conscious',
+      hotel: '青旅、经济型连锁酒店、胶囊旅馆',
+      hotelEn: 'Hostels, budget chains, capsule hotels',
+      pace: '高强度暴走，一天至少5个景点',
+      paceEn: 'High-intensity pace with at least 5 stops per day'
+    },
+    chill: {
+      label: '佛系休闲党',
+      labelEn: 'Chill Wanderer',
+      budget: '中等',
+      budgetEn: 'Mid-range',
+      hotel: '精品民宿、三四星酒店',
+      hotelEn: 'Boutique stays and 3-4 star hotels',
+      pace: '慢节奏，每天2-3个地方，留够咖啡和发呆时间',
+      paceEn: 'Slow pace with 2-3 stops a day and plenty of cafe time'
+    },
+    resort: {
+      label: '度假全躺平',
+      labelEn: 'Resort Mode',
+      budget: '奢华',
+      budgetEn: 'Luxury',
+      hotel: '五星级度假酒店、度假村、海景套房',
+      hotelEn: 'Luxury resorts, five-star hotels, ocean-view suites',
+      pace: '以酒店为中心，偶尔出门，SPA和泳池是重点',
+      paceEn: 'Hotel-centric with occasional outings, focused on pools and spa time'
+    },
+    outdoor: {
+      label: '户外狂人',
+      labelEn: 'Outdoor Rush',
+      budget: '中等偏高',
+      budgetEn: 'Upper mid-range',
+      hotel: '营地、山间小屋、靠近自然的Lodge',
+      hotelEn: 'Camps, cabins, and lodges close to nature',
+      pace: '徒步、骑行、水上运动为主，追求肾上腺素',
+      paceEn: 'Hiking, biking, and water sports with an adrenaline-first mindset'
+    }
   };
 
   const styleInfo = STYLE_MAP[style] || STYLE_MAP.chill;
+  const isEnglish = language === 'English';
+  const prompt = isEnglish
+    ? `You are an experienced, witty travel planner who knows the best food, sights, neighborhoods, and local experiences around the world.
 
-  const prompt = `你是一位经验丰富、极度幽默的旅行规划师，对全球各地的吃喝玩乐了如指掌。
+Please create a highly detailed itinerary for a ${days}-day trip from [${departure || 'Not specified'}] to [${destination}].
+
+Travel style: ${styleInfo.labelEn}
+Budget level: ${styleInfo.budgetEn} (total budget around ¥${budget || 'flexible'})
+Accommodation preference: ${styleInfo.hotelEn}
+
+## Strict requirements
+
+1. Accommodation: for each day, recommend the best area or neighborhood to stay in, explain why it fits that day, and include 1-2 real hotel or stay names.
+2. Real places: list 2-4 real, specific places every day. Do not say vague things like "walk around downtown".
+3. Signature experiences: recommend 1-2 local highlights per day, such as real food spots, hidden gems, or cultural experiences.
+4. Transportation: briefly explain how to move between the stops that day.
+5. Daily cost: include a reasonable daily cost estimate in RMB.
+
+## Itinerary structure
+
+- Day 1 must be an arrival day with airport transfer, check-in, and nearby exploration.
+- The final day must be a departure day with checkout, last-minute stops, and airport transfer.
+- The pacing must match "${styleInfo.labelEn}": ${styleInfo.paceEn}.
+
+## Output format
+
+Each day's title should be short and punchy. Each desc should be vivid, specific, and useful, with real place names and recommendations.
+
+Each day's iconName must be one of: Coffee, Camera, Plane, Compass, Sunrise, Moon, Flame, Utensils, Store, Ticket, ShoppingBag, Gamepad2, Music, Waves, MapIcon, BedDouble.
+
+Return strictly in this JSON shape with no extra text:
+[
+  {
+    "day": 1,
+    "title": "Title",
+    "desc": "Detailed description with real places, neighborhood guidance, food recommendations, and transport notes",
+    "iconName": "Plane",
+    "hotel": "Recommended area + hotel names",
+    "cost": "Estimated daily cost (for example: ¥500-800)",
+    "highlights": ["Highlight 1", "Highlight 2"]
+  },
+  ...${days} objects total
+]`
+    : `你是一位经验丰富、极度幽默的旅行规划师，对全球各地的吃喝玩乐了如指掌。
 
 请为从【${departure || '未指定'}】出发，去【${destination}】的 ${days} 天旅行做一份超详细的行程规划。
 
@@ -96,6 +174,7 @@ export default async function handler(req, res) {
   },
   ...共 ${days} 个对象
 ]`;
+  const systemPrompt = `You are a world-class travel planner. Return ONLY valid JSON array. No markdown, no extra text. Every place name must be real and accurate. Please generate the itinerary and respond strictly and entirely in ${language}`;
 
   try {
     const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -109,7 +188,7 @@ export default async function handler(req, res) {
         messages: [
           {
             role: 'system',
-            content: 'You are a world-class travel planner. Return ONLY valid JSON array. No markdown, no extra text. Every place name must be real and accurate.'
+            content: systemPrompt
           },
           { role: 'user', content: prompt }
         ],
