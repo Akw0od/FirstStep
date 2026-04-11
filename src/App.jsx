@@ -224,6 +224,11 @@ const UI_COPY = {
     signInGoogle: 'Sign in with Google',
     signInGithub: 'Sign in with GitHub',
     fromLabel: 'Where from?',
+    routeTitle: 'Trip setup',
+    tripBrief: 'Trip brief',
+    tripBriefHint: 'Pick a stop on the map or from the list, then tune the vibe only if needed.',
+    tuneTrip: 'Tune this trip',
+    hideTuneTrip: 'Hide trip tuning',
     broadLabel: 'Trip region',
     allRegions: '🌐 Explore all regions',
     selectBroad: 'Pick a country, state, or region...',
@@ -304,6 +309,11 @@ const UI_COPY = {
     signInGoogle: 'Google 登录',
     signInGithub: 'GitHub 登录',
     fromLabel: '从哪里起飞？',
+    routeTitle: '路线设置',
+    tripBrief: '行程摘要',
+    tripBriefHint: '先在地图或列表里选目的地，再按需要展开调整参数。',
+    tuneTrip: '微调这趟旅行',
+    hideTuneTrip: '收起参数调节',
     broadLabel: '大方向去哪玩？',
     allRegions: '🌐 浏览全部大区',
     selectBroad: '先选国家、州或旅行大区...',
@@ -478,6 +488,7 @@ export default function App() {
   const [shuffleDest, setShuffleDest] = useState(DESTINATIONS[0]);
   const [mapLayerVisibility, setMapLayerVisibility] = useState({ departures: true, destinations: true });
   const [selectedClusterId, setSelectedClusterId] = useState(null);
+  const [showTripTuning, setShowTripTuning] = useState(false);
 
   // --- Auth & Trip Saving State ---
   const [user, setUser] = useState(null);
@@ -540,6 +551,11 @@ export default function App() {
     if (!style) return styleId;
     return isEnglish ? (style.nameEn || style.name) : style.name;
   }, [isEnglish]);
+  const formatBudgetLabel = useCallback((amount) => (
+    amount >= 10000
+      ? `¥${(amount / 10000).toFixed(amount % 10000 === 0 ? 0 : 1)}w`
+      : `¥${amount.toLocaleString()}`
+  ), []);
   const getVisaLabel = useCallback((passportCode, place) => {
     if (!place) return ui.unknown;
     const region = place.regionId ? DESTINATION_REGIONS.find((item) => item.id === place.regionId) : null;
@@ -1116,6 +1132,7 @@ export default function App() {
   const displayedItinerary = useMemo(() => (
     itineraryCacheKey ? (aiItineraries[itineraryCacheKey] || itineraryDays) : itineraryDays
   ), [aiItineraries, itineraryCacheKey, itineraryDays]);
+  const briefPlace = selectedDest || selectedRegion;
 
   return (
     <div 
@@ -1452,11 +1469,11 @@ export default function App() {
 
       <div 
         onWheel={(e) => e.stopPropagation()}
-        className="absolute top-6 left-6 w-80 bg-white p-6 rounded-2xl border-4 border-black shadow-[8px_8px_0_0_#000] z-20 pointer-events-auto"
+        className="absolute top-6 left-6 w-[22rem] bg-white p-5 rounded-3xl border-4 border-black shadow-[8px_8px_0_0_#000] z-20 pointer-events-auto"
       >
-        <div className="mb-5">
+        <div className="mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={28} strokeWidth={3}/></div>
+            <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={24} strokeWidth={3}/></div>
             <div>
               <h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">{ui.appTitle}</h1>
               <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">{ui.appSubtitle}</p>
@@ -1465,85 +1482,157 @@ export default function App() {
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><MapIcon size={14} strokeWidth={3} /> {ui.fromLabel}</label>
-            <select value={departureId} onChange={(e) => { setDepartureId(e.target.value); const newDep = ALL_PLACES.find(d => d.id === e.target.value); if(newDep) { animateToTarget(newDep.lon, newDep.lat); setZoom(1.5); } }} className="w-full p-2.5 bg-[#e0e7ff] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
-              <optgroup label={ui.hubsLabel}>{DEPARTURE_CITIES.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
-              <optgroup label={ui.placesLabel}>{DESTINATIONS.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
-            </select>
+          <div className="bg-[#f8fafc] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000]">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-black uppercase text-slate-500">{ui.routeTitle}</p>
+              <span className="text-[10px] font-black px-2 py-1 rounded-full border-2 border-black bg-[#fef08a]">
+                {selectedDest ? getPlaceShortName(selectedDest) : selectedRegion ? getPlaceShortName(selectedRegion) : '🌍'}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-black text-black uppercase mb-1 flex items-center gap-1.5"><MapIcon size={14} strokeWidth={3} /> {ui.fromLabel}</label>
+                <select value={departureId} onChange={(e) => { setDepartureId(e.target.value); const newDep = ALL_PLACES.find(d => d.id === e.target.value); if(newDep) { animateToTarget(newDep.lon, newDep.lat); setZoom(1.5); } }} className="w-full p-2.5 bg-[#e0e7ff] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
+                  <optgroup label={ui.hubsLabel}>{DEPARTURE_CITIES.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
+                  <optgroup label={ui.placesLabel}>{DESTINATIONS.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-black text-black uppercase mb-1 flex items-center gap-1.5"><Compass size={14} strokeWidth={3} /> {ui.broadLabel}</label>
+                <select
+                  value={selectedRegionId}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                  className="w-full p-2.5 bg-[#dcfce7] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer"
+                >
+                  <option value="all">{ui.allRegions}</option>
+                  {DESTINATION_REGIONS.map((region) => (
+                    <option key={region.id} value={region.id}>{region.icon} {getPlaceName(region)}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> {ui.specificLabel}</label>
+                <select
+                  value={selectedDest?.id || ''}
+                  onChange={(e) => {
+                    const dest = visibleSpecificDestinations.find((item) => item.id === e.target.value);
+                    if (!dest) return;
+                    if (DESTINATION_REGIONS.some((region) => region.id === dest.id)) handleRegionSelect(dest);
+                    else handleMarkerClick(dest);
+                  }}
+                  disabled={selectedRegionId === 'all'}
+                  className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <option value="" disabled>{ui.selectDestination}</option>
+                  {visibleSpecificDestinations.map((place) => (
+                    <option key={place.id} value={place.id}>
+                      {place.icon} {getPlaceName(place)} {DESTINATION_REGIONS.some((region) => region.id === place.id) ? `· ${ui.regionTripTag}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Compass size={14} strokeWidth={3} /> {ui.broadLabel}</label>
-            <select
-              value={selectedRegionId}
-              onChange={(e) => handleRegionChange(e.target.value)}
-              className="w-full p-2.5 bg-[#dcfce7] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer"
+          <div className="bg-[#fff7ed] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000]">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase text-slate-500">{ui.tripBrief}</p>
+                <h3 className="text-lg font-black text-black mt-1 truncate">
+                  {briefPlace ? getPlaceName(briefPlace) : ui.allRegions}
+                </h3>
+                <p className="text-[11px] font-bold text-slate-600 mt-1 leading-tight">
+                  {selectedDest
+                    ? `${getPlaceName(departure)} → ${getPlaceName(selectedDest)}`
+                    : selectedRegion
+                      ? `${getPlaceName(departure)} → ${getPlaceName(selectedRegion)}`
+                      : ui.tripBriefHint}
+                </p>
+              </div>
+              <div className="w-14 h-14 shrink-0 rounded-2xl bg-white border-4 border-black shadow-[4px_4px_0_0_#000] flex items-center justify-center text-2xl">
+                {briefPlace?.icon || '🌍'}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-4">
+              <span className="px-2.5 py-1 bg-white border-2 border-black rounded-full text-[11px] font-black">
+                {TRAVEL_STYLES.find((s) => s.id === travelStyle)?.icon} {getTravelStyleName(travelStyle)}
+              </span>
+              <span className="px-2.5 py-1 bg-[#dbeafe] border-2 border-black rounded-full text-[11px] font-black">
+                {days}{isEnglish ? 'd' : '天'}
+              </span>
+              <span className="px-2.5 py-1 bg-[#fce7f3] border-2 border-black rounded-full text-[11px] font-black text-[#be185d]">
+                {formatBudgetLabel(budget)}
+              </span>
+              {selectedDest && (
+                <span className="px-2.5 py-1 bg-[#dcfce7] border-2 border-black rounded-full text-[11px] font-black">
+                  {getVisaLabel(passport, selectedDest)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="border-4 border-black rounded-2xl shadow-[4px_4px_0_0_#000] overflow-hidden">
+            <button
+              onClick={() => setShowTripTuning((prev) => !prev)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-white hover:bg-[#f8fafc] transition-colors"
             >
-              <option value="all">{ui.allRegions}</option>
-              {DESTINATION_REGIONS.map((region) => (
-                <option key={region.id} value={region.id}>{region.icon} {getPlaceName(region)}</option>
-              ))}
-            </select>
-          </div>
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} strokeWidth={3} />
+                <span className="text-sm font-black text-black uppercase">
+                  {showTripTuning ? ui.hideTuneTrip : ui.tuneTrip}
+                </span>
+              </div>
+              <ChevronRight
+                size={18}
+                strokeWidth={3}
+                className={`transition-transform ${showTripTuning ? 'rotate-90' : ''}`}
+              />
+            </button>
 
-          <div>
-            <label className="text-xs font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> {ui.specificLabel}</label>
-            <select
-              value={selectedDest?.id || ''}
-              onChange={(e) => {
-                const dest = visibleSpecificDestinations.find((item) => item.id === e.target.value);
-                if (!dest) return;
-                if (DESTINATION_REGIONS.some((region) => region.id === dest.id)) handleRegionSelect(dest);
-                else handleMarkerClick(dest);
-              }}
-              disabled={selectedRegionId === 'all'}
-              className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <option value="" disabled>{ui.selectDestination}</option>
-              {visibleSpecificDestinations.map((place) => (
-                <option key={place.id} value={place.id}>
-                  {place.icon} {getPlaceName(place)} {DESTINATION_REGIONS.some((region) => region.id === place.id) ? `· ${ui.regionTripTag}` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+            {showTripTuning && (
+              <div className="p-4 bg-[#f8fafc] border-t-4 border-black space-y-4">
+                <div>
+                  <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Sparkles size={14} strokeWidth={3}/> {ui.styleLabel}</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {TRAVEL_STYLES.map(s => (
+                      <button key={s.id} onClick={() => setTravelStyle(s.id)}
+                        className={`py-2 px-2 text-[11px] font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none
+                        ${travelStyle === s.id ? 'bg-[#fcd34d] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>
+                        {s.icon} {isEnglish ? (s.nameEn || s.name) : s.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-          <div>
-            <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Sparkles size={14} strokeWidth={3}/> {ui.styleLabel}</label>
-            <div className="grid grid-cols-2 gap-2">
-              {TRAVEL_STYLES.map(s => (
-                <button key={s.id} onClick={() => setTravelStyle(s.id)} 
-                  className={`py-2 px-1 text-[11px] font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none
-                  ${travelStyle === s.id ? 'bg-[#fcd34d] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>
-                  {s.icon} {isEnglish ? (s.nameEn || s.name) : s.name}
-                </button>
-              ))}
-            </div>
-          </div>
+                <div className="pt-1 border-t-4 border-black">
+                  <div className="flex justify-between items-end mb-1">
+                    <label className="text-xs font-black text-black uppercase flex items-center gap-1.5"><Wallet size={14} strokeWidth={3}/> {ui.budgetLabel}</label>
+                    <span className="text-[#ec4899] font-black text-sm bg-[#fce7f3] px-2 py-0.5 border-2 border-black rounded shadow-[2px_2px_0_0_#000]">¥{budget.toLocaleString()}</span>
+                  </div>
+                  <input type="range" min="5000" max="100000" step="5000" value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full h-4 bg-black rounded-full appearance-none cursor-pointer accent-[#22d3ee] shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] outline-none mt-2"/>
+                </div>
 
-          <div className="pt-2 border-t-4 border-black">
-            <div className="flex justify-between items-end mb-1">
-              <label className="text-xs font-black text-black uppercase flex items-center gap-1.5"><Wallet size={14} strokeWidth={3}/> {ui.budgetLabel}</label>
-              <span className="text-[#ec4899] font-black text-lg bg-[#fce7f3] px-2 py-0.5 border-2 border-black rounded shadow-[2px_2px_0_0_#000]">¥{budget.toLocaleString()}</span>
-            </div>
-            <input type="range" min="5000" max="100000" step="5000" value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full h-4 bg-black rounded-full appearance-none cursor-pointer accent-[#22d3ee] shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] outline-none mt-2"/>
-          </div>
+                <div>
+                  <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Calendar size={14} strokeWidth={3}/> {ui.daysLabel}</label>
+                  <div className="flex gap-2">
+                    {[3, 5, 7, 10, 14].map(d => (
+                      <button key={d} onClick={() => setDays(d)} className={`flex-1 py-1.5 text-sm font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none ${days === d ? 'bg-[#22d3ee] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>{d}</button>
+                    ))}
+                  </div>
+                </div>
 
-          <div>
-            <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Calendar size={14} strokeWidth={3}/> {ui.daysLabel}</label>
-            <div className="flex gap-2">
-              {[3, 5, 7, 10, 14].map(d => (
-                <button key={d} onClick={() => setDays(d)} className={`flex-1 py-1.5 text-sm font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none ${days === d ? 'bg-[#22d3ee] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>{isEnglish ? d : d}</button>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-3 border-t-2 border-dashed border-slate-300">
-            <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> {ui.visaLabel}</label>
-            <select value={passport} onChange={(e) => setPassport(e.target.value)} className="w-full p-1.5 bg-slate-50 border-2 border-slate-300 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer hover:border-black transition-colors">
-              <option value="CN">{ui.passportCn}</option><option value="US">{ui.passportUs}</option>
-            </select>
+                <div className="pt-2 border-t-2 border-dashed border-slate-300">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> {ui.visaLabel}</label>
+                  <select value={passport} onChange={(e) => setPassport(e.target.value)} className="w-full p-1.5 bg-white border-2 border-slate-300 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer hover:border-black transition-colors">
+                    <option value="CN">{ui.passportCn}</option><option value="US">{ui.passportUs}</option>
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
