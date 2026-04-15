@@ -555,6 +555,7 @@ export default function App() {
   const [mapLayerVisibility, setMapLayerVisibility] = useState({ departures: true, destinations: true });
   const [selectedClusterId, setSelectedClusterId] = useState(null);
   const [showTripTuning, setShowTripTuning] = useState(false);
+  const [showFarSidePanel, setShowFarSidePanel] = useState(false);
 
   // --- Auth & Trip Saving State ---
   const [user, setUser] = useState(null);
@@ -1335,34 +1336,51 @@ export default function App() {
       {hiddenMapMarkers.length > 0 && (
         <div
           onWheel={(e) => e.stopPropagation()}
-          className="absolute left-1/2 bottom-28 -translate-x-1/2 z-20 max-w-[min(44rem,calc(100%-8rem))] bg-white/95 backdrop-blur border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] px-4 py-3 pointer-events-auto"
+          className="absolute left-1/2 bottom-6 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-auto"
         >
-          <div className="flex items-baseline justify-between gap-3 mb-2">
-            <div>
-              <p className="text-[10px] font-black uppercase text-slate-500">{ui.farSideTitle}</p>
-              <p className="text-[11px] font-bold text-slate-500 mt-0.5">{ui.farSideHint}</p>
+          {showFarSidePanel && (
+            <div className="w-[min(42rem,calc(100vw-10rem))] bg-white/95 backdrop-blur border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] px-4 py-3">
+              <div className="flex items-baseline justify-between gap-3 mb-2">
+                <p className="text-[11px] font-bold text-slate-500">{ui.farSideHint}</p>
+                <button
+                  onClick={() => setShowFarSidePanel(false)}
+                  className="text-[10px] font-black text-slate-500 hover:text-black"
+                  aria-label="close"
+                >
+                  <X size={14} strokeWidth={3} />
+                </button>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {hiddenMapMarkers.map((marker) => (
+                  <button
+                    key={`hidden-${marker.id}`}
+                    onClick={() => {
+                      if (marker.markerType === 'departure') handleDepartureSelect(marker);
+                      else if (DESTINATION_REGIONS.some((region) => region.id === marker.id)) handleRegionSelect(marker);
+                      else handleMarkerClick(marker);
+                      setShowFarSidePanel(false);
+                    }}
+                    className="shrink-0 flex items-center gap-2 px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-transform"
+                  >
+                    <span className="text-lg leading-none">{marker.icon}</span>
+                    <span className="text-xs font-black text-black whitespace-nowrap">{getPlaceShortName(marker)}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <span className="text-[10px] font-black px-2 py-1 rounded-full border-2 border-black bg-[#fef08a] text-black">
+          )}
+
+          <button
+            onClick={() => setShowFarSidePanel((prev) => !prev)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] hover:-translate-y-0.5 transition-transform"
+            aria-expanded={showFarSidePanel}
+          >
+            <span className="text-sm">◐</span>
+            <span className="text-[11px] font-black uppercase text-black">{ui.farSideTitle}</span>
+            <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border-2 border-black bg-[#fef08a] text-black leading-none">
               {hiddenMapMarkers.length}
             </span>
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {hiddenMapMarkers.map((marker) => (
-              <button
-                key={`hidden-${marker.id}`}
-                onClick={() => {
-                  if (marker.markerType === 'departure') handleDepartureSelect(marker);
-                  else if (DESTINATION_REGIONS.some((region) => region.id === marker.id)) handleRegionSelect(marker);
-                  else handleMarkerClick(marker);
-                }}
-                className="shrink-0 flex items-center gap-2 px-3 py-2 bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-transform"
-              >
-                <span className="text-lg leading-none">{marker.icon}</span>
-                <span className="text-xs font-black text-black whitespace-nowrap">{getPlaceShortName(marker)}</span>
-              </button>
-            ))}
-          </div>
+          </button>
         </div>
       )}
 
@@ -1578,8 +1596,12 @@ export default function App() {
           <div className="bg-[#f8fafc] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000]">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-black uppercase text-slate-500">{ui.routeTitle}</p>
-              <span className="text-[10px] font-black px-2 py-1 rounded-full border-2 border-black bg-[#fef08a]">
-                {selectedDest ? getPlaceShortName(selectedDest) : selectedRegion ? getPlaceShortName(selectedRegion) : '🌍'}
+              <span className="text-[10px] font-black px-2 py-1 rounded-full border-2 border-black bg-[#fef08a] max-w-[9rem] truncate">
+                {selectedDest
+                  ? `${getPlaceShortName(departure)} → ${getPlaceShortName(selectedDest)}`
+                  : selectedRegion
+                    ? `${getPlaceShortName(departure)} → ${getPlaceShortName(selectedRegion)}`
+                    : '🌍'}
               </span>
             </div>
 
@@ -1627,44 +1649,23 @@ export default function App() {
                   ))}
                 </select>
               </div>
-            </div>
-          </div>
 
-          <div className="bg-[#fff7ed] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000]">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase text-slate-500">{ui.tripBrief}</p>
-                <h3 className="text-lg font-black text-black mt-1 truncate">
-                  {briefPlace ? getPlaceName(briefPlace) : ui.allRegions}
-                </h3>
-                <p className="text-[11px] font-bold text-slate-600 mt-1 leading-tight">
-                  {selectedDest
-                    ? `${getPlaceName(departure)} → ${getPlaceName(selectedDest)}`
-                    : selectedRegion
-                      ? `${getPlaceName(departure)} → ${getPlaceName(selectedRegion)}`
-                      : ui.tripBriefHint}
-                </p>
-              </div>
-              <div className="w-14 h-14 shrink-0 rounded-2xl bg-white border-4 border-black shadow-[4px_4px_0_0_#000] flex items-center justify-center text-2xl">
-                {briefPlace?.icon || '🌍'}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mt-4">
-              <span className="px-2.5 py-1 bg-white border-2 border-black rounded-full text-[11px] font-black">
-                {TRAVEL_STYLES.find((s) => s.id === travelStyle)?.icon} {getTravelStyleName(travelStyle)}
-              </span>
-              <span className="px-2.5 py-1 bg-[#dbeafe] border-2 border-black rounded-full text-[11px] font-black">
-                {days}{isEnglish ? 'd' : '天'}
-              </span>
-              <span className="px-2.5 py-1 bg-[#fce7f3] border-2 border-black rounded-full text-[11px] font-black text-[#be185d]">
-                {formatBudgetLabel(budget)}
-              </span>
-              {selectedDest && (
-                <span className="px-2.5 py-1 bg-[#dcfce7] border-2 border-black rounded-full text-[11px] font-black">
-                  {getVisaLabel(passport, selectedDest)}
+              <div className="flex flex-wrap gap-1.5 pt-3 border-t-2 border-dashed border-slate-300">
+                <span className="px-2 py-0.5 bg-white border-2 border-black rounded-full text-[10px] font-black">
+                  {TRAVEL_STYLES.find((s) => s.id === travelStyle)?.icon} {getTravelStyleName(travelStyle)}
                 </span>
-              )}
+                <span className="px-2 py-0.5 bg-[#dbeafe] border-2 border-black rounded-full text-[10px] font-black">
+                  {days}{isEnglish ? 'd' : '天'}
+                </span>
+                <span className="px-2 py-0.5 bg-[#fce7f3] border-2 border-black rounded-full text-[10px] font-black text-[#be185d]">
+                  {formatBudgetLabel(budget)}
+                </span>
+                {selectedDest && (
+                  <span className="px-2 py-0.5 bg-[#dcfce7] border-2 border-black rounded-full text-[10px] font-black">
+                    {getVisaLabel(passport, selectedDest)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
