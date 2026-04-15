@@ -467,8 +467,74 @@ const SvgClusterFace = ({ count, active }) => (
   </g>
 );
 
+// ============================================================
+// THEMES — visual direction tokens
+// 'comic'  = original Sunday-newspaper comic/cartoon vibe (default, preserved)
+// 'y2k'    = Chrome Cartography: millennium web aesthetic (new direction)
+// Only add here the tokens that actually differ between themes.
+// ============================================================
+const THEMES = {
+  comic: {
+    id: 'comic',
+    label: 'Classic Comic',
+    labelZh: '漫画原版',
+    // container
+    appBg: '#fef08a',
+    appDotColor: '#eab308',
+    appDotSize: '24px 24px',
+    appTextColor: 'text-slate-900',
+    // globe
+    oceanFill: '#38bdf8',
+    oceanStroke: '#000',
+    oceanStrokeWidth: 8,
+    coastStroke: '#1e293b',
+    coastStrokeWidth: 4,
+    graticuleStroke: '#0ea5e9',
+    graticuleStrokeWidth: 3,
+    routeStroke: '#ec4899',
+    routeStrokeWidth: 6,
+  },
+  y2k: {
+    id: 'y2k',
+    label: 'Y2K Chrome',
+    labelZh: 'Y2K 千禧',
+    // container
+    appBg: '#0A1130',
+    appDotColor: '#1a2450',
+    appDotSize: '18px 18px',
+    appTextColor: 'text-slate-100',
+    // globe
+    oceanFill: '#0B1F44',
+    oceanStroke: '#00B5D9',
+    oceanStrokeWidth: 2,
+    coastStroke: '#C6A6FF',
+    coastStrokeWidth: 1.5,
+    graticuleStroke: '#00B5D9',
+    graticuleStrokeWidth: 1,
+    routeStroke: '#C8FF3D',
+    routeStrokeWidth: 3,
+  },
+};
+
+const loadInitialTheme = () => {
+  if (typeof window === 'undefined') return 'comic';
+  try {
+    const saved = window.localStorage.getItem('mapboom.theme');
+    if (saved && THEMES[saved]) return saved;
+  } catch {}
+  return 'comic';
+};
+
 export default function App() {
-  const [budget, setBudget] = useState(30000); 
+  const [theme, setThemeState] = useState(loadInitialTheme);
+  const t = THEMES[theme] || THEMES.comic;
+  const setTheme = (next) => {
+    if (!THEMES[next]) return;
+    setThemeState(next);
+    try { window.localStorage.setItem('mapboom.theme', next); } catch {}
+  };
+
+  const [budget, setBudget] = useState(30000);
   const [days, setDays] = useState(5);
   const [language, setLanguage] = useState('English');
   const [passport, setPassport] = useState('US');
@@ -1135,10 +1201,15 @@ export default function App() {
   const briefPlace = selectedDest || selectedRegion;
 
   return (
-    <div 
-      className="relative w-full h-screen min-h-[700px] bg-[#fef08a] overflow-hidden font-sans text-slate-900 select-none"
+    <div
+      className={`relative w-full h-screen min-h-[700px] overflow-hidden font-sans ${t.appTextColor} select-none`}
       onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}
-      style={{ backgroundImage: 'radial-gradient(#eab308 2px, transparent 2px)', backgroundSize: '24px 24px' }}
+      style={{
+        backgroundColor: t.appBg,
+        backgroundImage: `radial-gradient(${t.appDotColor} 2px, transparent 2px)`,
+        backgroundSize: t.appDotSize,
+      }}
+      data-theme={theme}
     >
       <style>
         {`
@@ -1163,20 +1234,20 @@ export default function App() {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <svg viewBox="-400 -400 800 800" className={`w-[750px] h-[750px] overflow-visible cursor-grab active:cursor-grabbing transition-transform ${isDragging ? 'scale-[1.02]' : 'scale-100'}`} onMouseDown={handleMouseDown}>
-          <circle r={currentRadius} fill="#38bdf8" stroke="#000" strokeWidth="8" />
-          <path d={`M -${currentRadius*0.6} -${currentRadius*0.6} A ${currentRadius} ${currentRadius} 0 0 1 0 -${currentRadius} A ${currentRadius*0.8} ${currentRadius*0.8} 0 0 0 -${currentRadius*0.6} -${currentRadius*0.6} Z`} fill="#fff" opacity="0.3" />
+          <circle r={currentRadius} fill={t.oceanFill} stroke={t.oceanStroke} strokeWidth={t.oceanStrokeWidth} />
+          <path d={`M -${currentRadius*0.6} -${currentRadius*0.6} A ${currentRadius} ${currentRadius} 0 0 1 0 -${currentRadius} A ${currentRadius*0.8} ${currentRadius*0.8} 0 0 0 -${currentRadius*0.6} -${currentRadius*0.6} Z`} fill="#fff" opacity={theme === 'y2k' ? 0.12 : 0.3} />
 
           <g>
-            {(isMapLoading || coastLines.length === 0) 
-              ? graticules.map((d, i) => <path key={i} d={d} fill="none" stroke="#0ea5e9" strokeWidth="3" strokeDasharray="10,10" />)
-              : coastLines.map((d, i) => <path key={i} d={d} fill="none" stroke="#1e293b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />)}
+            {(isMapLoading || coastLines.length === 0)
+              ? graticules.map((d, i) => <path key={i} d={d} fill="none" stroke={t.graticuleStroke} strokeWidth={t.graticuleStrokeWidth} strokeDasharray="10,10" />)
+              : coastLines.map((d, i) => <path key={i} d={d} fill="none" stroke={t.coastStroke} strokeWidth={t.coastStrokeWidth} strokeLinecap="round" strokeLinejoin="round" />)}
           </g>
           
           <circle r={currentRadius} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth={40 * zoom} strokeDasharray={`${Math.PI*currentRadius} ${Math.PI*currentRadius}`} transform="rotate(-45)" />
 
           {selectedDest && (selectedDest.lon !== departure.lon || selectedDest.lat !== departure.lat) && (
             <path d={getGreatCirclePath(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat, rotation.lon, rotation.lat, currentRadius)}
-              fill="none" stroke="#ec4899" strokeWidth="6" strokeDasharray="12,12" strokeLinecap="round" className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
+              fill="none" stroke={t.routeStroke} strokeWidth={t.routeStrokeWidth} strokeDasharray="12,12" strokeLinecap="round" className={theme === 'y2k' ? 'drop-shadow-[0_0_6px_rgba(200,255,61,0.8)]' : 'drop-shadow-[4px_4px_0_rgba(0,0,0,1)]'}>
               <animate attributeName="stroke-dashoffset" from="100" to="0" dur="1.5s" repeatCount="indefinite" />
             </path>
           )}
@@ -1360,6 +1431,28 @@ export default function App() {
                         aria-label={`${ui.language}: ${option}`}
                       >
                         {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{isEnglish ? 'THEME' : '主题'}</p>
+                <div className="bg-[#f8fafc] border-2 border-black rounded-2xl p-1 shadow-[2px_2px_0_0_#000]">
+                  <div className="flex items-center gap-1">
+                    {Object.values(THEMES).map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => setTheme(option.id)}
+                        className={`flex-1 px-3 py-2 rounded-xl text-[11px] font-black transition-all ${
+                          theme === option.id
+                            ? 'bg-[#fcd34d] text-black border-2 border-black shadow-[2px_2px_0_0_#000]'
+                            : 'text-slate-500 hover:bg-white'
+                        }`}
+                        aria-label={`theme: ${option.label}`}
+                      >
+                        {isEnglish ? option.label : option.labelZh}
                       </button>
                     ))}
                   </div>
