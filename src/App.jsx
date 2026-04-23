@@ -479,20 +479,20 @@ const THEMES = {
     label: 'Classic Comic',
     labelZh: '漫画原版',
     // container
-    appBg: '#fef08a',
-    appDotColor: '#eab308',
-    appDotSize: '24px 24px',
+    appBg: '#f3ecdf',
+    appDotColor: '#dcc9a6',
+    appDotSize: '30px 30px',
     appTextColor: 'text-slate-900',
     // globe
-    oceanFill: '#38bdf8',
-    oceanStroke: '#000',
-    oceanStrokeWidth: 8,
-    coastStroke: '#1e293b',
-    coastStrokeWidth: 4,
-    graticuleStroke: '#0ea5e9',
-    graticuleStrokeWidth: 3,
-    routeStroke: '#ec4899',
-    routeStrokeWidth: 6,
+    oceanFill: '#58b7d8',
+    oceanStroke: '#16324d',
+    oceanStrokeWidth: 6,
+    coastStroke: '#16324d',
+    coastStrokeWidth: 3,
+    graticuleStroke: '#7bc6e0',
+    graticuleStrokeWidth: 2,
+    routeStroke: '#f07c5b',
+    routeStrokeWidth: 4,
   },
   y2k: {
     id: 'y2k',
@@ -528,11 +528,49 @@ const loadInitialTheme = () => {
 export default function App() {
   const [theme, setThemeState] = useState(loadInitialTheme);
   const t = THEMES[theme] || THEMES.comic;
+  const isComicTheme = theme === 'comic';
   const setTheme = (next) => {
     if (!THEMES[next]) return;
     setThemeState(next);
     try { window.localStorage.setItem('mapboom.theme', next); } catch {}
   };
+
+  const uiStyles = useMemo(() => ({
+    panelShell: {
+      background: isComicTheme ? 'rgba(255, 251, 245, 0.94)' : 'rgba(8, 20, 53, 0.92)',
+      borderColor: isComicTheme ? '#172033' : '#78d6ff',
+      boxShadow: isComicTheme ? '0 24px 60px rgba(15, 23, 42, 0.18)' : '0 28px 64px rgba(0, 0, 0, 0.45)',
+      backdropFilter: 'blur(16px)',
+    },
+    sectionShell: {
+      background: isComicTheme ? 'linear-gradient(180deg, rgba(255,255,255,0.88), rgba(248,244,236,0.98))' : 'linear-gradient(180deg, rgba(15,24,64,0.96), rgba(9,17,46,0.96))',
+      borderColor: isComicTheme ? '#172033' : '#5dbde9',
+      boxShadow: isComicTheme ? '0 12px 28px rgba(15, 23, 42, 0.12)' : '0 14px 30px rgba(0, 0, 0, 0.32)',
+    },
+    fieldShell: {
+      background: isComicTheme ? 'rgba(255,255,255,0.92)' : 'rgba(11,31,68,0.9)',
+      borderColor: isComicTheme ? '#172033' : '#8bdcff',
+      boxShadow: isComicTheme ? '0 6px 0 rgba(23, 32, 51, 0.12)' : '0 0 0 1px rgba(139,220,255,0.25)',
+    },
+    accentShell: {
+      background: isComicTheme ? 'linear-gradient(135deg, #fff2cc 0%, #f7df8a 100%)' : 'linear-gradient(135deg, rgba(200,255,61,0.16) 0%, rgba(0,181,217,0.18) 100%)',
+      borderColor: isComicTheme ? '#172033' : '#c8ff3d',
+      boxShadow: isComicTheme ? '0 10px 24px rgba(240, 124, 91, 0.18)' : '0 10px 24px rgba(0, 0, 0, 0.34)',
+    },
+    strongButton: {
+      background: isComicTheme ? 'linear-gradient(135deg, #f07c5b 0%, #ea6c85 100%)' : 'linear-gradient(135deg, #00b5d9 0%, #7b61ff 100%)',
+      borderColor: isComicTheme ? '#172033' : '#d8f5ff',
+      boxShadow: isComicTheme ? '0 12px 26px rgba(240, 124, 91, 0.28)' : '0 14px 30px rgba(0, 0, 0, 0.35)',
+      color: '#fff',
+    },
+    softChip: {
+      background: isComicTheme ? 'rgba(255,255,255,0.72)' : 'rgba(9,17,46,0.84)',
+      borderColor: isComicTheme ? 'rgba(23,32,51,0.72)' : 'rgba(120,214,255,0.7)',
+    },
+    softDivider: {
+      borderColor: isComicTheme ? 'rgba(148, 163, 184, 0.28)' : 'rgba(120,214,255,0.2)',
+    },
+  }), [isComicTheme]);
 
   const [budget, setBudget] = useState(30000);
   const [days, setDays] = useState(5);
@@ -1214,24 +1252,48 @@ export default function App() {
     >
       <style>
         {`
-          @keyframes rainbow-flash {
-            0% { background-color: #ef4444; border-color: #fff; transform: rotate(-2deg) scale(1); }
-            20% { background-color: #f97316; border-color: #000; transform: rotate(2deg) scale(1.05); }
-            40% { background-color: #eab308; border-color: #fff; transform: rotate(-2deg) scale(1); }
-            60% { background-color: #22c55e; border-color: #000; transform: rotate(2deg) scale(1.05); }
-            80% { background-color: #3b82f6; border-color: #fff; transform: rotate(-2deg) scale(1); }
-            100% { background-color: #a855f7; border-color: #000; transform: rotate(2deg) scale(1.05); }
+          @keyframes gentle-float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-3px); }
           }
           .btn-crazy-rainbow {
-            animation: rainbow-flash 0.6s infinite alternate ease-in-out !important;
-            color: white !important;
-            text-shadow: 2px 2px 0px #000 !important;
+            animation: gentle-float 2.2s infinite alternate ease-in-out !important;
+            background: linear-gradient(135deg, #fff4d3 0%, #f5d76e 100%) !important;
+            color: #172033 !important;
+            text-shadow: none !important;
+            box-shadow: 0 16px 34px rgba(240, 124, 91, 0.22) !important;
           }
           .btn-crazy-rainbow:hover {
-            animation-duration: 0.08s !important;
+            animation-duration: 1.1s !important;
+          }
+          .panel-scrollbar {
+            scrollbar-width: thin;
+            overscroll-behavior: contain;
+          }
+          .panel-scrollbar::-webkit-scrollbar {
+            width: 10px;
+          }
+          .panel-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .panel-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.45);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+          }
+          .text-balance {
+            text-wrap: balance;
           }
         `}
       </style>
+
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-20 top-8 h-72 w-72 rounded-full bg-white/45 blur-3xl"></div>
+        <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#f5d76e]/25 blur-3xl"></div>
+        <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#58b7d8]/18 blur-3xl"></div>
+        <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#f07c5b]/12 blur-3xl"></div>
+      </div>
 
       <div className="absolute inset-0 flex items-center justify-center">
         <svg viewBox="-400 -400 800 800" className={`w-[750px] h-[750px] overflow-visible cursor-grab active:cursor-grabbing transition-transform ${isDragging ? 'scale-[1.02]' : 'scale-100'}`} onMouseDown={handleMouseDown}>
@@ -1402,7 +1464,8 @@ export default function App() {
         <div className="relative">
           <button
             onClick={() => setShowSettingsMenu((prev) => !prev)}
-            className="w-14 h-14 bg-white border-4 border-black rounded-2xl shadow-[6px_6px_0_0_#000] hover:bg-[#f8fafc] active:translate-y-1 active:shadow-[3px_3px_0_0_#000] transition-all flex items-center justify-center"
+            className="w-14 h-14 rounded-2xl border-[2.5px] hover:-translate-y-0.5 active:translate-y-0.5 transition-all flex items-center justify-center"
+            style={uiStyles.panelShell}
             aria-label={ui.settings}
             title={ui.settings}
           >
@@ -1410,23 +1473,25 @@ export default function App() {
           </button>
 
           {showSettingsMenu && (
-            <div className="absolute right-0 top-full mt-3 w-64 bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_#000] p-4 space-y-4">
+            <div className="absolute right-0 top-full mt-3 w-64 rounded-[24px] border-[2.5px] p-4 space-y-4" style={uiStyles.panelShell}>
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{ui.mapLayers}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">{ui.mapLayers}</p>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => toggleMapLayer('departures')}
-                    className={`px-3 py-2 rounded-xl border-2 border-black text-[11px] font-black shadow-[2px_2px_0_0_#000] transition-colors ${
-                      mapLayerVisibility.departures ? 'bg-[#22d3ee] text-black' : 'bg-white text-slate-400'
+                    className={`px-3 py-2 rounded-2xl border text-[11px] font-semibold transition-colors ${
+                      mapLayerVisibility.departures ? 'text-black' : 'text-slate-400'
                     }`}
+                    style={mapLayerVisibility.departures ? uiStyles.accentShell : uiStyles.fieldShell}
                   >
                     {ui.departuresLayer}
                   </button>
                   <button
                     onClick={() => toggleMapLayer('destinations')}
-                    className={`px-3 py-2 rounded-xl border-2 border-black text-[11px] font-black shadow-[2px_2px_0_0_#000] transition-colors ${
-                      mapLayerVisibility.destinations ? 'bg-[#fcd34d] text-black' : 'bg-white text-slate-400'
+                    className={`px-3 py-2 rounded-2xl border text-[11px] font-semibold transition-colors ${
+                      mapLayerVisibility.destinations ? 'text-black' : 'text-slate-400'
                     }`}
+                    style={mapLayerVisibility.destinations ? uiStyles.accentShell : uiStyles.fieldShell}
                   >
                     {ui.destinationsLayer}
                   </button>
@@ -1434,8 +1499,8 @@ export default function App() {
               </div>
 
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{ui.language}</p>
-                <div className="bg-[#f8fafc] border-2 border-black rounded-2xl p-1 shadow-[2px_2px_0_0_#000]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">{ui.language}</p>
+                <div className="rounded-2xl p-1 border" style={uiStyles.fieldShell}>
                   <div className="flex items-center gap-1">
                     {['English', '中文'].map((option) => (
                       <button
@@ -1443,9 +1508,10 @@ export default function App() {
                         onClick={() => { setLanguage(option); setShowSettingsMenu(false); }}
                         className={`flex-1 px-3 py-2 rounded-xl text-[11px] font-black transition-all ${
                           language === option
-                            ? 'bg-[#22d3ee] text-black border-2 border-black shadow-[2px_2px_0_0_#000]'
-                            : 'text-slate-500 hover:bg-white'
+                            ? 'text-black border'
+                            : 'text-slate-500 hover:bg-white/60'
                         }`}
+                        style={language === option ? uiStyles.accentShell : undefined}
                         aria-label={`${ui.language}: ${option}`}
                       >
                         {option}
@@ -1456,8 +1522,8 @@ export default function App() {
               </div>
 
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{isEnglish ? 'THEME' : '主题'}</p>
-                <div className="bg-[#f8fafc] border-2 border-black rounded-2xl p-1 shadow-[2px_2px_0_0_#000]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">{isEnglish ? 'THEME' : '主题'}</p>
+                <div className="rounded-2xl p-1 border" style={uiStyles.fieldShell}>
                   <div className="flex items-center gap-1">
                     {Object.values(THEMES).map((option) => (
                       <button
@@ -1465,9 +1531,10 @@ export default function App() {
                         onClick={() => setTheme(option.id)}
                         className={`flex-1 px-3 py-2 rounded-xl text-[11px] font-black transition-all ${
                           theme === option.id
-                            ? 'bg-[#fcd34d] text-black border-2 border-black shadow-[2px_2px_0_0_#000]'
-                            : 'text-slate-500 hover:bg-white'
+                            ? 'text-black border'
+                            : 'text-slate-500 hover:bg-white/60'
                         }`}
+                        style={theme === option.id ? uiStyles.accentShell : undefined}
                         aria-label={`theme: ${option.label}`}
                       >
                         {isEnglish ? option.label : option.labelZh}
@@ -1477,20 +1544,22 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="border-t-2 border-dashed border-slate-300 pt-4">
-                <p className="text-[10px] font-black uppercase text-slate-500 mb-2">{ui.account}</p>
+              <div className="border-t border-dashed pt-4" style={uiStyles.softDivider}>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">{ui.account}</p>
                 {user ? (
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={handleLoadMyTrips}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-[#fcd34d] border-2 border-black rounded-xl hover:bg-[#fbbf24] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5 text-xs font-black"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-2xl border transition-colors active:translate-y-0.5 text-xs font-bold"
+                      style={uiStyles.accentShell}
                       title={ui.myTripsTooltip}
                     >
                       <Heart size={14} strokeWidth={3}/> {ui.myTripsTooltip}
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-200 border-2 border-black rounded-xl hover:bg-[#f87171] transition-colors shadow-[2px_2px_0_0_#000] active:translate-y-0.5 text-xs font-black"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-2xl border transition-colors active:translate-y-0.5 text-xs font-bold"
+                      style={uiStyles.fieldShell}
                       title={ui.logoutTooltip}
                     >
                       <LogOut size={14} strokeWidth={3}/> {ui.logoutTooltip}
@@ -1500,14 +1569,16 @@ export default function App() {
                   <div className="space-y-2">
                     <button
                       onClick={() => handleLogin('google')}
-                      className="w-full px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-black text-black bg-[#fef08a] hover:bg-[#fde047] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] transition-colors"
+                      className="w-full px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-bold text-black rounded-2xl border transition-colors"
+                      style={uiStyles.accentShell}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                       {ui.signInGoogle}
                     </button>
                     <button
                       onClick={() => handleLogin('github')}
-                      className="w-full px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-black text-white bg-[#1e293b] hover:bg-black border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] transition-colors"
+                      className="w-full px-4 py-2.5 flex items-center justify-center gap-2 text-xs font-bold text-white rounded-2xl border transition-colors"
+                      style={uiStyles.strongButton}
                     >
                       <Github size={14} strokeWidth={3}/> {ui.signInGithub}
                     </button>
@@ -1522,23 +1593,25 @@ export default function App() {
       {selectedCluster && (
         <div
           onWheel={(e) => e.stopPropagation()}
-          className="absolute top-24 right-6 z-30 w-72 bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_#000] p-4 pointer-events-auto"
+          className="absolute top-24 right-6 z-30 w-72 rounded-[24px] border-[2.5px] p-4 pointer-events-auto"
+          style={uiStyles.panelShell}
         >
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <p className="text-[10px] font-black uppercase text-slate-500">{ui.crowdedArea}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{ui.crowdedArea}</p>
               <h3 className="text-base font-black text-black">{ui.clusterCount(selectedCluster.items.length)}</h3>
-              <p className="text-[11px] font-bold text-slate-500 mt-1">{ui.crowdedHint}</p>
+              <p className="text-[11px] font-medium text-slate-500 mt-1">{ui.crowdedHint}</p>
             </div>
             <button
               onClick={() => setSelectedClusterId(null)}
-              className="p-1.5 bg-white border-2 border-black rounded-full hover:bg-[#f1f5f9] transition-colors"
+              className="p-1.5 border rounded-full transition-colors"
+              style={uiStyles.softChip}
             >
               <X size={14} strokeWidth={3} />
             </button>
           </div>
 
-          <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
+          <div className="panel-scrollbar max-h-64 overflow-y-auto space-y-2 pr-1">
             {selectedCluster.items.map((item) => (
               <button
                 key={item.id}
@@ -1547,18 +1620,19 @@ export default function App() {
                   else if (DESTINATION_REGIONS.some((region) => region.id === item.id)) handleRegionSelect(item);
                   else handleMarkerClick(item);
                 }}
-                className="w-full flex items-center gap-3 p-2.5 bg-[#f8fafc] border-2 border-black rounded-xl shadow-[2px_2px_0_0_#000] hover:-translate-y-0.5 transition-transform text-left"
+                className="w-full flex items-center gap-3 p-2.5 rounded-2xl border text-left transition-transform hover:-translate-y-0.5"
+                style={uiStyles.fieldShell}
               >
-                <div className="w-10 h-10 rounded-xl border-2 border-black bg-white flex items-center justify-center text-lg shrink-0">
+                <div className="w-10 h-10 rounded-2xl border flex items-center justify-center text-lg shrink-0" style={uiStyles.softChip}>
                   {item.icon}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border border-black ${item.markerType === 'departure' ? 'bg-[#22d3ee]' : 'bg-[#fcd34d]'}`}>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border" style={item.markerType === 'departure' ? uiStyles.softChip : uiStyles.accentShell}>
                       {item.markerType === 'departure' ? ui.departureBadge : ui.destinationBadge}
                     </span>
                     {item.isDestination && (
-                      <span className="text-[10px] font-black text-slate-500">¥{item.estCost}</span>
+                      <span className="text-[10px] font-semibold text-slate-500">¥{item.estCost}</span>
                     )}
                   </div>
                   <p className="text-sm font-black text-black truncate mt-1">{getPlaceName(item)}</p>
@@ -1572,32 +1646,34 @@ export default function App() {
       <button 
         onWheel={(e) => e.stopPropagation()}
         onClick={() => setShowBlindBox(true)} 
-        className="absolute right-6 bottom-8 px-6 py-4 btn-crazy-rainbow border-4 border-black rounded-2xl shadow-[8px_8px_0_0_#000] active:translate-y-2 active:shadow-none flex items-center justify-center gap-3 z-20 pointer-events-auto group origin-center"
+        className="absolute right-6 bottom-8 px-5 py-3.5 btn-crazy-rainbow border-[2.5px] rounded-[22px] active:translate-y-1 transition-all flex items-center justify-center gap-3 z-20 pointer-events-auto group origin-center"
+        style={{ borderColor: uiStyles.accentShell.borderColor }}
       >
-        <Dices size={32} strokeWidth={3} className="text-white group-hover:rotate-12 transition-transform"/>
-        <span className="text-xl font-black uppercase tracking-wider text-white">{ui.blindBoxButton}</span>
+        <Dices size={28} strokeWidth={2.6} className="group-hover:rotate-12 transition-transform"/>
+        <span className="text-lg font-bold tracking-[0.02em]">{ui.blindBoxButton}</span>
       </button>
 
       <div 
         onWheel={(e) => e.stopPropagation()}
-        className="absolute top-6 left-6 z-20 w-[22rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-3rem)] bg-white p-5 rounded-3xl border-4 border-black shadow-[8px_8px_0_0_#000] pointer-events-auto flex flex-col overflow-hidden"
+        className="absolute top-6 left-6 z-20 w-[22rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-3rem)] p-5 rounded-[30px] border-[3px] pointer-events-auto flex flex-col overflow-hidden"
+        style={uiStyles.panelShell}
       >
         <div className="mb-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={24} strokeWidth={3}/></div>
+            <div className="p-2.5 rounded-2xl text-black" style={uiStyles.accentShell}><Compass size={24} strokeWidth={2.6}/></div>
             <div>
-              <h1 className="text-2xl font-black text-black tracking-tight leading-none uppercase">{ui.appTitle}</h1>
-              <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">{ui.appSubtitle}</p>
+              <h1 className="text-[2rem] font-black text-black tracking-[-0.04em] leading-none uppercase text-balance">{ui.appTitle}</h1>
+              <p className="text-[10px] font-semibold text-slate-500 mt-1 uppercase tracking-[0.18em]">{ui.appSubtitle}</p>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1 pb-1">
+        <div className="panel-scrollbar flex-1 min-h-0 overflow-y-auto pr-2 -mr-2 pb-1">
           <div className="space-y-4">
-          <div className="bg-[#f8fafc] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000]">
+          <div className="rounded-[24px] border-[2.5px] p-4" style={uiStyles.sectionShell}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] font-black uppercase text-slate-500">{ui.routeTitle}</p>
-              <span className="text-[10px] font-black px-2 py-1 rounded-full border-2 border-black bg-[#fef08a] max-w-[9rem] truncate">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{ui.routeTitle}</p>
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border max-w-[10rem] truncate text-slate-700" style={uiStyles.softChip}>
                 {selectedDest
                   ? `${getPlaceShortName(departure)} → ${getPlaceShortName(selectedDest)}`
                   : selectedRegion
@@ -1608,19 +1684,20 @@ export default function App() {
 
             <div className="space-y-3">
               <div>
-                <label className="text-[11px] font-black text-black uppercase mb-1 flex items-center gap-1.5"><MapIcon size={14} strokeWidth={3} /> {ui.fromLabel}</label>
-                <select value={departureId} onChange={(e) => { setDepartureId(e.target.value); const newDep = ALL_PLACES.find(d => d.id === e.target.value); if(newDep) { animateToTarget(newDep.lon, newDep.lat); setZoom(1.5); } }} className="w-full p-2.5 bg-[#e0e7ff] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer">
+                <label className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5"><MapIcon size={14} strokeWidth={2.6} /> {ui.fromLabel}</label>
+                <select value={departureId} onChange={(e) => { setDepartureId(e.target.value); const newDep = ALL_PLACES.find(d => d.id === e.target.value); if(newDep) { animateToTarget(newDep.lon, newDep.lat); setZoom(1.5); } }} className="w-full p-3 rounded-2xl text-sm font-semibold text-black focus:outline-none focus:ring-4 cursor-pointer transition-shadow" style={{ ...uiStyles.fieldShell, '--tw-ring-color': isComicTheme ? '#f4b8c5' : '#72d8ff' }}>
                   <optgroup label={ui.hubsLabel}>{DEPARTURE_CITIES.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
                   <optgroup label={ui.placesLabel}>{DESTINATIONS.map(c => <option key={c.id} value={c.id}>{c.icon} {getPlaceName(c)}</option>)}</optgroup>
                 </select>
               </div>
 
               <div>
-                <label className="text-[11px] font-black text-black uppercase mb-1 flex items-center gap-1.5"><Compass size={14} strokeWidth={3} /> {ui.broadLabel}</label>
+                <label className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5"><Compass size={14} strokeWidth={2.6} /> {ui.broadLabel}</label>
                 <select
                   value={selectedRegionId}
                   onChange={(e) => handleRegionChange(e.target.value)}
-                  className="w-full p-2.5 bg-[#dcfce7] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer"
+                  className="w-full p-3 rounded-2xl text-sm font-semibold text-black focus:outline-none focus:ring-4 cursor-pointer transition-shadow"
+                  style={{ ...uiStyles.fieldShell, '--tw-ring-color': isComicTheme ? '#bcead5' : '#72d8ff' }}
                 >
                   <option value="all">{ui.allRegions}</option>
                   {DESTINATION_REGIONS.map((region) => (
@@ -1630,7 +1707,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="text-[11px] font-black text-black uppercase mb-1 flex items-center gap-1.5"><Plane size={14} strokeWidth={3} /> {ui.specificLabel}</label>
+                <label className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5"><Plane size={14} strokeWidth={2.6} /> {ui.specificLabel}</label>
                 <select
                   value={selectedDest?.id || ''}
                   onChange={(e) => {
@@ -1640,7 +1717,8 @@ export default function App() {
                     else handleMarkerClick(dest);
                   }}
                   disabled={selectedRegionId === 'all'}
-                  className="w-full p-2.5 bg-[#fef08a] border-4 border-black rounded-xl text-sm font-bold text-black focus:outline-none focus:ring-4 focus:ring-[#f472b6] shadow-[4px_4px_0_0_#000] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full p-3 rounded-2xl text-sm font-semibold text-black focus:outline-none focus:ring-4 cursor-pointer transition-shadow disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ ...uiStyles.fieldShell, '--tw-ring-color': isComicTheme ? '#f2d27c' : '#c8ff3d' }}
                 >
                   <option value="" disabled>{ui.selectDestination}</option>
                   {visibleSpecificDestinations.map((place) => (
@@ -1651,18 +1729,18 @@ export default function App() {
                 </select>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 pt-3 border-t-2 border-dashed border-slate-300">
-                <span className="px-2 py-0.5 bg-white border-2 border-black rounded-full text-[10px] font-black">
+              <div className="flex flex-wrap gap-1.5 pt-3 border-t border-dashed" style={uiStyles.softDivider}>
+                <span className="px-2.5 py-1 rounded-full border text-[10px] font-semibold text-slate-700" style={uiStyles.softChip}>
                   {TRAVEL_STYLES.find((s) => s.id === travelStyle)?.icon} {getTravelStyleName(travelStyle)}
                 </span>
-                <span className="px-2 py-0.5 bg-[#dbeafe] border-2 border-black rounded-full text-[10px] font-black">
+                <span className="px-2.5 py-1 rounded-full border text-[10px] font-semibold text-slate-700" style={uiStyles.softChip}>
                   {days}{isEnglish ? 'd' : '天'}
                 </span>
-                <span className="px-2 py-0.5 bg-[#fce7f3] border-2 border-black rounded-full text-[10px] font-black text-[#be185d]">
+                <span className="px-2.5 py-1 rounded-full border text-[10px] font-semibold text-[#b2554e]" style={uiStyles.softChip}>
                   {formatBudgetLabel(budget)}
                 </span>
                 {selectedDest && (
-                  <span className="px-2 py-0.5 bg-[#dcfce7] border-2 border-black rounded-full text-[10px] font-black">
+                  <span className="px-2.5 py-1 rounded-full border text-[10px] font-semibold text-slate-700" style={uiStyles.softChip}>
                     {getVisaLabel(passport, selectedDest)}
                   </span>
                 )}
@@ -1670,59 +1748,61 @@ export default function App() {
             </div>
           </div>
 
-          <div className="border-4 border-black rounded-2xl shadow-[4px_4px_0_0_#000] overflow-hidden">
+          <div className="rounded-[24px] border-[2.5px] overflow-hidden" style={uiStyles.sectionShell}>
             <button
               onClick={() => setShowTripTuning((prev) => !prev)}
-              className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-white hover:bg-[#f8fafc] transition-colors"
+              className="w-full flex items-center justify-between gap-3 px-4 py-3.5 transition-colors"
+              style={{ background: isComicTheme ? 'rgba(255,255,255,0.66)' : 'rgba(15,24,64,0.85)' }}
             >
               <div className="flex items-center gap-2">
-                <Sparkles size={16} strokeWidth={3} />
-                <span className="text-sm font-black text-black uppercase">
+                <Sparkles size={16} strokeWidth={2.6} />
+                <span className="text-sm font-bold text-black">
                   {showTripTuning ? ui.hideTuneTrip : ui.tuneTrip}
                 </span>
               </div>
               <ChevronRight
                 size={18}
-                strokeWidth={3}
+                strokeWidth={2.6}
                 className={`transition-transform ${showTripTuning ? 'rotate-90' : ''}`}
               />
             </button>
 
             {showTripTuning && (
-              <div className="p-4 bg-[#f8fafc] border-t-4 border-black space-y-4">
+              <div className="p-4 space-y-4 border-t" style={{ ...uiStyles.softDivider, background: isComicTheme ? 'rgba(252,249,243,0.82)' : 'rgba(9,17,46,0.92)' }}>
                 <div>
-                  <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Sparkles size={14} strokeWidth={3}/> {ui.styleLabel}</label>
+                  <label className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5"><Sparkles size={14} strokeWidth={2.6}/> {ui.styleLabel}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {TRAVEL_STYLES.map(s => (
                       <button key={s.id} onClick={() => setTravelStyle(s.id)}
-                        className={`py-2 px-2 text-[11px] font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none
-                        ${travelStyle === s.id ? 'bg-[#fcd34d] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>
+                        className={`py-2.5 px-2 text-[11px] font-semibold rounded-2xl border-[2.5px] transition-all duration-150 active:translate-y-0.5
+                        ${travelStyle === s.id ? 'text-black' : 'text-slate-700 hover:-translate-y-0.5'}`}
+                        style={travelStyle === s.id ? uiStyles.accentShell : uiStyles.fieldShell}>
                         {s.icon} {isEnglish ? (s.nameEn || s.name) : s.name}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-1 border-t-4 border-black">
+                <div className="pt-1 border-t" style={uiStyles.softDivider}>
                   <div className="flex justify-between items-end mb-1">
-                    <label className="text-xs font-black text-black uppercase flex items-center gap-1.5"><Wallet size={14} strokeWidth={3}/> {ui.budgetLabel}</label>
-                    <span className="text-[#ec4899] font-black text-sm bg-[#fce7f3] px-2 py-0.5 border-2 border-black rounded shadow-[2px_2px_0_0_#000]">¥{budget.toLocaleString()}</span>
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5"><Wallet size={14} strokeWidth={2.6}/> {ui.budgetLabel}</label>
+                    <span className="text-[#b2554e] font-bold text-sm px-2.5 py-1 rounded-full border" style={uiStyles.softChip}>¥{budget.toLocaleString()}</span>
                   </div>
-                  <input type="range" min="5000" max="100000" step="5000" value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full h-4 bg-black rounded-full appearance-none cursor-pointer accent-[#22d3ee] shadow-[2px_2px_0_0_rgba(0,0,0,0.5)] outline-none mt-2"/>
+                  <input type="range" min="5000" max="100000" step="5000" value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full h-3 rounded-full appearance-none cursor-pointer accent-[#f07c5b] outline-none mt-2 bg-slate-200"/>
                 </div>
 
                 <div>
-                  <label className="text-xs font-black text-black uppercase mb-2 flex items-center gap-1.5"><Calendar size={14} strokeWidth={3}/> {ui.daysLabel}</label>
+                  <label className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5"><Calendar size={14} strokeWidth={2.6}/> {ui.daysLabel}</label>
                   <div className="flex gap-2">
                     {[3, 5, 7, 10, 14].map(d => (
-                      <button key={d} onClick={() => setDays(d)} className={`flex-1 py-1.5 text-sm font-black rounded-xl border-4 border-black transition-all duration-100 active:translate-y-1 active:shadow-none ${days === d ? 'bg-[#22d3ee] text-black shadow-[4px_4px_0_0_#000]' : 'bg-white text-black hover:bg-slate-100 shadow-[2px_2px_0_0_#000]'}`}>{d}</button>
+                      <button key={d} onClick={() => setDays(d)} className={`flex-1 py-2 text-sm rounded-2xl border-[2.5px] transition-all duration-150 active:translate-y-0.5 ${days === d ? 'font-bold text-black' : 'font-semibold text-slate-700 hover:-translate-y-0.5'}`} style={days === d ? uiStyles.accentShell : uiStyles.fieldShell}>{d}</button>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-2 border-t-2 border-dashed border-slate-300">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> {ui.visaLabel}</label>
-                  <select value={passport} onChange={(e) => setPassport(e.target.value)} className="w-full p-1.5 bg-white border-2 border-slate-300 rounded-lg text-xs font-bold text-slate-600 focus:outline-none cursor-pointer hover:border-black transition-colors">
+                <div className="pt-2 border-t border-dashed" style={uiStyles.softDivider}>
+                  <label className="text-[10px] font-semibold text-slate-500 uppercase mb-1 flex items-center gap-1"><User size={12} strokeWidth={2}/> {ui.visaLabel}</label>
+                  <select value={passport} onChange={(e) => setPassport(e.target.value)} className="w-full p-2.5 rounded-2xl text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer transition-colors" style={uiStyles.fieldShell}>
                     <option value="CN">{ui.passportCn}</option><option value="US">{ui.passportUs}</option>
                   </select>
                 </div>
@@ -1736,31 +1816,34 @@ export default function App() {
       {selectedDest && !showBlindBox && (
         <div 
           onWheel={(e) => e.stopPropagation()}
-          className={`absolute bottom-6 left-1/2 w-96 bg-white p-1.5 rounded-2xl border-4 border-black shadow-[10px_10px_0_0_#000] z-30 pointer-events-auto
+          className={`absolute bottom-6 left-1/2 w-96 p-1.5 rounded-[26px] border-[2.5px] z-30 pointer-events-auto
           ${isDraggingPopup ? 'transition-none cursor-grabbing' : 'transition-transform duration-300 cursor-grab'}`}
-          style={{ transform: `translate(calc(-50% + ${popupOffset.x}px), calc(${showItinerary ? '150%' : '0px'} + ${popupOffset.y}px))` }}
+          style={{
+            ...uiStyles.panelShell,
+            transform: `translate(calc(-50% + ${popupOffset.x}px), calc(${showItinerary ? '150%' : '0px'} + ${popupOffset.y}px))`,
+          }}
           onMouseDown={handlePopupMouseDown}
         >
           <div className="w-16 h-2 bg-slate-200 border-2 border-black rounded-full mx-auto mb-1.5 pointer-events-none"></div>
 
-          <div className="relative bg-[#fef08a] border-4 border-black rounded-xl p-5 overflow-hidden">
-            <button onMouseDown={(e) => e.stopPropagation()} onClick={() => setSelectedDest(null)} className="absolute top-2 right-2 p-1.5 bg-white border-4 border-black rounded-full text-black hover:bg-[#f87171] transition-colors shadow-[2px_2px_0_0_#000] z-20 active:translate-y-1 active:shadow-none"><X size={16} strokeWidth={4} /></button>
+          <div className="relative rounded-[22px] p-5 overflow-hidden border-[2.5px]" style={uiStyles.accentShell}>
+            <button onMouseDown={(e) => e.stopPropagation()} onClick={() => setSelectedDest(null)} className="absolute top-2 right-2 p-1.5 rounded-full text-black transition-colors z-20 active:translate-y-1" style={uiStyles.fieldShell}><X size={16} strokeWidth={3} /></button>
             <div className="absolute -bottom-8 -right-4 text-8xl opacity-30 pointer-events-none">{selectedDest.icon}</div>
             
             <h2 className="text-3xl font-black text-black tracking-tight mb-3 uppercase relative z-10">{getPlaceName(selectedDest)}</h2>
             
             <div className="flex items-center gap-3 relative z-10 mb-4">
-               <span className="px-3 py-1 bg-white border-4 border-black rounded-lg text-sm font-black shadow-[4px_4px_0_0_#000]">{isEnglish ? `${days} DAYS` : `${days}天`}</span>
-               <span className={`px-3 py-1 rounded-lg text-sm font-black border-4 border-black shadow-[4px_4px_0_0_#000] uppercase ${(() => {
+               <span className="px-3 py-1 rounded-full text-sm font-semibold border" style={uiStyles.softChip}>{isEnglish ? `${days} DAYS` : `${days}天`}</span>
+               <span className={`px-3 py-1 rounded-full text-sm font-semibold border uppercase ${(() => {
                  const region = selectedDest.regionId ? DESTINATION_REGIONS.find((item) => item.id === selectedDest.regionId) : null;
                  const visaKey = selectedDest.visaKey || region?.visaKey || selectedDest.id;
                  const status = VISA_RULES[passport]?.[visaKey]?.status;
-                 return status === 'free' ? 'bg-[#4ade80]' : status === 'voa' ? 'bg-[#facc15]' : 'bg-[#f87171]';
-               })()}`}>{getVisaLabel(passport, selectedDest)}</span>
+                 return status === 'free' ? 'text-[#0f766e]' : status === 'voa' ? 'text-[#9a6700]' : 'text-[#b91c1c]';
+               })()}`} style={uiStyles.softChip}>{getVisaLabel(passport, selectedDest)}</span>
             </div>
 
-            <div className="bg-white border-4 border-black rounded-xl p-4 shadow-[4px_4px_0_0_#000] relative z-10">
-              <div className="flex justify-between items-end mb-2 border-b-4 border-black pb-2">
+            <div className="rounded-[22px] p-4 relative z-10 border-[2.5px]" style={uiStyles.fieldShell}>
+              <div className="flex justify-between items-end mb-2 border-b pb-2" style={uiStyles.softDivider}>
                 <span className="font-black text-sm uppercase">{ui.totalCost}</span>
                 <span className={`text-2xl font-black ${calculateTotalCost(selectedDest, days) > budget ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>¥{calculateTotalCost(selectedDest, days).toLocaleString()}</span>
               </div>
@@ -1771,11 +1854,11 @@ export default function App() {
                 <span>🍜 {ui.dailyCost}: ¥{selectedDest.daily}{ui.perDay}</span>
               </div>
               
-              <p className="text-sm font-bold text-slate-700 leading-tight pointer-events-none">{getPlaceDescription(selectedDest)}</p>
+              <p className="text-sm font-medium text-slate-700 leading-relaxed pointer-events-none">{getPlaceDescription(selectedDest)}</p>
             </div>
 
-            <button disabled={isAILoading} onMouseDown={(e) => e.stopPropagation()} onClick={handleGenerateItinerary} className={`w-full mt-4 py-3 ${isAILoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#a855f7] hover:bg-[#9333ea]'} text-white text-lg font-black uppercase rounded-xl border-4 border-black shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 relative z-20`}>
-              <Sparkles strokeWidth={3}/> {ui.generateButton}
+            <button disabled={isAILoading} onMouseDown={(e) => e.stopPropagation()} onClick={handleGenerateItinerary} className="w-full mt-4 py-3 text-lg font-bold rounded-[20px] border-[2.5px] active:translate-y-1 transition-all flex items-center justify-center gap-2 relative z-20 disabled:opacity-60 disabled:cursor-not-allowed" style={uiStyles.strongButton}>
+              <Sparkles strokeWidth={2.6}/> {ui.generateButton}
             </button>
           </div>
         </div>
@@ -1783,19 +1866,20 @@ export default function App() {
 
       <div 
         onWheel={(e) => e.stopPropagation()}
-        className={`absolute top-0 right-0 w-[450px] h-full bg-[#f8fafc] border-l-8 border-black shadow-[-15px_0_0_0_rgba(0,0,0,1)] transition-transform duration-300 ease-out z-40 overflow-y-auto ${showItinerary ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`panel-scrollbar absolute top-0 right-0 w-[450px] h-full transition-transform duration-300 ease-out z-40 overflow-y-auto border-l-[2.5px] ${showItinerary ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ ...uiStyles.panelShell, borderRadius: 0, boxShadow: isComicTheme ? '-18px 0 42px rgba(15, 23, 42, 0.16)' : '-18px 0 42px rgba(0, 0, 0, 0.34)' }}
       >
         {selectedDest && (
           <div className="pb-10 relative">
-            <div className="sticky top-0 z-10 bg-[#f472b6] border-b-8 border-black p-6 flex items-center justify-between">
+            <div className="sticky top-0 z-10 p-6 flex items-center justify-between border-b" style={{ ...uiStyles.sectionShell, borderRadius: 0, boxShadow: 'none' }}>
               <div>
-                <h2 className="text-2xl font-black text-black uppercase tracking-widest bg-white inline-block px-3 py-1 border-4 border-black shadow-[4px_4px_0_0_#000] transform -rotate-2">{ui.itineraryHeader}</h2>
+                <h2 className="text-2xl font-black text-black tracking-[-0.04em] bg-white/80 inline-block px-3 py-1.5 rounded-2xl border" style={uiStyles.softChip}>{ui.itineraryHeader}</h2>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="bg-black text-white px-2 py-0.5 rounded text-xs font-bold">{getPlaceShortName(selectedDest)}</span>
-                  <span className="bg-[#fcd34d] text-black border-2 border-black px-2 py-0.5 rounded text-xs font-bold shadow-[2px_2px_0_0_#000]">{TRAVEL_STYLES.find(s=>s.id===travelStyle)?.icon} {getTravelStyleName(travelStyle)}</span>
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold border text-slate-700" style={uiStyles.softChip}>{getPlaceShortName(selectedDest)}</span>
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold border text-slate-700" style={uiStyles.accentShell}>{TRAVEL_STYLES.find(s=>s.id===travelStyle)?.icon} {getTravelStyleName(travelStyle)}</span>
                 </div>
               </div>
-              <button onClick={() => setShowItinerary(false)} className="p-2 bg-white border-4 border-black rounded-full text-black hover:bg-[#fbbf24] transition-colors shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none"><X size={24} strokeWidth={4} /></button>
+              <button onClick={() => setShowItinerary(false)} className="p-2 rounded-full text-black transition-colors active:translate-y-1" style={uiStyles.fieldShell}><X size={24} strokeWidth={3} /></button>
             </div>
 
             <div className="p-6 space-y-6">
@@ -1826,17 +1910,17 @@ export default function App() {
 
                   {/* 这里使用了短路逻辑：如果 AI 返回了数据就用 AI 的，否则回退使用本地自动计算的假行程 */}
                   {displayedItinerary.map((day, idx) => (
-                    <div key={idx} className={`relative bg-white border-4 border-black p-5 rounded-2xl shadow-[8px_8px_0_0_#000] transform hover:-translate-y-1 transition-transform ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}>
-                      <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#22d3ee] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-xl font-black z-10">{day.day}</div>
-                      <div className="absolute -top-6 right-4 w-14 h-14 bg-[#facc15] border-4 border-black rounded-full shadow-[4px_4px_0_0_#000] flex items-center justify-center text-black z-10">
+                    <div key={idx} className={`relative p-5 rounded-[24px] border-[2.5px] hover:-translate-y-1 transition-transform ${idx % 2 === 0 ? 'rotate-[0.35deg]' : '-rotate-[0.35deg]'}`} style={uiStyles.sectionShell}>
+                      <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full border-[2.5px] flex items-center justify-center text-xl font-black z-10" style={uiStyles.fieldShell}>{day.day}</div>
+                      <div className="absolute -top-6 right-4 w-14 h-14 rounded-full border-[2.5px] flex items-center justify-center text-black z-10" style={uiStyles.accentShell}>
                         {/* 兼容 AI 的返回数据（纯字符串）和本地数据 */}
                         {day.iconName ? <DynamicIcon name={day.iconName} size={28}/> : (day.icon || <MapIcon size={28}/>)}
                       </div>
                       <div className="mt-4">
-                        <h3 className="text-lg font-black text-black uppercase mb-2 border-b-4 border-black inline-block pb-1">{day.title}</h3>
-                        <p className="text-sm font-bold text-slate-600 leading-relaxed bg-[#f1f5f9] p-3 rounded-xl border-2 border-black whitespace-pre-line">{day.desc}</p>
+                        <h3 className="text-lg font-black text-black mb-2 border-b-2 border-slate-900/70 inline-block pb-1">{day.title}</h3>
+                        <p className="text-sm font-medium text-slate-600 leading-relaxed p-3 rounded-[18px] border whitespace-pre-line" style={uiStyles.fieldShell}>{day.desc}</p>
                         {day.hotel && (
-                          <div className="mt-2 flex items-start gap-1.5 text-xs font-bold text-slate-500">
+                          <div className="mt-2 flex items-start gap-1.5 text-xs font-medium text-slate-500">
                             <BedDouble size={14} className="mt-0.5 shrink-0 text-[#8b5cf6]"/>
                             <span>{day.hotel}</span>
                           </div>
@@ -1844,7 +1928,7 @@ export default function App() {
                         {day.highlights && day.highlights.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1.5">
                             {day.highlights.map((h, i) => (
-                              <span key={i} className="text-xs font-black bg-[#fcd34d] text-black px-2 py-0.5 rounded-lg border-2 border-black">⭐ {h}</span>
+                              <span key={i} className="text-xs font-semibold text-black px-2 py-1 rounded-full border" style={uiStyles.accentShell}>⭐ {h}</span>
                             ))}
                           </div>
                         )}
