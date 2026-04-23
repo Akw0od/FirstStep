@@ -204,6 +204,20 @@ const AMBIENT_STARFIELD = [
   { left: '76%', top: '43%', size: 6, delay: '0.9s' }
 ];
 
+const FEATURE_REGION_MAP = {
+  Japan: 'region_japan',
+  Thailand: 'region_thailand',
+  USA: 'region_california',
+  France: 'region_france',
+  Italy: 'region_italy',
+  England: 'region_uk',
+  Ireland: 'region_uk',
+  'South Korea': 'region_korea',
+  Australia: 'region_australia',
+  Peru: 'region_peru',
+  Morocco: 'region_morocco'
+};
+
 const getRegionVisual = (regionId) => REGION_VISUALS[regionId] || REGION_VISUALS.default;
 
 const VISA_RULES = {
@@ -725,6 +739,7 @@ export default function App() {
   const reqFrame = useRef(null);
   
   const [mapLines, setMapLines] = useState([]);
+  const [mapFeatures, setMapFeatures] = useState([]);
   const [isMapLoading, setIsMapLoading] = useState(true);
 
   // --- Auth State Listener ---
@@ -885,14 +900,23 @@ export default function App() {
       .then(r => r.json())
       .then(data => {
         const lines = [];
+        const features = [];
         data.features.forEach(feature => {
           if (!feature.geometry) return;
           const type = feature.geometry.type;
           const coords = feature.geometry.coordinates;
-          if (type === 'Polygon') lines.push(coords[0]);
-          else if (type === 'MultiPolygon') coords.forEach(poly => lines.push(poly[0]));
+          const name = feature.properties?.name;
+          if (type === 'Polygon') {
+            lines.push(coords[0]);
+            features.push({ name, polygons: [coords[0]] });
+          }
+          else if (type === 'MultiPolygon') {
+            coords.forEach(poly => lines.push(poly[0]));
+            features.push({ name, polygons: coords.map((poly) => poly[0]) });
+          }
         });
         setMapLines(lines);
+        setMapFeatures(features);
         setIsMapLoading(false);
       })
       .catch((e) => {
@@ -1317,6 +1341,61 @@ export default function App() {
     if (!projection.visible) return null;
     return { ...projection, region, visual: getRegionVisual(region.id) };
   }, [activeRegionAuraId, rotation, currentRadius, regionsById]);
+  const projectedCountryFills = useMemo(() => {
+    if (mapFeatures.length === 0) return [];
+
+    const fills = [];
+    mapFeatures.forEach((feature, featureIndex) => {
+      const regionId = FEATURE_REGION_MAP[feature.name];
+      if (!regionId) return;
+
+      const visual = getRegionVisual(regionId);
+      const isActive = activeRegionAuraId === regionId;
+      const isSelected = selectedDest?.regionId === regionId || selectedDest?.id === regionId || selectedRegionId === regionId;
+      const opacity = isActive ? 0.58 : isSelected ? 0.42 : 0.22;
+      const strokeOpacity = isActive ? 0.8 : isSelected ? 0.58 : 0.28;
+
+      feature.polygons.forEach((ring, ringIndex) => {
+        let path = '';
+        let hasVisiblePoint = false;
+        let started = false;
+
+        for (let i = 0; i < ring.length; i++) {
+          const point = project(ring[i][0], ring[i][1], rotation.lon, rotation.lat, currentRadius);
+          if (!point.visible) {
+            if (started) {
+              path += ' Z ';
+              started = false;
+            }
+            continue;
+          }
+
+          hasVisiblePoint = true;
+          if (!started) {
+            path += `M ${point.x} ${point.y} `;
+            started = true;
+          } else {
+            path += `L ${point.x} ${point.y} `;
+          }
+        }
+
+        if (started) path += ' Z';
+        if (!hasVisiblePoint || !path.trim()) return;
+
+        fills.push({
+          id: `${feature.name}-${featureIndex}-${ringIndex}`,
+          d: path,
+          fill: visual.tint,
+          stroke: visual.accent,
+          glow: visual.glow,
+          opacity,
+          strokeOpacity
+        });
+      });
+    });
+
+    return fills;
+  }, [mapFeatures, rotation, currentRadius, activeRegionAuraId, selectedDest, selectedRegionId]);
   const projectedRegionSignatures = useMemo(() => (
     DESTINATION_REGIONS
       .map((region) => {
@@ -1597,6 +1676,15 @@ export default function App() {
           <circle r={currentRadius * 1.04} fill="none" stroke={globeStyles.atmosphereGlowEdge} strokeOpacity={isComicTheme ? 0.18 : 0.26} strokeWidth={8} />
           <circle r={currentRadius} fill={t.oceanFill} stroke={t.oceanStroke} strokeWidth={t.oceanStrokeWidth} />
           <path d={`M -${currentRadius*0.6} -${currentRadius*0.6} A ${currentRadius} ${currentRadius} 0 0 1 0 -${currentRadius} A ${currentRadius*0.8} ${currentRadius*0.8} 0 0 0 -${currentRadius*0.6} -${currentRadius*0.6} Z`} fill="#fff" opacity={theme === 'y2k' ? 0.12 : 0.3} />
+
+          <g>
+            {projectedCountryFills.map((shape) => (
+              <g key={shape.id}>
+                <path d={shape.d} fill={shape.glow} opacity={shape.opacity * 0.72} />
+                <path d={shape.d} fill={shape.fill} fillOpacity={shape.opacity} stroke={shape.stroke} strokeOpacity={shape.strokeOpacity} strokeWidth="1.25" strokeLinejoin="round" />
+              </g>
+            ))}
+          </g>
 
           <g>
             {(isMapLoading || coastLines.length === 0)
