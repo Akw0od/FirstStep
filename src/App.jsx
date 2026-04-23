@@ -464,7 +464,7 @@ const SvgMarkerFace = ({ marker, affordable }) => {
       : affordable
         ? regionVisual.tint
         : '#dbe4f0';
-  const iconSize = isDeparture ? 18 : marker.isSelected || isRegionHub ? 26 : 20;
+  const iconSize = isDeparture ? 18 : isRegionHub ? 30 : marker.isSelected ? 28 : 20;
 
   return (
     <g className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
@@ -475,7 +475,13 @@ const SvgMarkerFace = ({ marker, affordable }) => {
           stroke="#000"
           strokeWidth="6"
           strokeLinejoin="round"
-          transform={isDeparture ? 'translate(-22 -22) scale(0.44)' : 'translate(-26 -26) scale(0.52)'}
+          transform={
+            isDeparture
+              ? 'translate(-22 -22) scale(0.44)'
+              : isRegionHub
+                ? 'translate(-30 -30) scale(0.6)'
+                : 'translate(-26 -26) scale(0.52)'
+          }
         />
       ) : (
         <rect
@@ -491,7 +497,7 @@ const SvgMarkerFace = ({ marker, affordable }) => {
         />
       )}
       {!isDeparture && (
-        <g transform="translate(18 -18)">
+        <g transform={isRegionHub ? 'translate(22 -22)' : 'translate(18 -18)'}>
           <circle r="10" fill={regionVisual.surface} stroke="#000" strokeWidth="3" />
           <text
             x="0"
@@ -507,9 +513,9 @@ const SvgMarkerFace = ({ marker, affordable }) => {
       )}
       {!isDeparture && !marker.isSelected && (
         <rect
-          x="-16"
-          y="18"
-          width="32"
+          x={isRegionHub ? '-22' : '-16'}
+          y={isRegionHub ? '24' : '18'}
+          width={isRegionHub ? '44' : '32'}
           height="6"
           rx="999"
           fill={regionVisual.accent}
@@ -1168,13 +1174,7 @@ export default function App() {
     return paths;
   }, [mapLines, rotation, currentRadius]);
 
-  const visibleDestinationPlaces = useMemo(() => {
-    if (selectedRegionId === 'all') return DESTINATION_REGIONS;
-    return [
-      ...DESTINATION_REGIONS.filter((region) => region.id === selectedRegionId),
-      ...DESTINATIONS.filter((place) => place.regionId === selectedRegionId)
-    ];
-  }, [selectedRegionId]);
+  const visibleDestinationPlaces = useMemo(() => DESTINATION_REGIONS, []);
 
   const visibleSpecificDestinations = useMemo(() => {
     if (selectedRegionId === 'all') return [];
@@ -1272,6 +1272,11 @@ export default function App() {
   const { renderedMapMarkers, mapClusters } = useMemo(() => {
     if (projectedMapMarkers.length === 0) {
       return { renderedMapMarkers: [], mapClusters: [] };
+    }
+
+    const usesRegionOverview = projectedMapMarkers.every((marker) => marker.markerType === 'departure' || marker.isRegionHub);
+    if (usesRegionOverview) {
+      return { renderedMapMarkers: projectedMapMarkers, mapClusters: [] };
     }
 
     if (zoom > CLUSTER_ZOOM_THRESHOLD) {
