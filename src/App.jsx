@@ -22,10 +22,20 @@ const DynamicIcon = ({ name, size = 24 }) => {
 // --- 地球 3D 数学投影核心函数 ---
 const BASE_RADIUS = 300; 
 const CLUSTER_DISTANCE = 64;
-const CLUSTER_ZOOM_THRESHOLD = 1.35;
+const OVERVIEW_ZOOM_THRESHOLD = 1.02;
+const DETAIL_ZOOM_THRESHOLD = 2.05;
+const CITY_CLUSTER_RELEASE_ZOOM = 2.55;
 const MARKER_COLLISION_DISTANCE = 52;
 const DEG2RAD = Math.PI / 180;
 const BURST_POINTS = '50,5 63,27 90,15 75,42 98,65 70,72 65,98 45,78 20,95 28,68 5,50 30,35 15,10 40,25';
+const ZOOM_PRESETS = { macro: 0.84, region: 1.38, city: 2.42 };
+const ZOOM_LAYER_ORDER = ['macro', 'region', 'city'];
+
+const getZoomLayer = (zoomValue) => {
+  if (zoomValue < OVERVIEW_ZOOM_THRESHOLD) return 'macro';
+  if (zoomValue < DETAIL_ZOOM_THRESHOLD) return 'region';
+  return 'city';
+};
 
 const project = (lon, lat, rotLon, rotLat, currentRadius) => {
   const lambda = lon * DEG2RAD;
@@ -227,6 +237,93 @@ const REGION_VISUALS = {
   region_argentina: { surface: '#dbeafe', tint: '#93c5fd', accent: '#1d4ed8', glow: 'rgba(59, 130, 246, 0.22)', route: '#3b82f6', stamp: '✷' }
 };
 
+const DESTINATION_MACRO_HUBS = [
+  {
+    id: 'macro_north_america',
+    name: '北美',
+    nameEn: 'North America',
+    lon: -104,
+    lat: 39,
+    icon: '🌎',
+    desc: '海岸公路、国家公园和大城文化都集中在这一侧。',
+    descEn: 'Road trips, national parks, and heavyweight cities share this side of the planet.',
+    primaryRegionId: 'region_california',
+    regionIds: ['region_california', 'region_pnw', 'region_southwest', 'region_hawaii', 'region_florida', 'region_midwest', 'region_canada_west', 'region_canada_east', 'region_mexico']
+  },
+  {
+    id: 'macro_latam',
+    name: '拉丁美洲',
+    nameEn: 'Latin America',
+    lon: -63,
+    lat: -18,
+    icon: '🦜',
+    desc: '雨林、高原、探戈和热带海岸的浓烈合集。',
+    descEn: 'Rainforest, highlands, tango, and saturated coastlines in one bold sweep.',
+    primaryRegionId: 'region_brazil_coast',
+    regionIds: ['region_brazil_coast', 'region_brazil_amazon', 'region_peru', 'region_argentina']
+  },
+  {
+    id: 'macro_europe',
+    name: '欧洲',
+    nameEn: 'Europe',
+    lon: 11,
+    lat: 48,
+    icon: '🏰',
+    desc: '古城、美术馆、海岸假期和密集铁路网络。',
+    descEn: 'Old capitals, museums, coastlines, and a dense rail web for multi-stop wandering.',
+    primaryRegionId: 'region_france',
+    regionIds: ['region_france', 'region_italy', 'region_uk', 'region_spain', 'region_germany', 'region_greece', 'region_turkey']
+  },
+  {
+    id: 'macro_africa',
+    name: '非洲',
+    nameEn: 'Africa',
+    lon: 16,
+    lat: 22,
+    icon: '🐫',
+    desc: '沙漠文明、北非色彩和古迹戏剧感集中爆发。',
+    descEn: 'Desert drama, North African color, and monument-scale history.',
+    primaryRegionId: 'region_morocco',
+    regionIds: ['region_morocco', 'region_egypt']
+  },
+  {
+    id: 'macro_east_asia',
+    name: '东亚',
+    nameEn: 'East Asia',
+    lon: 124,
+    lat: 34,
+    icon: '🪭',
+    desc: '中国、日本、韩国一带的城市密度和文化层次最适合逐级探索。',
+    descEn: 'China, Japan, and Korea reward gradual zooming with dense cities and layered culture.',
+    primaryRegionId: 'region_japan',
+    regionIds: ['region_japan', 'region_korea', 'region_china_north', 'region_china_east', 'region_china_southwest', 'region_china_south']
+  },
+  {
+    id: 'macro_south_se_asia',
+    name: '南亚与东南亚',
+    nameEn: 'South & Southeast Asia',
+    lon: 101,
+    lat: 16,
+    icon: '🛕',
+    desc: '寺庙、海岛、香料和高能量街头生活连成一片。',
+    descEn: 'Temples, islands, spice-heavy food, and intensely alive street culture.',
+    primaryRegionId: 'region_thailand',
+    regionIds: ['region_thailand', 'region_india_north', 'region_india_south', 'region_indonesia', 'region_singapore', 'region_vietnam']
+  },
+  {
+    id: 'macro_oceania',
+    name: '大洋洲',
+    nameEn: 'Oceania',
+    lon: 154,
+    lat: -29,
+    icon: '🪸',
+    desc: '海港城市、自然公路和南半球的大尺度风景。',
+    descEn: 'Harbor cities, giant landscapes, and road-trip scale scenery in the southern hemisphere.',
+    primaryRegionId: 'region_australia',
+    regionIds: ['region_australia', 'region_newzealand']
+  }
+];
+
 const AMBIENT_STARFIELD = [
   { left: '33%', top: '13%', size: 6, delay: '0s' },
   { left: '61%', top: '18%', size: 7, delay: '1.6s' },
@@ -265,6 +362,7 @@ const FEATURE_REGION_MAP = {
 };
 
 const getRegionVisual = (regionId) => REGION_VISUALS[regionId] || REGION_VISUALS.default;
+const getMacroVisual = (macroHub) => REGION_VISUALS[macroHub?.primaryRegionId] || REGION_VISUALS.default;
 
 const VISA_RULES = {
   CN: { th: { status: 'free', label: '免签' }, jp: { status: 'visa', label: '办签' }, fr: { status: 'visa', label: '申根' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'visa', label: '办签' }, uk: { status: 'visa', label: '办签' }, us_domestic: { status: 'visa', label: '美签' }, ny: { status: 'visa', label: '美签' }, yvr: { status: 'visa', label: '加签' }, cun: { status: 'visa', label: '美签' }, hnl: { status: 'visa', label: '美签' }, las: { status: 'visa', label: '美签' }, sfo: { status: 'visa', label: '美签' }, sea: { status: 'visa', label: '美签' }, gcn: { status: 'visa', label: '美签' }, ysnp: { status: 'visa', label: '美签' }, mia: { status: 'visa', label: '美签' }, chi: { status: 'visa', label: '美签' }, msy: { status: 'visa', label: '美签' }, lax: { status: 'visa', label: '美签' }, sd: { status: 'visa', label: '美签' } },
@@ -501,20 +599,29 @@ const ComicBox = ({ color = "#fff", className = "" }) => (
 
 const SvgMarkerFace = ({ marker, affordable }) => {
   const isDeparture = marker.markerType === 'departure';
+  const isMacroHub = marker.markerType === 'macro';
   const isRegionHub = marker.isRegionHub;
   const regionVisual = marker.regionVisual || REGION_VISUALS.default;
   const fill = isDeparture
     ? '#ffffff'
+    : isMacroHub
+      ? regionVisual.surface
     : marker.isSelected
       ? regionVisual.surface
       : affordable
         ? regionVisual.tint
         : '#dbe4f0';
-  const iconSize = isDeparture ? 18 : isRegionHub ? 30 : marker.isSelected ? 28 : 20;
+  const iconSize = isDeparture ? 18 : isMacroHub ? 28 : isRegionHub ? 30 : marker.isSelected ? 28 : 20;
 
   return (
     <g className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
-      {isDeparture || marker.isSelected || isRegionHub ? (
+      {isMacroHub ? (
+        <>
+          <circle r="34" fill={fill} stroke="#000" strokeWidth="6" />
+          <circle r="46" fill="none" stroke={regionVisual.accent} strokeWidth="3.5" strokeDasharray="8 10" opacity="0.8" />
+          <circle r="24" fill={regionVisual.tint} opacity="0.65" />
+        </>
+      ) : isDeparture || marker.isSelected || isRegionHub ? (
         <polygon
           points={BURST_POINTS}
           fill={fill}
@@ -542,7 +649,7 @@ const SvgMarkerFace = ({ marker, affordable }) => {
           transform={affordable ? 'rotate(3)' : 'rotate(-3)'}
         />
       )}
-      {!isDeparture && (
+      {!isDeparture && !isMacroHub && (
         <g transform={isRegionHub ? 'translate(22 -22)' : 'translate(18 -18)'}>
           <circle r="10" fill={regionVisual.surface} stroke="#000" strokeWidth="3" />
           <text
@@ -557,7 +664,7 @@ const SvgMarkerFace = ({ marker, affordable }) => {
           </text>
         </g>
       )}
-      {!isDeparture && !marker.isSelected && (
+      {!isDeparture && !isMacroHub && !marker.isSelected && (
         <rect
           x={isRegionHub ? '-22' : '-16'}
           y={isRegionHub ? '24' : '18'}
@@ -567,6 +674,20 @@ const SvgMarkerFace = ({ marker, affordable }) => {
           fill={regionVisual.accent}
           opacity="0.92"
         />
+      )}
+      {isMacroHub && (
+        <text
+          x="0"
+          y="28"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize="11"
+          fontWeight="900"
+          fill="#000"
+          style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '2px' }}
+        >
+          {marker.regionCount || ''}
+        </text>
       )}
       <text
         x="0"
@@ -748,6 +869,7 @@ export default function App() {
   
   const [zoom, setZoom] = useState(1.2); 
   const currentRadius = BASE_RADIUS * zoom;
+  const zoomLayer = useMemo(() => getZoomLayer(zoom), [zoom]);
 
   const [aiItineraries, setAiItineraries] = useState({});
   const [isAILoading, setIsAILoading] = useState(false);
@@ -810,6 +932,16 @@ export default function App() {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const isEnglish = language === 'English';
   const ui = UI_COPY[language];
+  const zoomLayerLabels = useMemo(() => ({
+    macro: isEnglish ? 'Continents' : '大洲视图',
+    region: isEnglish ? 'Countries / Regions' : '国家 / 地区',
+    city: isEnglish ? 'Cities' : '城市细节'
+  }), [isEnglish]);
+  const zoomLayerHint = useMemo(() => ({
+    macro: isEnglish ? 'Wheel in to reveal country clusters.' : '继续滚轮放大，会展开国家和地区层。',
+    region: isEnglish ? 'Zoom deeper for city stops and routes.' : '再放大一点，就会展开城市和具体停靠点。',
+    city: isEnglish ? 'Close range: city stops and route targets.' : '近景模式：显示城市停靠点和具体路线。'
+  }), [isEnglish]);
   const globeStyles = useMemo(() => ({
     atmosphereGlow: isComicTheme ? '#9ad9f1' : '#36d9ff',
     atmosphereGlowEdge: isComicTheme ? '#fef6e4' : '#d7f9ff',
@@ -1140,13 +1272,25 @@ export default function App() {
     }
   }, [animateToTarget, selectedDest]);
 
+  const handleMacroHubSelect = useCallback((macroHub) => {
+    setSelectedClusterId(null);
+    setHoveredMarkerId(macroHub.id);
+    setHoveredRegionId(null);
+    setSelectedRegionId('all');
+    setSelectedDest(null);
+    animateToTarget(macroHub.lon, macroHub.lat);
+    setZoom(ZOOM_PRESETS.region);
+    setShowItinerary(false);
+    setPopupOffset({ x: 0, y: 0 });
+  }, [animateToTarget]);
+
   const handleRegionSelect = useCallback((region) => {
     setSelectedClusterId(null);
     setHoveredMarkerId(region.id);
     setHoveredRegionId(region.id);
     setSelectedRegionId(region.id);
     animateToTarget(region.lon, region.lat);
-    setZoom(1.9);
+    setZoom(ZOOM_PRESETS.city);
     setShowItinerary(false);
     setSelectedDest(region);
     setPopupOffset({ x: 0, y: 0 });
@@ -1158,10 +1302,19 @@ export default function App() {
     setHoveredRegionId(dest.regionId || null);
     if (dest.regionId) setSelectedRegionId(dest.regionId);
     animateToTarget(dest.lon, dest.lat);
+    if (dest.regionId) setZoom((current) => Math.max(current, ZOOM_PRESETS.city));
     setShowItinerary(false);
     setSelectedDest(dest);
     setPopupOffset({ x: 0, y: 0 }); 
   };
+
+  const cycleOrbitalView = useCallback(() => {
+    const currentIndex = ZOOM_LAYER_ORDER.indexOf(zoomLayer);
+    const nextLayer = ZOOM_LAYER_ORDER[(currentIndex + 1) % ZOOM_LAYER_ORDER.length];
+    const focalPlace = selectedDest || selectedRegion || departure;
+    setZoom(ZOOM_PRESETS[nextLayer]);
+    if (focalPlace) animateToTarget(focalPlace.lon, focalPlace.lat);
+  }, [zoomLayer, selectedDest, selectedRegion, departure, animateToTarget]);
 
   const triggerBlindBox = () => {
     setIsShuffling(true);
@@ -1222,7 +1375,44 @@ export default function App() {
     return paths;
   }, [mapLines, rotation, currentRadius]);
 
-  const visibleDestinationPlaces = useMemo(() => DESTINATION_REGIONS, []);
+  const focusedCityRegionId = useMemo(() => {
+    if (selectedRegionId !== 'all') return selectedRegionId;
+    if (selectedDest?.regionId) return selectedDest.regionId;
+    if (selectedDest && regionIds.has(selectedDest.id)) return selectedDest.id;
+    if (hoveredRegionId) return hoveredRegionId;
+    return null;
+  }, [selectedRegionId, selectedDest, hoveredRegionId, regionIds]);
+
+  const visibleDestinationPlaces = useMemo(() => {
+    if (zoomLayer === 'macro') {
+      return DESTINATION_MACRO_HUBS.map((hub) => ({
+        ...hub,
+        markerType: 'macro',
+        regionVisual: getMacroVisual(hub),
+        regionCount: `${hub.regionIds.length}`
+      }));
+    }
+
+    if (zoomLayer === 'region') {
+      return DESTINATION_REGIONS.map((place) => ({
+        ...place,
+        markerType: 'destination'
+      }));
+    }
+
+    const focusedRegion = focusedCityRegionId ? regionsById.get(focusedCityRegionId) : null;
+    const cityStops = focusedCityRegionId
+      ? DESTINATIONS.filter((place) => place.regionId === focusedCityRegionId)
+      : DESTINATIONS;
+
+    return [
+      ...(focusedRegion ? [{ ...focusedRegion, markerType: 'destination' }] : []),
+      ...cityStops.map((place) => ({
+        ...place,
+        markerType: 'destination'
+      }))
+    ];
+  }, [zoomLayer, focusedCityRegionId, regionsById]);
 
   const visibleSpecificDestinations = useMemo(() => {
     if (selectedRegionId === 'all') return [];
@@ -1233,10 +1423,7 @@ export default function App() {
   }, [selectedRegionId]);
 
   const baseMapPlaces = useMemo(() => ([
-    ...(mapLayerVisibility.destinations ? visibleDestinationPlaces.map((place) => ({
-      ...place,
-      markerType: 'destination'
-    })) : [])
+    ...(mapLayerVisibility.destinations ? visibleDestinationPlaces : [])
   ]), [mapLayerVisibility, visibleDestinationPlaces]);
 
   const projectedMapMarkers = useMemo(() => {
@@ -1245,10 +1432,13 @@ export default function App() {
         const projection = project(place.lon, place.lat, rotation.lon, rotation.lat, currentRadius);
         if (!projection.visible) return null;
         const isDestination = place.markerType === 'destination';
+        const isMacroHub = place.markerType === 'macro';
         const estCost = isDestination ? calculateTotalCost(place, days) : null;
-        const regionId = place.regionId || (regionIds.has(place.id) ? place.id : null);
+        const regionId = isMacroHub
+          ? null
+          : place.regionId || (regionIds.has(place.id) ? place.id : null);
         const region = regionId ? regionsById.get(regionId) : null;
-        const regionVisual = getRegionVisual(regionId);
+        const regionVisual = place.regionVisual || getRegionVisual(regionId);
         const isSelected = selectedDest?.id === place.id;
         const isHovered = hoveredMarkerId === place.id;
         const isRegionHovered = Boolean(regionId) && hoveredRegionId === regionId;
@@ -1260,6 +1450,7 @@ export default function App() {
           x: projection.x,
           y: projection.y,
           isDestination,
+          isMacroHub,
           isSelected,
           isHovered,
           regionId,
@@ -1280,12 +1471,12 @@ export default function App() {
     const placedMarkers = [];
     baseMarkers.forEach((marker, idx) => {
       const overlapping = placedMarkers.filter((placed) => (
-        Math.hypot(marker.x - placed.x, marker.y - placed.y) < MARKER_COLLISION_DISTANCE
+        Math.hypot(marker.x - placed.x, marker.y - placed.y) < (marker.isMacroHub ? 84 : marker.isRegionHub ? 62 : MARKER_COLLISION_DISTANCE)
       ));
 
       if (overlapping.length > 0) {
         const angle = ((idx * 137.5) % 360) * (Math.PI / 180);
-        const radius = 14 + overlapping.length * 8;
+        const radius = marker.isMacroHub ? 26 + overlapping.length * 10 : 14 + overlapping.length * 8;
         marker.x += Math.cos(angle) * radius;
         marker.y += Math.sin(angle) * radius;
       }
@@ -1318,12 +1509,11 @@ export default function App() {
       return { renderedMapMarkers: [], mapClusters: [] };
     }
 
-    const usesRegionOverview = projectedMapMarkers.every((marker) => marker.markerType === 'departure' || marker.isRegionHub);
-    if (usesRegionOverview) {
+    if (zoomLayer !== 'city') {
       return { renderedMapMarkers: projectedMapMarkers, mapClusters: [] };
     }
 
-    if (zoom > CLUSTER_ZOOM_THRESHOLD) {
+    if (zoom > CITY_CLUSTER_RELEASE_ZOOM) {
       return { renderedMapMarkers: projectedMapMarkers, mapClusters: [] };
     }
 
@@ -1359,7 +1549,7 @@ export default function App() {
       renderedMapMarkers: clusters.filter((cluster) => cluster.items.length === 1).map((cluster) => cluster.items[0]),
       mapClusters: clusters.filter((cluster) => cluster.items.length > 1)
     };
-  }, [projectedMapMarkers, zoom]);
+  }, [projectedMapMarkers, zoom, zoomLayer]);
   const selectedCluster = useMemo(() => (
     mapClusters.find((cluster) => cluster.id === selectedClusterId) || null
   ), [mapClusters, selectedClusterId]);
@@ -1559,6 +1749,18 @@ export default function App() {
             0%, 100% { opacity: 0.25; transform: scale(0.85); }
             50% { opacity: 0.9; transform: scale(1.05); }
           }
+          @keyframes orbital-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes orbital-counter-spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(-360deg); }
+          }
+          @keyframes orbital-beam {
+            0%, 100% { opacity: 0.25; transform: scaleY(0.92); }
+            50% { opacity: 0.78; transform: scaleY(1.04); }
+          }
           .btn-crazy-rainbow {
             animation: gentle-float 2.2s infinite alternate ease-in-out !important;
             background: linear-gradient(135deg, #f3e8d3 0%, #d9bf97 100%) !important;
@@ -1611,6 +1813,68 @@ export default function App() {
         <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#e3cfb0]/24 blur-3xl"></div>
         <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#95b8c0]/16 blur-3xl"></div>
         <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#c07a5e]/10 blur-3xl"></div>
+      </div>
+
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="relative h-[860px] w-[860px] max-w-[92vw] max-h-[92vw]">
+          <div className="absolute inset-[4.5rem] rounded-full border-2 border-dashed border-black/15"></div>
+          <div className="absolute inset-[1.75rem] rounded-full border border-white/70"></div>
+          <div className="absolute right-[8%] top-[13%] pointer-events-auto">
+            <div className="rounded-[28px] border-[3px] border-black bg-white/92 px-4 py-3 shadow-[6px_6px_0_0_#000] backdrop-blur">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">
+                {isEnglish ? 'Map depth' : '地图层级'}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {ZOOM_LAYER_ORDER.map((layerKey) => (
+                  <span
+                    key={layerKey}
+                    className={`rounded-full border-[3px] border-black px-3 py-1 text-[11px] font-black shadow-[2px_2px_0_0_#000] ${
+                      zoomLayer === layerKey ? 'text-white' : 'text-slate-900'
+                    }`}
+                    style={{
+                      background: zoomLayer === layerKey
+                        ? (layerKey === 'macro' ? '#2563eb' : layerKey === 'region' ? '#ff8a3d' : '#ec4899')
+                        : '#fffdf7'
+                    }}
+                  >
+                    {zoomLayerLabels[layerKey]}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-3 max-w-[15rem] text-[11px] font-bold leading-5 text-slate-600">
+                {zoomLayerHint[zoomLayer]}
+              </p>
+            </div>
+          </div>
+
+          <div className="absolute inset-0 motion-safe:animate-[orbital-spin_20s_linear_infinite]">
+            <div className="absolute left-1/2 top-[6%] h-[11rem] w-[2px] -translate-x-1/2 origin-bottom bg-gradient-to-b from-[#0f172a] via-[#0f172a]/55 to-transparent opacity-[0.55] motion-safe:animate-[orbital-beam_2.8s_ease-in-out_infinite]"></div>
+            <button
+              type="button"
+              onClick={cycleOrbitalView}
+              onWheel={(e) => e.stopPropagation()}
+              className="pointer-events-auto absolute left-1/2 top-[6%] h-24 w-24 rounded-full border-[4px] border-black bg-white text-black shadow-[8px_8px_0_0_#000] transition-transform hover:scale-105 active:scale-95 motion-safe:animate-[orbital-counter-spin_20s_linear_infinite]"
+              style={{
+                background: zoomLayer === 'macro'
+                  ? 'linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)'
+                  : zoomLayer === 'region'
+                    ? 'linear-gradient(135deg, #fff3bf 0%, #ffb74d 100%)'
+                    : 'linear-gradient(135deg, #ffe4ef 0%, #f9a8d4 100%)'
+              }}
+              aria-label={isEnglish ? 'Cycle orbital detail mode' : '切换轨道细节模式'}
+              title={isEnglish ? 'Orbital scout: cycle depth' : '轨道卫星：切换地图层级'}
+            >
+              <span className="absolute inset-2 rounded-full border-2 border-black/20"></span>
+              <span className="absolute left-1/2 top-1/2 h-3 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black"></span>
+              <span className="absolute left-[18%] top-1/2 h-7 w-3 -translate-y-1/2 rounded-full bg-black"></span>
+              <span className="absolute right-[18%] top-1/2 h-7 w-3 -translate-y-1/2 rounded-full bg-black"></span>
+              <span className="absolute left-1/2 top-[20%] -translate-x-1/2 text-3xl">🛰️</span>
+              <span className="absolute inset-x-0 bottom-3 text-center text-[10px] font-black uppercase tracking-[0.22em]">
+                {zoomLayer === 'macro' ? '01' : zoomLayer === 'region' ? '02' : '03'}
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center">
@@ -1723,6 +1987,7 @@ export default function App() {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (marker.markerType === 'departure') handleDepartureSelect(marker);
+                  else if (marker.markerType === 'macro') handleMacroHubSelect(marker);
                   else if (regionIds.has(marker.id)) handleRegionSelect(marker);
                   else handleMarkerClick(marker);
                 }}
@@ -1741,12 +2006,12 @@ export default function App() {
                 {(marker.isRegionHovered || marker.isHovered || marker.isSelected) && (
                   <g pointerEvents="none">
                     <circle
-                      r={marker.isSelected ? 42 : marker.isRegionHovered ? 38 : 28}
+                      r={marker.isMacroHub ? 54 : marker.isSelected ? 42 : marker.isRegionHovered ? 38 : 28}
                       fill={marker.isSelected ? 'url(#globe-focus-gradient)' : marker.regionVisual?.glow || REGION_VISUALS.default.glow}
-                      opacity={marker.isSelected ? 0.78 : marker.isHovered ? 0.74 : 0.58}
+                      opacity={marker.isMacroHub ? 0.68 : marker.isSelected ? 0.78 : marker.isHovered ? 0.74 : 0.58}
                     />
                     <circle
-                      r={marker.isSelected ? 28 : 22}
+                      r={marker.isMacroHub ? 38 : marker.isSelected ? 28 : 22}
                       fill="none"
                       stroke={marker.isSelected ? selectedFocusStyle.accent : marker.regionVisual?.accent || REGION_VISUALS.default.accent}
                       strokeOpacity={marker.isSelected ? 0.88 : 0.54}
@@ -1761,10 +2026,16 @@ export default function App() {
                 <g className={`transition-transform duration-200 ${marker.isHovered || marker.isSelected ? 'scale-[1.18]' : 'group-hover:scale-110'}`}>
                   <SvgMarkerFace marker={marker} affordable={marker.isAffordable} />
                 </g>
-                <foreignObject x="-74" y="32" width="148" height="38" className="overflow-visible pointer-events-none">
+                <foreignObject
+                  x={marker.isMacroHub ? '-92' : '-74'}
+                  y={marker.isMacroHub ? '42' : '32'}
+                  width={marker.isMacroHub ? '184' : '148'}
+                  height="42"
+                  className="overflow-visible pointer-events-none"
+                >
                   <div className="flex items-center justify-center">
                     <span
-                      className={`px-3 py-1 rounded-full border-[3px] border-black shadow-[3px_3px_0_0_#000] text-[11px] font-black whitespace-nowrap ${
+                      className={`px-3 py-1 rounded-full border-[3px] border-black shadow-[3px_3px_0_0_#000] ${marker.isMacroHub ? 'text-[12px]' : 'text-[11px]'} font-black whitespace-nowrap ${
                         marker.isSelected ? 'text-white' : 'text-slate-900'
                       }`}
                       style={{
@@ -1788,7 +2059,7 @@ export default function App() {
                 e.stopPropagation();
                 setSelectedClusterId(cluster.id);
                 animateToTarget(cluster.lon, cluster.lat);
-                setZoom((prev) => Math.max(prev, CLUSTER_ZOOM_THRESHOLD + 0.15));
+                setZoom((prev) => Math.max(prev, ZOOM_PRESETS.city));
               }}
             >
               <g className="transition-transform duration-200 group-hover:scale-110">
@@ -1822,6 +2093,7 @@ export default function App() {
                     key={`hidden-${marker.id}`}
                     onClick={() => {
                       if (marker.markerType === 'departure') handleDepartureSelect(marker);
+                      else if (marker.markerType === 'macro') handleMacroHubSelect(marker);
                       else if (DESTINATION_REGIONS.some((region) => region.id === marker.id)) handleRegionSelect(marker);
                       else handleMarkerClick(marker);
                       setShowFarSidePanel(false);
