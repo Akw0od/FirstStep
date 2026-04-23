@@ -185,23 +185,12 @@ const REGION_VISUALS = {
   region_morocco: { surface: '#fef3c7', tint: '#fcd34d', accent: '#0f766e', glow: 'rgba(245, 158, 11, 0.22)', route: '#f59e0b', stamp: '✺' }
 };
 
-const FLOATING_REGION_SLOTS = [
-  { className: 'left-[36%] top-[10%]', tilt: '-rotate-6', delay: '0.2s' },
-  { className: 'right-[20%] top-[16%]', tilt: 'rotate-6', delay: '1.4s' },
-  { className: 'left-[39%] bottom-[17%]', tilt: 'rotate-3', delay: '0.8s' },
-  { className: 'right-[24%] bottom-[22%]', tilt: '-rotate-3', delay: '1.9s' }
-];
-
 const AMBIENT_STARFIELD = [
   { left: '33%', top: '13%', size: 6, delay: '0s' },
-  { left: '46%', top: '8%', size: 5, delay: '0.8s' },
   { left: '61%', top: '18%', size: 7, delay: '1.6s' },
-  { left: '71%', top: '29%', size: 5, delay: '0.4s' },
   { left: '58%', top: '73%', size: 6, delay: '1.1s' },
-  { left: '42%', top: '77%', size: 7, delay: '1.7s' },
   { left: '28%', top: '63%', size: 5, delay: '0.6s' },
-  { left: '65%', top: '53%', size: 4, delay: '1.3s' },
-  { left: '76%', top: '43%', size: 6, delay: '0.9s' }
+  { left: '65%', top: '53%', size: 4, delay: '1.3s' }
 ];
 
 const FEATURE_REGION_MAP = {
@@ -1187,15 +1176,11 @@ export default function App() {
   }, [selectedRegionId]);
 
   const baseMapPlaces = useMemo(() => ([
-    ...(mapLayerVisibility.departures ? DEPARTURE_CITIES.filter((place) => place.id !== departureId).map((place) => ({
-      ...place,
-      markerType: 'departure'
-    })) : []),
     ...(mapLayerVisibility.destinations ? visibleDestinationPlaces.map((place) => ({
       ...place,
       markerType: 'destination'
     })) : [])
-  ]), [departureId, mapLayerVisibility, visibleDestinationPlaces]);
+  ]), [mapLayerVisibility, visibleDestinationPlaces]);
 
   const projectedMapMarkers = useMemo(() => {
     const baseMarkers = baseMapPlaces
@@ -1403,36 +1388,6 @@ export default function App() {
 
     return fills;
   }, [mapFeatures, rotation, currentRadius, activeRegionAuraId, selectedDest, selectedRegionId]);
-  const projectedRegionSignatures = useMemo(() => (
-    DESTINATION_REGIONS
-      .map((region) => {
-        const projection = project(region.lon, region.lat, rotation.lon, rotation.lat, currentRadius);
-        if (!projection.visible) return null;
-        const visual = getRegionVisual(region.id);
-        const isActive = activeRegionAuraId === region.id;
-        const isSelected = selectedDest?.id === region.id || selectedDest?.regionId === region.id;
-        return { ...region, ...projection, visual, isActive, isSelected };
-      })
-      .filter(Boolean)
-  ), [rotation, currentRadius, activeRegionAuraId, selectedDest]);
-  const featuredAmbientRegions = useMemo(() => {
-    const orderedIds = [];
-    const pushUnique = (id) => {
-      if (!id || orderedIds.includes(id) || !regionsById.has(id)) return;
-      orderedIds.push(id);
-    };
-
-    pushUnique(selectedDest?.regionId || (selectedDest && regionIds.has(selectedDest.id) ? selectedDest.id : null));
-    pushUnique(selectedRegionId !== 'all' ? selectedRegionId : null);
-    ['region_japan', 'region_france', 'region_southwest', 'region_morocco', 'region_hawaii'].forEach(pushUnique);
-
-    return orderedIds.slice(0, FLOATING_REGION_SLOTS.length).map((id, index) => ({
-      ...regionsById.get(id),
-      visual: getRegionVisual(id),
-      slot: FLOATING_REGION_SLOTS[index]
-    }));
-  }, [selectedDest, selectedRegionId, regionIds, regionsById]);
-
   useEffect(() => {
     if (selectedClusterId && !selectedCluster) {
       setSelectedClusterId(null);
@@ -1543,14 +1498,6 @@ export default function App() {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-8px) rotate(2deg); }
           }
-          @keyframes orbit-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          @keyframes orbit-spin-reverse {
-            from { transform: rotate(360deg); }
-            to { transform: rotate(0deg); }
-          }
           @keyframes twinkle {
             0%, 100% { opacity: 0.25; transform: scale(0.85); }
             50% { opacity: 0.9; transform: scale(1.05); }
@@ -1588,32 +1535,6 @@ export default function App() {
       </style>
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[56rem] w-[56rem] -translate-x-1/2 -translate-y-1/2 opacity-80">
-          <div
-            className="absolute inset-0 rounded-full border border-dashed"
-            style={{ borderColor: globeStyles.orbitStroke }}
-          ></div>
-          <div
-            className="absolute inset-10 rounded-full border border-dashed"
-            style={{ borderColor: globeStyles.orbitStroke }}
-          ></div>
-          <div className="absolute inset-0" style={{ animation: 'orbit-spin 34s linear infinite' }}>
-            <div
-              className="absolute left-1/2 top-1 -translate-x-1/2 rounded-full border-2 border-black px-3 py-1 text-lg shadow-[4px_4px_0_0_#000]"
-              style={{ background: globeStyles.orbitFill }}
-            >
-              ✈️
-            </div>
-          </div>
-          <div className="absolute inset-10" style={{ animation: 'orbit-spin-reverse 28s linear infinite' }}>
-            <div
-              className="absolute right-6 top-1/2 -translate-y-1/2 rounded-full border-2 border-black px-3 py-1 text-lg shadow-[4px_4px_0_0_#000]"
-              style={{ background: globeStyles.orbitFill }}
-            >
-              {selectedDest?.icon || selectedRegion?.icon || '🧭'}
-            </div>
-          </div>
-        </div>
         {AMBIENT_STARFIELD.map((star, index) => (
           <span
             key={`star-${index}`}
@@ -1633,32 +1554,6 @@ export default function App() {
         <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#e3cfb0]/24 blur-3xl"></div>
         <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#95b8c0]/16 blur-3xl"></div>
         <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#c07a5e]/10 blur-3xl"></div>
-      </div>
-
-      <div className="absolute inset-0 z-10 hidden xl:block pointer-events-none">
-        {featuredAmbientRegions.map((region) => (
-          <button
-            key={`featured-${region.id}`}
-            onClick={() => handleRegionSelect(region)}
-            className={`pointer-events-auto absolute flex items-center gap-2 rounded-full border-4 px-4 py-2 shadow-[6px_6px_0_0_#000] transition-transform hover:-translate-y-1 ${region.slot.className} ${region.slot.tilt}`}
-            style={{
-              background: region.visual.surface,
-              borderColor: '#000',
-              animation: `stamp-drift 6.4s ease-in-out ${region.slot.delay} infinite`
-            }}
-          >
-            <span className="text-xl leading-none">{region.icon}</span>
-            <span className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-900 whitespace-nowrap">
-              {getPlaceShortName(region)}
-            </span>
-            <span
-              className="inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-black text-[10px] font-black"
-              style={{ background: region.visual.tint }}
-            >
-              {region.visual.stamp}
-            </span>
-          </button>
-        ))}
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center">
@@ -1701,49 +1596,9 @@ export default function App() {
           
           <circle r={currentRadius} fill="none" stroke={globeStyles.atmosphereShadow} strokeWidth={40 * zoom} strokeDasharray={`${Math.PI*currentRadius} ${Math.PI*currentRadius}`} transform="rotate(-45)" />
 
-          {projectedRegionSignatures.map((region) => (
-            <g key={`region-signature-${region.id}`} transform={`translate(${region.x}, ${region.y})`} pointerEvents="none">
-              <circle
-                r={region.isActive ? currentRadius * 0.16 : region.isSelected ? currentRadius * 0.13 : currentRadius * 0.1}
-                fill={region.visual.glow}
-                opacity={region.isActive ? 0.95 : 0.55}
-              />
-              <circle
-                r={region.isActive ? currentRadius * 0.09 : currentRadius * 0.065}
-                fill="none"
-                stroke={region.visual.accent}
-                strokeOpacity={region.isActive ? 0.78 : 0.32}
-                strokeWidth={region.isActive ? 2.5 : 1.5}
-                strokeDasharray={region.isActive ? '6 9' : '4 10'}
-              />
-              <text
-                y="4"
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={region.isActive ? 18 : 12}
-                opacity={region.isActive ? 0.95 : 0.55}
-                style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '3px' }}
-              >
-                {region.icon}
-              </text>
-            </g>
-          ))}
-
           {activeRegionAura && (
             <g transform={`translate(${activeRegionAura.x}, ${activeRegionAura.y})`} pointerEvents="none">
-              <circle r={currentRadius * 0.27} fill={activeRegionAura.visual.glow} filter="url(#globe-soft-blur)" opacity="0.95" />
-              <circle r={currentRadius * 0.18} fill="none" stroke={activeRegionAura.visual.accent} strokeOpacity={0.48} strokeWidth="2.5" strokeDasharray="8 10">
-                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="18s" repeatCount="indefinite" />
-              </circle>
-              <text
-                y={currentRadius * -0.02}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize="22"
-                style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '4px' }}
-              >
-                {activeRegionAura.region.icon}
-              </text>
+              <circle r={currentRadius * 0.24} fill={activeRegionAura.visual.glow} filter="url(#globe-soft-blur)" opacity="0.75" />
             </g>
           )}
 
@@ -1826,45 +1681,43 @@ export default function App() {
                   />
                 )}
 
-                {marker.isDestination && (
-                  <foreignObject x="-40" y="-75" width="80" height="35" className={`overflow-visible transition-all duration-200 ${marker.isSelected ? 'opacity-100 -translate-y-2' : 'opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 pointer-events-none'}`}>
-                    <div className={`flex items-center justify-center w-full h-8 border-4 border-black rounded shadow-[4px_4px_0_0_#000] text-xs font-black ${marker.isAffordable ? 'bg-[#4ade80] text-black' : 'bg-[#f87171] text-black'}`}>¥{marker.estCost}</div>
-                  </foreignObject>
-                )}
-
                 {(marker.isRegionHovered || marker.isHovered || marker.isSelected) && (
                   <g pointerEvents="none">
                     <circle
-                      r={marker.isSelected ? 34 : marker.isRegionHovered ? 30 : 24}
+                      r={marker.isSelected ? 42 : marker.isRegionHovered ? 38 : 28}
                       fill={marker.isSelected ? 'url(#globe-focus-gradient)' : marker.regionVisual?.glow || REGION_VISUALS.default.glow}
-                      opacity={marker.isSelected ? 0.95 : marker.isHovered ? 0.9 : 0.72}
+                      opacity={marker.isSelected ? 0.78 : marker.isHovered ? 0.74 : 0.58}
                     />
                     <circle
-                      r={marker.isSelected ? 22 : 18}
+                      r={marker.isSelected ? 28 : 22}
                       fill="none"
                       stroke={marker.isSelected ? selectedFocusStyle.accent : marker.regionVisual?.accent || REGION_VISUALS.default.accent}
-                      strokeOpacity={marker.isSelected ? 0.92 : 0.68}
+                      strokeOpacity={marker.isSelected ? 0.88 : 0.54}
                       strokeWidth="2"
-                      strokeDasharray={marker.isSelected ? '5 7' : '4 8'}
+                      strokeDasharray={marker.isSelected ? '7 10' : '5 9'}
                     >
                       <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur={marker.isSelected ? '8s' : '11s'} repeatCount="indefinite" />
                     </circle>
                   </g>
                 )}
 
-                <g className={`transition-transform duration-200 ${marker.isHovered || marker.isSelected ? 'scale-[1.16]' : 'group-hover:scale-110'}`}>
+                <g className={`transition-transform duration-200 ${marker.isHovered || marker.isSelected ? 'scale-[1.18]' : 'group-hover:scale-110'}`}>
                   <SvgMarkerFace marker={marker} affordable={marker.isAffordable} />
                 </g>
-
-                {marker.markerType === 'departure' && (
-                  <foreignObject x="-52" y="-62" width="104" height="28" className="overflow-visible pointer-events-none">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-2 py-1 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0_0_#000] text-[10px] font-black whitespace-nowrap">
-                        {getPlaceShortName(marker)}
-                      </span>
-                    </div>
-                  </foreignObject>
-                )}
+                <foreignObject x="-74" y="32" width="148" height="38" className="overflow-visible pointer-events-none">
+                  <div className="flex items-center justify-center">
+                    <span
+                      className={`px-3 py-1 rounded-full border-[3px] border-black shadow-[3px_3px_0_0_#000] text-[11px] font-black whitespace-nowrap ${
+                        marker.isSelected ? 'text-white' : 'text-slate-900'
+                      }`}
+                      style={{
+                        background: marker.isSelected ? (marker.regionVisual?.accent || '#314657') : (marker.regionVisual?.surface || '#fff')
+                      }}
+                    >
+                      {getPlaceShortName(marker)}
+                    </span>
+                  </div>
+                </foreignObject>
               </g>
             );
           })}
