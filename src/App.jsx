@@ -29,7 +29,6 @@ const MARKER_COLLISION_DISTANCE = 52;
 const DEG2RAD = Math.PI / 180;
 const BURST_POINTS = '50,5 63,27 90,15 75,42 98,65 70,72 65,98 45,78 20,95 28,68 5,50 30,35 15,10 40,25';
 const ZOOM_PRESETS = { macro: 0.84, region: 1.38, city: 2.42 };
-const ZOOM_LAYER_ORDER = ['macro', 'region', 'city'];
 
 const getZoomLayer = (zoomValue) => {
   if (zoomValue < OVERVIEW_ZOOM_THRESHOLD) return 'macro';
@@ -194,7 +193,15 @@ const DESTINATIONS = [
   { id: 'lim', regionId: 'region_peru', name: '利马, 秘鲁', nameEn: 'Lima', lon: -77.04, lat: -12.05, baseCost: 12600, hotel: 850, daily: 820, icon: '🌮', type: 'food', desc: '海岸悬崖、拉美美食和历史街区一次吃满。', descEn: 'Clifftop coastline, strong food culture, and historic neighborhoods.' },
   { id: 'cus', regionId: 'region_peru', name: '库斯科, 秘鲁', nameEn: 'Cusco', lon: -71.97, lat: -13.53, baseCost: 12900, hotel: 900, daily: 860, icon: '🦙', type: 'nature', desc: '安第斯高地门户，往马丘比丘出发的前站。', descEn: 'Andean gateway city and the launch point for Machu Picchu.' },
   { id: 'rak', regionId: 'region_morocco', name: '马拉喀什, 摩洛哥', nameEn: 'Marrakech', lon: -7.99, lat: 31.63, baseCost: 10700, hotel: 820, daily: 760, icon: '🧿', type: 'culture', desc: '露天市场、庭院旅馆和红城气氛拉满。', descEn: 'Souks, riads, and full-saturation red-city atmosphere.' },
-  { id: 'cbl', regionId: 'region_morocco', name: '卡萨布兰卡, 摩洛哥', nameEn: 'Casablanca', lon: -7.59, lat: 33.57, baseCost: 10400, hotel: 780, daily: 720, icon: '🌴', type: 'urban', desc: '海边大城、清真寺地标和北非现代感。', descEn: 'A coastal metropolis with mosque landmarks and a modern edge.' }
+  { id: 'cbl', regionId: 'region_morocco', name: '卡萨布兰卡, 摩洛哥', nameEn: 'Casablanca', lon: -7.59, lat: 33.57, baseCost: 10400, hotel: 780, daily: 720, icon: '🌴', type: 'urban', desc: '海边大城、清真寺地标和北非现代感。', descEn: 'A coastal metropolis with mosque landmarks and a modern edge.' },
+  { id: 'cn_bj_trip', regionId: 'region_china_north', name: '北京, 中国', nameEn: 'Beijing', lon: 116.4, lat: 39.9, baseCost: 6800, hotel: 820, daily: 650, icon: '🏯', type: 'culture', desc: '中轴线、故宫、胡同和北方经典城市线。', descEn: 'Imperial avenues, hutongs, and classic northern city history.' },
+  { id: 'cn_xa', regionId: 'region_china_north', name: '西安, 中国', nameEn: 'Xi’an', lon: 108.94, lat: 34.34, baseCost: 6200, hotel: 620, daily: 520, icon: '🐎', type: 'culture', desc: '兵马俑、古城墙和碳水极强的西北气场。', descEn: 'Terracotta warriors, city walls, and a carb-heavy northern-western mood.' },
+  { id: 'cn_sh_trip', regionId: 'region_china_east', name: '上海, 中国', nameEn: 'Shanghai', lon: 121.47, lat: 31.23, baseCost: 7600, hotel: 900, daily: 700, icon: '🌃', type: 'urban', desc: '外滩、摩登天际线和高密度都市节奏。', descEn: 'Bund lights, skyline drama, and polished metropolitan speed.' },
+  { id: 'cn_hz', regionId: 'region_china_east', name: '杭州, 中国', nameEn: 'Hangzhou', lon: 120.15, lat: 30.27, baseCost: 7000, hotel: 760, daily: 620, icon: '🌿', type: 'culture', desc: '西湖、茶山和柔和一点的江南氛围。', descEn: 'West Lake calm, tea hills, and a softer Jiangnan rhythm.' },
+  { id: 'cn_cd', regionId: 'region_china_southwest', name: '成都, 中国', nameEn: 'Chengdu', lon: 104.07, lat: 30.67, baseCost: 6600, hotel: 620, daily: 540, icon: '🐼', type: 'food', desc: '熊猫、火锅和很会生活的松弛感。', descEn: 'Pandas, hotpot, and an elite relaxed-city lifestyle.' },
+  { id: 'cn_cq', regionId: 'region_china_southwest', name: '重庆, 中国', nameEn: 'Chongqing', lon: 106.55, lat: 29.56, baseCost: 6500, hotel: 580, daily: 520, icon: '🌶️', type: 'food', desc: '山城夜景、立体交通和重口火锅宇宙。', descEn: 'Mountain-city lights, stacked transit, and intense hotpot energy.' },
+  { id: 'cn_gz_trip', regionId: 'region_china_south', name: '广州, 中国', nameEn: 'Guangzhou', lon: 113.26, lat: 23.13, baseCost: 6900, hotel: 720, daily: 620, icon: '🥟', type: 'food', desc: '早茶、骑楼和非常会吃的城市日常。', descEn: 'Dim sum mornings, arcade streets, and excellent everyday eating.' },
+  { id: 'cn_sz', regionId: 'region_china_south', name: '深圳, 中国', nameEn: 'Shenzhen', lon: 114.06, lat: 22.54, baseCost: 7100, hotel: 780, daily: 650, icon: '💻', type: 'urban', desc: '海滨科技都市、设计展和轻快城市感。', descEn: 'A coastal tech city with design energy and fast urban momentum.' }
 ];
 
 const REGION_VISUALS = {
@@ -933,9 +940,9 @@ export default function App() {
   const isEnglish = language === 'English';
   const ui = UI_COPY[language];
   const zoomLayerLabels = useMemo(() => ({
-    macro: isEnglish ? 'Continents' : '大洲视图',
-    region: isEnglish ? 'Countries / Regions' : '国家 / 地区',
-    city: isEnglish ? 'Cities' : '城市细节'
+    macro: isEnglish ? 'Continents' : '大洲',
+    region: isEnglish ? 'Regions' : '地区',
+    city: isEnglish ? 'Cities' : '城市'
   }), [isEnglish]);
   const zoomLayerHint = useMemo(() => ({
     macro: isEnglish ? 'Wheel in to reveal country clusters.' : '继续滚轮放大，会展开国家和地区层。',
@@ -1308,14 +1315,6 @@ export default function App() {
     setPopupOffset({ x: 0, y: 0 }); 
   };
 
-  const cycleOrbitalView = useCallback(() => {
-    const currentIndex = ZOOM_LAYER_ORDER.indexOf(zoomLayer);
-    const nextLayer = ZOOM_LAYER_ORDER[(currentIndex + 1) % ZOOM_LAYER_ORDER.length];
-    const focalPlace = selectedDest || selectedRegion || departure;
-    setZoom(ZOOM_PRESETS[nextLayer]);
-    if (focalPlace) animateToTarget(focalPlace.lon, focalPlace.lat);
-  }, [zoomLayer, selectedDest, selectedRegion, departure, animateToTarget]);
-
   const triggerBlindBox = () => {
     setIsShuffling(true);
     const candidateDestinations = selectedRegionId === 'all'
@@ -1382,6 +1381,7 @@ export default function App() {
     if (hoveredRegionId) return hoveredRegionId;
     return null;
   }, [selectedRegionId, selectedDest, hoveredRegionId, regionIds]);
+  const cityLayerNeedsRegionSelection = zoomLayer === 'city' && !focusedCityRegionId;
 
   const visibleDestinationPlaces = useMemo(() => {
     if (zoomLayer === 'macro') {
@@ -1400,10 +1400,15 @@ export default function App() {
       }));
     }
 
+    if (!focusedCityRegionId) {
+      return DESTINATION_REGIONS.map((place) => ({
+        ...place,
+        markerType: 'destination'
+      }));
+    }
+
     const focusedRegion = focusedCityRegionId ? regionsById.get(focusedCityRegionId) : null;
-    const cityStops = focusedCityRegionId
-      ? DESTINATIONS.filter((place) => place.regionId === focusedCityRegionId)
-      : DESTINATIONS;
+    const cityStops = DESTINATIONS.filter((place) => place.regionId === focusedCityRegionId);
 
     return [
       ...(focusedRegion ? [{ ...focusedRegion, markerType: 'destination' }] : []),
@@ -1749,18 +1754,6 @@ export default function App() {
             0%, 100% { opacity: 0.25; transform: scale(0.85); }
             50% { opacity: 0.9; transform: scale(1.05); }
           }
-          @keyframes orbital-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          @keyframes orbital-counter-spin {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(-360deg); }
-          }
-          @keyframes orbital-beam {
-            0%, 100% { opacity: 0.25; transform: scaleY(0.92); }
-            50% { opacity: 0.78; transform: scaleY(1.04); }
-          }
           .btn-crazy-rainbow {
             animation: gentle-float 2.2s infinite alternate ease-in-out !important;
             background: linear-gradient(135deg, #f3e8d3 0%, #d9bf97 100%) !important;
@@ -1813,68 +1806,6 @@ export default function App() {
         <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#e3cfb0]/24 blur-3xl"></div>
         <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#95b8c0]/16 blur-3xl"></div>
         <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#c07a5e]/10 blur-3xl"></div>
-      </div>
-
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="relative h-[860px] w-[860px] max-w-[92vw] max-h-[92vw]">
-          <div className="absolute inset-[4.5rem] rounded-full border-2 border-dashed border-black/15"></div>
-          <div className="absolute inset-[1.75rem] rounded-full border border-white/70"></div>
-          <div className="absolute right-[8%] top-[13%] pointer-events-auto">
-            <div className="rounded-[28px] border-[3px] border-black bg-white/92 px-4 py-3 shadow-[6px_6px_0_0_#000] backdrop-blur">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">
-                {isEnglish ? 'Map depth' : '地图层级'}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {ZOOM_LAYER_ORDER.map((layerKey) => (
-                  <span
-                    key={layerKey}
-                    className={`rounded-full border-[3px] border-black px-3 py-1 text-[11px] font-black shadow-[2px_2px_0_0_#000] ${
-                      zoomLayer === layerKey ? 'text-white' : 'text-slate-900'
-                    }`}
-                    style={{
-                      background: zoomLayer === layerKey
-                        ? (layerKey === 'macro' ? '#2563eb' : layerKey === 'region' ? '#ff8a3d' : '#ec4899')
-                        : '#fffdf7'
-                    }}
-                  >
-                    {zoomLayerLabels[layerKey]}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-3 max-w-[15rem] text-[11px] font-bold leading-5 text-slate-600">
-                {zoomLayerHint[zoomLayer]}
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute inset-0 motion-safe:animate-[orbital-spin_20s_linear_infinite]">
-            <div className="absolute left-1/2 top-[6%] h-[11rem] w-[2px] -translate-x-1/2 origin-bottom bg-gradient-to-b from-[#0f172a] via-[#0f172a]/55 to-transparent opacity-[0.55] motion-safe:animate-[orbital-beam_2.8s_ease-in-out_infinite]"></div>
-            <button
-              type="button"
-              onClick={cycleOrbitalView}
-              onWheel={(e) => e.stopPropagation()}
-              className="pointer-events-auto absolute left-1/2 top-[6%] h-24 w-24 rounded-full border-[4px] border-black bg-white text-black shadow-[8px_8px_0_0_#000] transition-transform hover:scale-105 active:scale-95 motion-safe:animate-[orbital-counter-spin_20s_linear_infinite]"
-              style={{
-                background: zoomLayer === 'macro'
-                  ? 'linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)'
-                  : zoomLayer === 'region'
-                    ? 'linear-gradient(135deg, #fff3bf 0%, #ffb74d 100%)'
-                    : 'linear-gradient(135deg, #ffe4ef 0%, #f9a8d4 100%)'
-              }}
-              aria-label={isEnglish ? 'Cycle orbital detail mode' : '切换轨道细节模式'}
-              title={isEnglish ? 'Orbital scout: cycle depth' : '轨道卫星：切换地图层级'}
-            >
-              <span className="absolute inset-2 rounded-full border-2 border-black/20"></span>
-              <span className="absolute left-1/2 top-1/2 h-3 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black"></span>
-              <span className="absolute left-[18%] top-1/2 h-7 w-3 -translate-y-1/2 rounded-full bg-black"></span>
-              <span className="absolute right-[18%] top-1/2 h-7 w-3 -translate-y-1/2 rounded-full bg-black"></span>
-              <span className="absolute left-1/2 top-[20%] -translate-x-1/2 text-3xl">🛰️</span>
-              <span className="absolute inset-x-0 bottom-3 text-center text-[10px] font-black uppercase tracking-[0.22em]">
-                {zoomLayer === 'macro' ? '01' : zoomLayer === 'region' ? '02' : '03'}
-              </span>
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center">
@@ -2130,6 +2061,19 @@ export default function App() {
           <button onClick={() => setZoom(z => Math.min(4.0, z + 0.4))} className="w-12 h-12 bg-[#22d3ee] hover:bg-[#06b6d4] rounded-xl flex items-center justify-center text-black border-2 border-black transition-colors active:scale-90"><ZoomIn size={24} strokeWidth={3}/></button>
           <div className="w-full h-1 bg-black rounded-full opacity-20 my-1"></div>
           <button onClick={() => setZoom(z => Math.max(0.6, z - 0.4))} className="w-12 h-12 bg-[#f472b6] hover:bg-[#ec4899] rounded-xl flex items-center justify-center text-black border-2 border-black transition-colors active:scale-90"><ZoomOut size={24} strokeWidth={3}/></button>
+        </div>
+        <div className="max-w-[13rem] rounded-2xl border-4 border-black bg-white/95 px-3 py-2 shadow-[6px_6px_0_0_#000]">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+            {isEnglish ? 'Zoom layer' : '缩放层级'}
+          </p>
+          <p className="mt-1 text-sm font-black text-slate-900">
+            {zoomLayerLabels[zoomLayer]}
+          </p>
+          <p className="mt-1 text-[11px] font-bold leading-5 text-slate-600">
+            {cityLayerNeedsRegionSelection
+              ? (isEnglish ? 'Click a region first, then cities open inside it.' : '先点一个地区，再展开这个地区里的城市。')
+              : zoomLayerHint[zoomLayer]}
+          </p>
         </div>
       </div>
 
