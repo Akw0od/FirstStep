@@ -597,19 +597,20 @@ const THEMES = {
     label: 'Classic Comic',
     labelZh: '漫画原版',
     // container
-    appBg: '#f3ecdf',
-    appDotColor: '#dcc9a6',
-    appDotSize: '30px 30px',
+    appBg: '#e8e0d2',
+    appGradient: 'linear-gradient(180deg, #f6efe5 0%, #e8dfd1 46%, #ddd2c2 100%)',
+    appDotColor: 'rgba(95, 83, 66, 0.16)',
+    appDotSize: '28px 28px',
     appTextColor: 'text-slate-900',
     // globe
-    oceanFill: '#58b7d8',
-    oceanStroke: '#16324d',
+    oceanFill: '#6f9eab',
+    oceanStroke: '#213746',
     oceanStrokeWidth: 6,
-    coastStroke: '#16324d',
+    coastStroke: '#213746',
     coastStrokeWidth: 3,
-    graticuleStroke: '#7bc6e0',
+    graticuleStroke: '#9db6bb',
     graticuleStrokeWidth: 2,
-    routeStroke: '#f07c5b',
+    routeStroke: '#b56b4f',
     routeStrokeWidth: 4,
   },
   y2k: {
@@ -618,6 +619,7 @@ const THEMES = {
     labelZh: 'Y2K 千禧',
     // container
     appBg: '#0A1130',
+    appGradient: 'linear-gradient(180deg, #0b1438 0%, #0a1130 100%)',
     appDotColor: '#1a2450',
     appDotSize: '18px 18px',
     appTextColor: 'text-slate-100',
@@ -655,38 +657,38 @@ export default function App() {
 
   const uiStyles = useMemo(() => ({
     panelShell: {
-      background: isComicTheme ? 'rgba(255, 251, 245, 0.94)' : 'rgba(8, 20, 53, 0.92)',
-      borderColor: isComicTheme ? '#172033' : '#78d6ff',
-      boxShadow: isComicTheme ? '0 24px 60px rgba(15, 23, 42, 0.18)' : '0 28px 64px rgba(0, 0, 0, 0.45)',
+      background: isComicTheme ? 'linear-gradient(180deg, rgba(250,246,240,0.96), rgba(238,229,216,0.94))' : 'rgba(8, 20, 53, 0.92)',
+      borderColor: isComicTheme ? '#263746' : '#78d6ff',
+      boxShadow: isComicTheme ? '0 24px 60px rgba(57, 48, 35, 0.16)' : '0 28px 64px rgba(0, 0, 0, 0.45)',
       backdropFilter: 'blur(16px)',
     },
     sectionShell: {
-      background: isComicTheme ? 'linear-gradient(180deg, rgba(255,255,255,0.88), rgba(248,244,236,0.98))' : 'linear-gradient(180deg, rgba(15,24,64,0.96), rgba(9,17,46,0.96))',
-      borderColor: isComicTheme ? '#172033' : '#5dbde9',
-      boxShadow: isComicTheme ? '0 12px 28px rgba(15, 23, 42, 0.12)' : '0 14px 30px rgba(0, 0, 0, 0.32)',
+      background: isComicTheme ? 'linear-gradient(180deg, rgba(255,250,244,0.94), rgba(244,236,226,0.98))' : 'linear-gradient(180deg, rgba(15,24,64,0.96), rgba(9,17,46,0.96))',
+      borderColor: isComicTheme ? '#263746' : '#5dbde9',
+      boxShadow: isComicTheme ? '0 12px 28px rgba(57, 48, 35, 0.1)' : '0 14px 30px rgba(0, 0, 0, 0.32)',
     },
     fieldShell: {
-      background: isComicTheme ? 'rgba(255,255,255,0.92)' : 'rgba(11,31,68,0.9)',
-      borderColor: isComicTheme ? '#172033' : '#8bdcff',
-      boxShadow: isComicTheme ? '0 6px 0 rgba(23, 32, 51, 0.12)' : '0 0 0 1px rgba(139,220,255,0.25)',
+      background: isComicTheme ? 'rgba(255,252,247,0.96)' : 'rgba(11,31,68,0.9)',
+      borderColor: isComicTheme ? '#314657' : '#8bdcff',
+      boxShadow: isComicTheme ? '0 6px 0 rgba(38, 55, 70, 0.1)' : '0 0 0 1px rgba(139,220,255,0.25)',
     },
     accentShell: {
-      background: isComicTheme ? 'linear-gradient(135deg, #fff2cc 0%, #f7df8a 100%)' : 'linear-gradient(135deg, rgba(200,255,61,0.16) 0%, rgba(0,181,217,0.18) 100%)',
-      borderColor: isComicTheme ? '#172033' : '#c8ff3d',
-      boxShadow: isComicTheme ? '0 10px 24px rgba(240, 124, 91, 0.18)' : '0 10px 24px rgba(0, 0, 0, 0.34)',
+      background: isComicTheme ? 'linear-gradient(135deg, #efe1c3 0%, #d6be9c 100%)' : 'linear-gradient(135deg, rgba(200,255,61,0.16) 0%, rgba(0,181,217,0.18) 100%)',
+      borderColor: isComicTheme ? '#314657' : '#c8ff3d',
+      boxShadow: isComicTheme ? '0 10px 24px rgba(111, 90, 62, 0.18)' : '0 10px 24px rgba(0, 0, 0, 0.34)',
     },
     strongButton: {
-      background: isComicTheme ? 'linear-gradient(135deg, #f07c5b 0%, #ea6c85 100%)' : 'linear-gradient(135deg, #00b5d9 0%, #7b61ff 100%)',
-      borderColor: isComicTheme ? '#172033' : '#d8f5ff',
-      boxShadow: isComicTheme ? '0 12px 26px rgba(240, 124, 91, 0.28)' : '0 14px 30px rgba(0, 0, 0, 0.35)',
+      background: isComicTheme ? 'linear-gradient(135deg, #9d5f46 0%, #7d4736 100%)' : 'linear-gradient(135deg, #00b5d9 0%, #7b61ff 100%)',
+      borderColor: isComicTheme ? '#263746' : '#d8f5ff',
+      boxShadow: isComicTheme ? '0 12px 26px rgba(98, 63, 46, 0.24)' : '0 14px 30px rgba(0, 0, 0, 0.35)',
       color: '#fff',
     },
     softChip: {
-      background: isComicTheme ? 'rgba(255,255,255,0.72)' : 'rgba(9,17,46,0.84)',
-      borderColor: isComicTheme ? 'rgba(23,32,51,0.72)' : 'rgba(120,214,255,0.7)',
+      background: isComicTheme ? 'rgba(255,250,244,0.82)' : 'rgba(9,17,46,0.84)',
+      borderColor: isComicTheme ? 'rgba(49,70,87,0.54)' : 'rgba(120,214,255,0.7)',
     },
     softDivider: {
-      borderColor: isComicTheme ? 'rgba(148, 163, 184, 0.28)' : 'rgba(120,214,255,0.2)',
+      borderColor: isComicTheme ? 'rgba(99, 91, 79, 0.18)' : 'rgba(120,214,255,0.2)',
     },
   }), [isComicTheme]);
 
@@ -1526,8 +1528,8 @@ export default function App() {
       onWheel={handleWheel}
       style={{
         backgroundColor: t.appBg,
-        backgroundImage: `radial-gradient(${t.appDotColor} 2px, transparent 2px)`,
-        backgroundSize: t.appDotSize,
+        backgroundImage: `${t.appGradient}, radial-gradient(${t.appDotColor} 1.8px, transparent 1.8px)`,
+        backgroundSize: `100% 100%, ${t.appDotSize}`,
       }}
       data-theme={theme}
     >
@@ -1555,10 +1557,10 @@ export default function App() {
           }
           .btn-crazy-rainbow {
             animation: gentle-float 2.2s infinite alternate ease-in-out !important;
-            background: linear-gradient(135deg, #fff4d3 0%, #f5d76e 100%) !important;
-            color: #172033 !important;
+            background: linear-gradient(135deg, #e9dcc0 0%, #c8ae86 100%) !important;
+            color: #263746 !important;
             text-shadow: none !important;
-            box-shadow: 0 16px 34px rgba(240, 124, 91, 0.22) !important;
+            box-shadow: 0 16px 34px rgba(111, 90, 62, 0.18) !important;
           }
           .btn-crazy-rainbow:hover {
             animation-duration: 1.1s !important;
@@ -1627,10 +1629,10 @@ export default function App() {
             }}
           ></span>
         ))}
-        <div className="absolute -left-20 top-8 h-72 w-72 rounded-full bg-white/45 blur-3xl"></div>
-        <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#f5d76e]/25 blur-3xl"></div>
-        <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#58b7d8]/18 blur-3xl"></div>
-        <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#f07c5b]/12 blur-3xl"></div>
+        <div className="absolute -left-20 top-8 h-72 w-72 rounded-full bg-white/35 blur-3xl"></div>
+        <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#d7c1a0]/22 blur-3xl"></div>
+        <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#7f9fab]/14 blur-3xl"></div>
+        <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#9d5f46]/10 blur-3xl"></div>
       </div>
 
       <div className="absolute inset-0 z-10 hidden xl:block pointer-events-none">
