@@ -597,20 +597,20 @@ const THEMES = {
     label: 'Classic Comic',
     labelZh: '漫画原版',
     // container
-    appBg: '#e8e0d2',
-    appGradient: 'linear-gradient(180deg, #f6efe5 0%, #e8dfd1 46%, #ddd2c2 100%)',
-    appDotColor: 'rgba(95, 83, 66, 0.16)',
+    appBg: '#f1e8db',
+    appGradient: 'linear-gradient(180deg, #fbf5ed 0%, #f2e9dd 48%, #e8ddcd 100%)',
+    appDotColor: 'rgba(118, 104, 84, 0.13)',
     appDotSize: '28px 28px',
     appTextColor: 'text-slate-900',
     // globe
-    oceanFill: '#6f9eab',
+    oceanFill: '#7caab4',
     oceanStroke: '#213746',
     oceanStrokeWidth: 6,
     coastStroke: '#213746',
     coastStrokeWidth: 3,
-    graticuleStroke: '#9db6bb',
+    graticuleStroke: '#aec3c8',
     graticuleStrokeWidth: 2,
-    routeStroke: '#b56b4f',
+    routeStroke: '#c97a5a',
     routeStrokeWidth: 4,
   },
   y2k: {
@@ -657,35 +657,35 @@ export default function App() {
 
   const uiStyles = useMemo(() => ({
     panelShell: {
-      background: isComicTheme ? 'linear-gradient(180deg, rgba(250,246,240,0.96), rgba(238,229,216,0.94))' : 'rgba(8, 20, 53, 0.92)',
+      background: isComicTheme ? 'linear-gradient(180deg, rgba(254,251,246,0.98), rgba(243,235,224,0.95))' : 'rgba(8, 20, 53, 0.92)',
       borderColor: isComicTheme ? '#263746' : '#78d6ff',
-      boxShadow: isComicTheme ? '0 24px 60px rgba(57, 48, 35, 0.16)' : '0 28px 64px rgba(0, 0, 0, 0.45)',
+      boxShadow: isComicTheme ? '0 24px 60px rgba(57, 48, 35, 0.12)' : '0 28px 64px rgba(0, 0, 0, 0.45)',
       backdropFilter: 'blur(16px)',
     },
     sectionShell: {
-      background: isComicTheme ? 'linear-gradient(180deg, rgba(255,250,244,0.94), rgba(244,236,226,0.98))' : 'linear-gradient(180deg, rgba(15,24,64,0.96), rgba(9,17,46,0.96))',
+      background: isComicTheme ? 'linear-gradient(180deg, rgba(255,252,248,0.98), rgba(247,240,231,0.98))' : 'linear-gradient(180deg, rgba(15,24,64,0.96), rgba(9,17,46,0.96))',
       borderColor: isComicTheme ? '#263746' : '#5dbde9',
-      boxShadow: isComicTheme ? '0 12px 28px rgba(57, 48, 35, 0.1)' : '0 14px 30px rgba(0, 0, 0, 0.32)',
+      boxShadow: isComicTheme ? '0 12px 28px rgba(57, 48, 35, 0.08)' : '0 14px 30px rgba(0, 0, 0, 0.32)',
     },
     fieldShell: {
-      background: isComicTheme ? 'rgba(255,252,247,0.96)' : 'rgba(11,31,68,0.9)',
+      background: isComicTheme ? 'rgba(255,253,249,0.98)' : 'rgba(11,31,68,0.9)',
       borderColor: isComicTheme ? '#314657' : '#8bdcff',
-      boxShadow: isComicTheme ? '0 6px 0 rgba(38, 55, 70, 0.1)' : '0 0 0 1px rgba(139,220,255,0.25)',
+      boxShadow: isComicTheme ? '0 6px 0 rgba(38, 55, 70, 0.08)' : '0 0 0 1px rgba(139,220,255,0.25)',
     },
     accentShell: {
-      background: isComicTheme ? 'linear-gradient(135deg, #efe1c3 0%, #d6be9c 100%)' : 'linear-gradient(135deg, rgba(200,255,61,0.16) 0%, rgba(0,181,217,0.18) 100%)',
+      background: isComicTheme ? 'linear-gradient(135deg, #f5e7cd 0%, #dec7a6 100%)' : 'linear-gradient(135deg, rgba(200,255,61,0.16) 0%, rgba(0,181,217,0.18) 100%)',
       borderColor: isComicTheme ? '#314657' : '#c8ff3d',
-      boxShadow: isComicTheme ? '0 10px 24px rgba(111, 90, 62, 0.18)' : '0 10px 24px rgba(0, 0, 0, 0.34)',
+      boxShadow: isComicTheme ? '0 10px 24px rgba(111, 90, 62, 0.14)' : '0 10px 24px rgba(0, 0, 0, 0.34)',
     },
     strongButton: {
-      background: isComicTheme ? 'linear-gradient(135deg, #9d5f46 0%, #7d4736 100%)' : 'linear-gradient(135deg, #00b5d9 0%, #7b61ff 100%)',
+      background: isComicTheme ? 'linear-gradient(135deg, #bc7557 0%, #9d5f46 100%)' : 'linear-gradient(135deg, #00b5d9 0%, #7b61ff 100%)',
       borderColor: isComicTheme ? '#263746' : '#d8f5ff',
-      boxShadow: isComicTheme ? '0 12px 26px rgba(98, 63, 46, 0.24)' : '0 14px 30px rgba(0, 0, 0, 0.35)',
+      boxShadow: isComicTheme ? '0 12px 26px rgba(98, 63, 46, 0.2)' : '0 14px 30px rgba(0, 0, 0, 0.35)',
       color: '#fff',
     },
     softChip: {
-      background: isComicTheme ? 'rgba(255,250,244,0.82)' : 'rgba(9,17,46,0.84)',
-      borderColor: isComicTheme ? 'rgba(49,70,87,0.54)' : 'rgba(120,214,255,0.7)',
+      background: isComicTheme ? 'rgba(255,252,247,0.9)' : 'rgba(9,17,46,0.84)',
+      borderColor: isComicTheme ? 'rgba(49,70,87,0.42)' : 'rgba(120,214,255,0.7)',
     },
     softDivider: {
       borderColor: isComicTheme ? 'rgba(99, 91, 79, 0.18)' : 'rgba(120,214,255,0.2)',
@@ -1557,10 +1557,10 @@ export default function App() {
           }
           .btn-crazy-rainbow {
             animation: gentle-float 2.2s infinite alternate ease-in-out !important;
-            background: linear-gradient(135deg, #e9dcc0 0%, #c8ae86 100%) !important;
+            background: linear-gradient(135deg, #f3e8d3 0%, #d9bf97 100%) !important;
             color: #263746 !important;
             text-shadow: none !important;
-            box-shadow: 0 16px 34px rgba(111, 90, 62, 0.18) !important;
+            box-shadow: 0 16px 34px rgba(111, 90, 62, 0.14) !important;
           }
           .btn-crazy-rainbow:hover {
             animation-duration: 1.1s !important;
@@ -1629,10 +1629,10 @@ export default function App() {
             }}
           ></span>
         ))}
-        <div className="absolute -left-20 top-8 h-72 w-72 rounded-full bg-white/35 blur-3xl"></div>
-        <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#d7c1a0]/22 blur-3xl"></div>
-        <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#7f9fab]/14 blur-3xl"></div>
-        <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#9d5f46]/10 blur-3xl"></div>
+        <div className="absolute -left-20 top-8 h-72 w-72 rounded-full bg-white/44 blur-3xl"></div>
+        <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#e3cfb0]/24 blur-3xl"></div>
+        <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#95b8c0]/16 blur-3xl"></div>
+        <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#c07a5e]/10 blur-3xl"></div>
       </div>
 
       <div className="absolute inset-0 z-10 hidden xl:block pointer-events-none">
