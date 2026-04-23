@@ -605,6 +605,7 @@ export default function App() {
 
   const ALL_PLACES = useMemo(() => [...DEPARTURE_CITIES, ...DESTINATIONS], []);
   const ALL_DESTINATION_PLACES = useMemo(() => [...DESTINATION_REGIONS, ...DESTINATIONS], []);
+  const regionIds = useMemo(() => new Set(DESTINATION_REGIONS.map((region) => region.id)), []);
   const departure = useMemo(() => ALL_PLACES.find(d => d.id === departureId), [departureId, ALL_PLACES]);
   const selectedRegion = useMemo(() => (
     selectedRegionId === 'all' ? null : DESTINATION_REGIONS.find((region) => region.id === selectedRegionId)
@@ -612,6 +613,8 @@ export default function App() {
   
   const [selectedDest, setSelectedDest] = useState(null);
   const [showItinerary, setShowItinerary] = useState(false);
+  const [hoveredMarkerId, setHoveredMarkerId] = useState(null);
+  const [hoveredRegionId, setHoveredRegionId] = useState(null);
 
   const [popupOffset, setPopupOffset] = useState({ x: 0, y: 0 });
   const [isDraggingPopup, setIsDraggingPopup] = useState(false);
@@ -639,6 +642,17 @@ export default function App() {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const isEnglish = language === 'English';
   const ui = UI_COPY[language];
+  const globeStyles = useMemo(() => ({
+    atmosphereGlow: isComicTheme ? '#9ad9f1' : '#36d9ff',
+    atmosphereGlowEdge: isComicTheme ? '#fef6e4' : '#d7f9ff',
+    atmosphereShadow: isComicTheme ? 'rgba(22, 50, 77, 0.18)' : 'rgba(0, 0, 0, 0.42)',
+    regionAura: isComicTheme ? '#f5d76e' : '#78d6ff',
+    regionAuraEdge: isComicTheme ? '#f07c5b' : '#c8ff3d',
+    previewRoute: isComicTheme ? 'rgba(240, 124, 91, 0.52)' : 'rgba(200, 255, 61, 0.6)',
+    focusHalo: isComicTheme ? '#fff0b3' : '#84f3ff',
+    focusRing: isComicTheme ? '#f07c5b' : '#c8ff3d',
+    focusCore: isComicTheme ? '#ffffff' : '#dffbff',
+  }), [isComicTheme]);
   const getPlaceName = useCallback((place) => {
     if (!place) return '';
     return isEnglish ? (place.nameEn || place.name) : place.name;
@@ -911,6 +925,8 @@ export default function App() {
 
   const handleRegionChange = useCallback((regionId) => {
     setSelectedClusterId(null);
+    setHoveredMarkerId(null);
+    setHoveredRegionId(null);
     if (regionId === 'all') {
       setSelectedRegionId('all');
       if (selectedDest && (selectedDest.regionId || DESTINATION_REGIONS.some((region) => region.id === selectedDest.id))) {
@@ -936,6 +952,8 @@ export default function App() {
 
   const handleDepartureSelect = useCallback((place) => {
     setSelectedClusterId(null);
+    setHoveredMarkerId(place.id);
+    setHoveredRegionId(null);
     setDepartureId(place.id);
     animateToTarget(place.lon, place.lat);
     setZoom(1.5);
@@ -947,6 +965,8 @@ export default function App() {
 
   const handleRegionSelect = useCallback((region) => {
     setSelectedClusterId(null);
+    setHoveredMarkerId(region.id);
+    setHoveredRegionId(region.id);
     setSelectedRegionId(region.id);
     animateToTarget(region.lon, region.lat);
     setZoom(1.9);
@@ -957,6 +977,8 @@ export default function App() {
 
   const handleMarkerClick = (dest) => {
     setSelectedClusterId(null);
+    setHoveredMarkerId(dest.id);
+    setHoveredRegionId(dest.regionId || null);
     if (dest.regionId) setSelectedRegionId(dest.regionId);
     animateToTarget(dest.lon, dest.lat);
     setShowItinerary(false);
@@ -1056,6 +1078,11 @@ export default function App() {
         const projection = project(place.lon, place.lat, rotation.lon, rotation.lat, currentRadius);
         if (!projection.visible) return null;
         const isDestination = place.markerType === 'destination';
+        const estCost = isDestination ? calculateTotalCost(place, days) : null;
+        const regionId = place.regionId || (regionIds.has(place.id) ? place.id : null);
+        const isSelected = selectedDest?.id === place.id;
+        const isHovered = hoveredMarkerId === place.id;
+        const isRegionHovered = Boolean(regionId) && hoveredRegionId === regionId;
         return {
           ...place,
           index,
@@ -1064,9 +1091,12 @@ export default function App() {
           x: projection.x,
           y: projection.y,
           isDestination,
-          isSelected: selectedDest?.id === place.id,
-          estCost: isDestination ? calculateTotalCost(place, days) : null,
-          isAffordable: isDestination ? calculateTotalCost(place, days) <= budget : true
+          isSelected,
+          isHovered,
+          regionId,
+          isRegionHovered,
+          estCost,
+          isAffordable: isDestination ? estCost <= budget : true
         };
       })
       .filter(Boolean)
@@ -1092,7 +1122,7 @@ export default function App() {
     });
 
     return placedMarkers;
-  }, [baseMapPlaces, rotation, currentRadius, selectedDest, calculateTotalCost, days, budget]);
+  }, [baseMapPlaces, rotation, currentRadius, selectedDest, calculateTotalCost, days, budget, hoveredMarkerId, hoveredRegionId, regionIds]);
 
   const hiddenMapMarkers = useMemo(() => (
     baseMapPlaces
@@ -1156,6 +1186,28 @@ export default function App() {
   const selectedCluster = useMemo(() => (
     mapClusters.find((cluster) => cluster.id === selectedClusterId) || null
   ), [mapClusters, selectedClusterId]);
+  const previewMarker = useMemo(() => (
+    renderedMapMarkers.find((marker) => marker.id === hoveredMarkerId && marker.isDestination) || null
+  ), [renderedMapMarkers, hoveredMarkerId]);
+  const previewTarget = useMemo(() => (
+    previewMarker && previewMarker.id !== selectedDest?.id ? previewMarker : null
+  ), [previewMarker, selectedDest]);
+  const selectedFocusPoint = useMemo(() => {
+    if (!selectedDest) return null;
+    const projectedSelected = projectedMapMarkers.find((marker) => marker.id === selectedDest.id);
+    if (projectedSelected) return projectedSelected;
+    const projection = project(selectedDest.lon, selectedDest.lat, rotation.lon, rotation.lat, currentRadius);
+    return projection.visible ? { x: projection.x, y: projection.y } : null;
+  }, [selectedDest, projectedMapMarkers, rotation, currentRadius]);
+  const activeRegionAuraId = hoveredRegionId || (selectedRegionId !== 'all' ? selectedRegionId : null);
+  const activeRegionAura = useMemo(() => {
+    if (!activeRegionAuraId) return null;
+    const region = DESTINATION_REGIONS.find((item) => item.id === activeRegionAuraId);
+    if (!region) return null;
+    const projection = project(region.lon, region.lat, rotation.lon, rotation.lat, currentRadius);
+    if (!projection.visible) return null;
+    return { ...projection, region };
+  }, [activeRegionAuraId, rotation, currentRadius]);
 
   useEffect(() => {
     if (selectedClusterId && !selectedCluster) {
@@ -1242,7 +1294,14 @@ export default function App() {
   return (
     <div
       className={`relative w-full h-screen min-h-[700px] overflow-hidden font-sans ${t.appTextColor} select-none`}
-      onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => {
+        handleMouseUp();
+        setHoveredMarkerId(null);
+        setHoveredRegionId(null);
+      }}
+      onWheel={handleWheel}
       style={{
         backgroundColor: t.appBg,
         backgroundImage: `radial-gradient(${t.appDotColor} 2px, transparent 2px)`,
@@ -1297,6 +1356,29 @@ export default function App() {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <svg viewBox="-400 -400 800 800" className={`w-[750px] h-[750px] overflow-visible cursor-grab active:cursor-grabbing transition-transform ${isDragging ? 'scale-[1.02]' : 'scale-100'}`} onMouseDown={handleMouseDown}>
+          <defs>
+            <radialGradient id="globe-atmosphere-gradient">
+              <stop offset="52%" stopColor={globeStyles.atmosphereGlow} stopOpacity="0" />
+              <stop offset="78%" stopColor={globeStyles.atmosphereGlow} stopOpacity={isComicTheme ? '0.14' : '0.2'} />
+              <stop offset="100%" stopColor={globeStyles.atmosphereGlowEdge} stopOpacity={isComicTheme ? '0.26' : '0.32'} />
+            </radialGradient>
+            <radialGradient id="globe-region-gradient">
+              <stop offset="0%" stopColor={globeStyles.regionAura} stopOpacity={isComicTheme ? '0.28' : '0.2'} />
+              <stop offset="72%" stopColor={globeStyles.regionAuraEdge} stopOpacity={isComicTheme ? '0.14' : '0.18'} />
+              <stop offset="100%" stopColor={globeStyles.regionAuraEdge} stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="globe-focus-gradient">
+              <stop offset="0%" stopColor={globeStyles.focusCore} stopOpacity="0.95" />
+              <stop offset="38%" stopColor={globeStyles.focusHalo} stopOpacity={isComicTheme ? '0.42' : '0.34'} />
+              <stop offset="100%" stopColor={globeStyles.focusHalo} stopOpacity="0" />
+            </radialGradient>
+            <filter id="globe-soft-blur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="16" />
+            </filter>
+          </defs>
+
+          <circle r={currentRadius * 1.16} fill="url(#globe-atmosphere-gradient)" opacity={isDragging ? 0.8 : 1} />
+          <circle r={currentRadius * 1.04} fill="none" stroke={globeStyles.atmosphereGlowEdge} strokeOpacity={isComicTheme ? 0.18 : 0.26} strokeWidth={8} />
           <circle r={currentRadius} fill={t.oceanFill} stroke={t.oceanStroke} strokeWidth={t.oceanStrokeWidth} />
           <path d={`M -${currentRadius*0.6} -${currentRadius*0.6} A ${currentRadius} ${currentRadius} 0 0 1 0 -${currentRadius} A ${currentRadius*0.8} ${currentRadius*0.8} 0 0 0 -${currentRadius*0.6} -${currentRadius*0.6} Z`} fill="#fff" opacity={theme === 'y2k' ? 0.12 : 0.3} />
 
@@ -1306,13 +1388,49 @@ export default function App() {
               : coastLines.map((d, i) => <path key={i} d={d} fill="none" stroke={t.coastStroke} strokeWidth={t.coastStrokeWidth} strokeLinecap="round" strokeLinejoin="round" />)}
           </g>
           
-          <circle r={currentRadius} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth={40 * zoom} strokeDasharray={`${Math.PI*currentRadius} ${Math.PI*currentRadius}`} transform="rotate(-45)" />
+          <circle r={currentRadius} fill="none" stroke={globeStyles.atmosphereShadow} strokeWidth={40 * zoom} strokeDasharray={`${Math.PI*currentRadius} ${Math.PI*currentRadius}`} transform="rotate(-45)" />
+
+          {activeRegionAura && (
+            <g transform={`translate(${activeRegionAura.x}, ${activeRegionAura.y})`} pointerEvents="none">
+              <circle r={currentRadius * 0.27} fill="url(#globe-region-gradient)" filter="url(#globe-soft-blur)" opacity="0.95" />
+              <circle r={currentRadius * 0.18} fill="none" stroke={globeStyles.regionAuraEdge} strokeOpacity={isComicTheme ? 0.3 : 0.42} strokeWidth="2.5" strokeDasharray="8 10">
+                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="18s" repeatCount="indefinite" />
+              </circle>
+            </g>
+          )}
+
+          {previewTarget && (
+            <path
+              d={getGreatCirclePath(departure.lon, departure.lat, previewTarget.lon, previewTarget.lat, rotation.lon, rotation.lat, currentRadius)}
+              fill="none"
+              stroke={globeStyles.previewRoute}
+              strokeWidth={Math.max(2.5, t.routeStrokeWidth - 0.5)}
+              strokeDasharray="8,14"
+              strokeLinecap="round"
+              opacity="0.9"
+              pointerEvents="none"
+            >
+              <animate attributeName="stroke-dashoffset" from="66" to="0" dur="1.8s" repeatCount="indefinite" />
+            </path>
+          )}
 
           {selectedDest && (selectedDest.lon !== departure.lon || selectedDest.lat !== departure.lat) && (
             <path d={getGreatCirclePath(departure.lon, departure.lat, selectedDest.lon, selectedDest.lat, rotation.lon, rotation.lat, currentRadius)}
               fill="none" stroke={t.routeStroke} strokeWidth={t.routeStrokeWidth} strokeDasharray="12,12" strokeLinecap="round" className={theme === 'y2k' ? 'drop-shadow-[0_0_6px_rgba(200,255,61,0.8)]' : 'drop-shadow-[4px_4px_0_rgba(0,0,0,1)]'}>
               <animate attributeName="stroke-dashoffset" from="100" to="0" dur="1.5s" repeatCount="indefinite" />
             </path>
+          )}
+
+          {selectedFocusPoint && (
+            <g transform={`translate(${selectedFocusPoint.x}, ${selectedFocusPoint.y})`} pointerEvents="none">
+              <circle r={currentRadius * 0.11} fill="url(#globe-focus-gradient)">
+                <animate attributeName="r" values={`${currentRadius * 0.085};${currentRadius * 0.14};${currentRadius * 0.085}`} dur="2.6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.95;0.42;0.95" dur="2.6s" repeatCount="indefinite" />
+              </circle>
+              <circle r={currentRadius * 0.06} fill="none" stroke={globeStyles.focusRing} strokeOpacity="0.92" strokeWidth="2.5" strokeDasharray="6 10">
+                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="10s" repeatCount="indefinite" />
+              </circle>
+            </g>
           )}
 
           {(() => {
@@ -1334,10 +1452,18 @@ export default function App() {
                 key={marker.id}
                 transform={`translate(${marker.x}, ${marker.y})`}
                 className="cursor-pointer group"
+                onMouseEnter={() => {
+                  setHoveredMarkerId(marker.id);
+                  setHoveredRegionId(marker.regionId || null);
+                }}
+                onMouseLeave={() => {
+                  setHoveredMarkerId((current) => (current === marker.id ? null : current));
+                  setHoveredRegionId((current) => (current === marker.regionId ? null : current));
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (marker.markerType === 'departure') handleDepartureSelect(marker);
-                  else if (DESTINATION_REGIONS.some((region) => region.id === marker.id)) handleRegionSelect(marker);
+                  else if (regionIds.has(marker.id)) handleRegionSelect(marker);
                   else handleMarkerClick(marker);
                 }}
               >
@@ -1358,7 +1484,27 @@ export default function App() {
                   </foreignObject>
                 )}
 
-                <g className="transition-transform duration-200 group-hover:scale-110">
+                {(marker.isRegionHovered || marker.isHovered || marker.isSelected) && (
+                  <g pointerEvents="none">
+                    <circle
+                      r={marker.isSelected ? 34 : marker.isRegionHovered ? 30 : 24}
+                      fill={marker.isSelected ? 'url(#globe-focus-gradient)' : 'url(#globe-region-gradient)'}
+                      opacity={marker.isSelected ? 0.95 : marker.isHovered ? 0.9 : 0.72}
+                    />
+                    <circle
+                      r={marker.isSelected ? 22 : 18}
+                      fill="none"
+                      stroke={marker.isSelected ? globeStyles.focusRing : globeStyles.regionAuraEdge}
+                      strokeOpacity={marker.isSelected ? 0.92 : 0.68}
+                      strokeWidth="2"
+                      strokeDasharray={marker.isSelected ? '5 7' : '4 8'}
+                    >
+                      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur={marker.isSelected ? '8s' : '11s'} repeatCount="indefinite" />
+                    </circle>
+                  </g>
+                )}
+
+                <g className={`transition-transform duration-200 ${marker.isHovered || marker.isSelected ? 'scale-[1.16]' : 'group-hover:scale-110'}`}>
                   <SvgMarkerFace marker={marker} affordable={marker.isAffordable} />
                 </g>
 
