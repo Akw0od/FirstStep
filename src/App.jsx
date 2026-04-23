@@ -166,6 +166,46 @@ const DESTINATIONS = [
   { id: 'cbl', regionId: 'region_morocco', name: '卡萨布兰卡, 摩洛哥', nameEn: 'Casablanca', lon: -7.59, lat: 33.57, baseCost: 10400, hotel: 780, daily: 720, icon: '🌴', type: 'urban', desc: '海边大城、清真寺地标和北非现代感。', descEn: 'A coastal metropolis with mosque landmarks and a modern edge.' }
 ];
 
+const REGION_VISUALS = {
+  default: { surface: '#fff7ed', tint: '#fde68a', accent: '#f97316', glow: 'rgba(249, 115, 22, 0.18)', route: '#fb923c', stamp: '✦' },
+  region_japan: { surface: '#ffe4ef', tint: '#fbcfe8', accent: '#e11d48', glow: 'rgba(244, 114, 182, 0.22)', route: '#fb7185', stamp: '✿' },
+  region_thailand: { surface: '#fff3bf', tint: '#fde68a', accent: '#0f766e', glow: 'rgba(20, 184, 166, 0.2)', route: '#f59e0b', stamp: '☀' },
+  region_california: { surface: '#ffe7c2', tint: '#fdba74', accent: '#ea580c', glow: 'rgba(251, 146, 60, 0.22)', route: '#f97316', stamp: '☼' },
+  region_pnw: { surface: '#ddfbe5', tint: '#86efac', accent: '#166534', glow: 'rgba(34, 197, 94, 0.22)', route: '#22c55e', stamp: '✺' },
+  region_southwest: { surface: '#fde7d7', tint: '#fdba74', accent: '#b45309', glow: 'rgba(217, 119, 6, 0.22)', route: '#f97316', stamp: '◌' },
+  region_hawaii: { surface: '#ffe0f2', tint: '#f9a8d4', accent: '#db2777', glow: 'rgba(236, 72, 153, 0.24)', route: '#ec4899', stamp: '❀' },
+  region_florida: { surface: '#dcfdf4', tint: '#67e8f9', accent: '#0891b2', glow: 'rgba(45, 212, 191, 0.22)', route: '#06b6d4', stamp: '✷' },
+  region_midwest: { surface: '#e5eefc', tint: '#bfdbfe', accent: '#1d4ed8', glow: 'rgba(59, 130, 246, 0.18)', route: '#3b82f6', stamp: '✹' },
+  region_france: { surface: '#eef4ff', tint: '#dbeafe', accent: '#2563eb', glow: 'rgba(37, 99, 235, 0.18)', route: '#2563eb', stamp: '✧' },
+  region_italy: { surface: '#ecfccb', tint: '#bef264', accent: '#4d7c0f', glow: 'rgba(132, 204, 22, 0.2)', route: '#84cc16', stamp: '✣' },
+  region_uk: { surface: '#eceff8', tint: '#cbd5e1', accent: '#334155', glow: 'rgba(71, 85, 105, 0.2)', route: '#64748b', stamp: '✥' },
+  region_korea: { surface: '#e0f2fe', tint: '#7dd3fc', accent: '#2563eb', glow: 'rgba(56, 189, 248, 0.2)', route: '#38bdf8', stamp: '✦' },
+  region_australia: { surface: '#ffedd5', tint: '#fdba74', accent: '#c2410c', glow: 'rgba(251, 146, 60, 0.24)', route: '#f97316', stamp: '✸' },
+  region_peru: { surface: '#fef2f2', tint: '#fca5a5', accent: '#b91c1c', glow: 'rgba(248, 113, 113, 0.2)', route: '#ef4444', stamp: '✹' },
+  region_morocco: { surface: '#fef3c7', tint: '#fcd34d', accent: '#0f766e', glow: 'rgba(245, 158, 11, 0.22)', route: '#f59e0b', stamp: '✺' }
+};
+
+const FLOATING_REGION_SLOTS = [
+  { className: 'left-[36%] top-[10%]', tilt: '-rotate-6', delay: '0.2s' },
+  { className: 'right-[20%] top-[16%]', tilt: 'rotate-6', delay: '1.4s' },
+  { className: 'left-[39%] bottom-[17%]', tilt: 'rotate-3', delay: '0.8s' },
+  { className: 'right-[24%] bottom-[22%]', tilt: '-rotate-3', delay: '1.9s' }
+];
+
+const AMBIENT_STARFIELD = [
+  { left: '33%', top: '13%', size: 6, delay: '0s' },
+  { left: '46%', top: '8%', size: 5, delay: '0.8s' },
+  { left: '61%', top: '18%', size: 7, delay: '1.6s' },
+  { left: '71%', top: '29%', size: 5, delay: '0.4s' },
+  { left: '58%', top: '73%', size: 6, delay: '1.1s' },
+  { left: '42%', top: '77%', size: 7, delay: '1.7s' },
+  { left: '28%', top: '63%', size: 5, delay: '0.6s' },
+  { left: '65%', top: '53%', size: 4, delay: '1.3s' },
+  { left: '76%', top: '43%', size: 6, delay: '0.9s' }
+];
+
+const getRegionVisual = (regionId) => REGION_VISUALS[regionId] || REGION_VISUALS.default;
+
 const VISA_RULES = {
   CN: { th: { status: 'free', label: '免签' }, jp: { status: 'visa', label: '办签' }, fr: { status: 'visa', label: '申根' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'visa', label: '办签' }, uk: { status: 'visa', label: '办签' }, us_domestic: { status: 'visa', label: '美签' }, ny: { status: 'visa', label: '美签' }, yvr: { status: 'visa', label: '加签' }, cun: { status: 'visa', label: '美签' }, hnl: { status: 'visa', label: '美签' }, las: { status: 'visa', label: '美签' }, sfo: { status: 'visa', label: '美签' }, sea: { status: 'visa', label: '美签' }, gcn: { status: 'visa', label: '美签' }, ysnp: { status: 'visa', label: '美签' }, mia: { status: 'visa', label: '美签' }, chi: { status: 'visa', label: '美签' }, msy: { status: 'visa', label: '美签' }, lax: { status: 'visa', label: '美签' }, sd: { status: 'visa', label: '美签' } },
   US: { th: { status: 'free', label: '免签' }, jp: { status: 'free', label: '免签' }, fr: { status: 'free', label: '免签' }, id: { status: 'voa', label: '落地' }, kr: { status: 'free', label: '免签' }, au: { status: 'eta', label: 'ETA' }, uk: { status: 'free', label: '免签' }, us_domestic: { status: 'free', label: '国内' }, ny: { status: 'free', label: '国内' }, yvr: { status: 'free', label: '免签' }, cun: { status: 'free', label: '免签' }, hnl: { status: 'free', label: '国内' }, las: { status: 'free', label: '国内' }, sfo: { status: 'free', label: '国内' }, sea: { status: 'free', label: '国内' }, gcn: { status: 'free', label: '国内' }, ysnp: { status: 'free', label: '国内' }, mia: { status: 'free', label: '国内' }, chi: { status: 'free', label: '国内' }, msy: { status: 'free', label: '国内' }, lax: { status: 'free', label: '国内' }, sd: { status: 'free', label: '国内' } }
@@ -401,12 +441,20 @@ const ComicBox = ({ color = "#fff", className = "" }) => (
 
 const SvgMarkerFace = ({ marker, affordable }) => {
   const isDeparture = marker.markerType === 'departure';
-  const fill = isDeparture ? '#ffffff' : marker.isSelected ? '#fcd34d' : affordable ? '#a7f3d0' : '#cbd5e1';
-  const iconSize = isDeparture ? 18 : marker.isSelected ? 28 : 20;
+  const isRegionHub = marker.isRegionHub;
+  const regionVisual = marker.regionVisual || REGION_VISUALS.default;
+  const fill = isDeparture
+    ? '#ffffff'
+    : marker.isSelected
+      ? regionVisual.surface
+      : affordable
+        ? regionVisual.tint
+        : '#dbe4f0';
+  const iconSize = isDeparture ? 18 : marker.isSelected || isRegionHub ? 26 : 20;
 
   return (
     <g className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
-      {isDeparture || marker.isSelected ? (
+      {isDeparture || marker.isSelected || isRegionHub ? (
         <polygon
           points={BURST_POINTS}
           fill={fill}
@@ -428,6 +476,32 @@ const SvgMarkerFace = ({ marker, affordable }) => {
           transform={affordable ? 'rotate(3)' : 'rotate(-3)'}
         />
       )}
+      {!isDeparture && (
+        <g transform="translate(18 -18)">
+          <circle r="10" fill={regionVisual.surface} stroke="#000" strokeWidth="3" />
+          <text
+            x="0"
+            y="1"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize="11"
+            style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '2px' }}
+          >
+            {marker.countryIcon || regionVisual.stamp}
+          </text>
+        </g>
+      )}
+      {!isDeparture && !marker.isSelected && (
+        <rect
+          x="-16"
+          y="18"
+          width="32"
+          height="6"
+          rx="999"
+          fill={regionVisual.accent}
+          opacity="0.92"
+        />
+      )}
       <text
         x="0"
         y="1"
@@ -442,7 +516,15 @@ const SvgMarkerFace = ({ marker, affordable }) => {
   );
 };
 
-const SvgClusterFace = ({ count, active }) => (
+const SvgClusterFace = ({ count, active, items = [] }) => {
+  const previewItems = items.slice(0, 3);
+  const iconSlots = [
+    { x: -16, y: -14 },
+    { x: 16, y: -14 },
+    { x: 0, y: 14 }
+  ];
+
+  return (
   <g className="drop-shadow-[4px_4px_0_rgba(0,0,0,1)]">
     <polygon
       points={BURST_POINTS}
@@ -452,9 +534,24 @@ const SvgClusterFace = ({ count, active }) => (
       strokeLinejoin="round"
       transform="translate(-30 -30) scale(0.6)"
     />
+    {previewItems.map((item, index) => (
+      <g key={`${item.id}-cluster`} transform={`translate(${iconSlots[index].x} ${iconSlots[index].y})`}>
+        <circle r="11" fill={item.regionVisual?.surface || '#fff7ed'} stroke="#000" strokeWidth="3" />
+        <text
+          x="0"
+          y="1"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize="11"
+          style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '2px' }}
+        >
+          {item.icon}
+        </text>
+      </g>
+    ))}
     <text
       x="0"
-      y="2"
+      y={previewItems.length > 0 ? 34 : 2}
       textAnchor="middle"
       dominantBaseline="central"
       fontSize="15"
@@ -465,7 +562,8 @@ const SvgClusterFace = ({ count, active }) => (
       +{count}
     </text>
   </g>
-);
+  );
+};
 
 // ============================================================
 // THEMES — visual direction tokens
@@ -606,6 +704,7 @@ export default function App() {
   const ALL_PLACES = useMemo(() => [...DEPARTURE_CITIES, ...DESTINATIONS], []);
   const ALL_DESTINATION_PLACES = useMemo(() => [...DESTINATION_REGIONS, ...DESTINATIONS], []);
   const regionIds = useMemo(() => new Set(DESTINATION_REGIONS.map((region) => region.id)), []);
+  const regionsById = useMemo(() => new Map(DESTINATION_REGIONS.map((region) => [region.id, region])), []);
   const departure = useMemo(() => ALL_PLACES.find(d => d.id === departureId), [departureId, ALL_PLACES]);
   const selectedRegion = useMemo(() => (
     selectedRegionId === 'all' ? null : DESTINATION_REGIONS.find((region) => region.id === selectedRegionId)
@@ -646,12 +745,12 @@ export default function App() {
     atmosphereGlow: isComicTheme ? '#9ad9f1' : '#36d9ff',
     atmosphereGlowEdge: isComicTheme ? '#fef6e4' : '#d7f9ff',
     atmosphereShadow: isComicTheme ? 'rgba(22, 50, 77, 0.18)' : 'rgba(0, 0, 0, 0.42)',
-    regionAura: isComicTheme ? '#f5d76e' : '#78d6ff',
-    regionAuraEdge: isComicTheme ? '#f07c5b' : '#c8ff3d',
     previewRoute: isComicTheme ? 'rgba(240, 124, 91, 0.52)' : 'rgba(200, 255, 61, 0.6)',
     focusHalo: isComicTheme ? '#fff0b3' : '#84f3ff',
     focusRing: isComicTheme ? '#f07c5b' : '#c8ff3d',
     focusCore: isComicTheme ? '#ffffff' : '#dffbff',
+    orbitStroke: isComicTheme ? 'rgba(22, 50, 77, 0.14)' : 'rgba(120, 214, 255, 0.18)',
+    orbitFill: isComicTheme ? 'rgba(255, 255, 255, 0.82)' : 'rgba(9, 17, 46, 0.84)',
   }), [isComicTheme]);
   const getPlaceName = useCallback((place) => {
     if (!place) return '';
@@ -1080,6 +1179,8 @@ export default function App() {
         const isDestination = place.markerType === 'destination';
         const estCost = isDestination ? calculateTotalCost(place, days) : null;
         const regionId = place.regionId || (regionIds.has(place.id) ? place.id : null);
+        const region = regionId ? regionsById.get(regionId) : null;
+        const regionVisual = getRegionVisual(regionId);
         const isSelected = selectedDest?.id === place.id;
         const isHovered = hoveredMarkerId === place.id;
         const isRegionHovered = Boolean(regionId) && hoveredRegionId === regionId;
@@ -1094,6 +1195,9 @@ export default function App() {
           isSelected,
           isHovered,
           regionId,
+          regionVisual,
+          countryIcon: region?.icon || place.icon,
+          isRegionHub: regionIds.has(place.id),
           isRegionHovered,
           estCost,
           isAffordable: isDestination ? estCost <= budget : true
@@ -1122,7 +1226,7 @@ export default function App() {
     });
 
     return placedMarkers;
-  }, [baseMapPlaces, rotation, currentRadius, selectedDest, calculateTotalCost, days, budget, hoveredMarkerId, hoveredRegionId, regionIds]);
+  }, [baseMapPlaces, rotation, currentRadius, selectedDest, calculateTotalCost, days, budget, hoveredMarkerId, hoveredRegionId, regionIds, regionsById]);
 
   const hiddenMapMarkers = useMemo(() => (
     baseMapPlaces
@@ -1200,14 +1304,48 @@ export default function App() {
     return projection.visible ? { x: projection.x, y: projection.y } : null;
   }, [selectedDest, projectedMapMarkers, rotation, currentRadius]);
   const activeRegionAuraId = hoveredRegionId || (selectedRegionId !== 'all' ? selectedRegionId : null);
+  const selectedFocusStyle = useMemo(() => {
+    if (!selectedDest) return REGION_VISUALS.default;
+    const regionId = selectedDest.regionId || (regionIds.has(selectedDest.id) ? selectedDest.id : null);
+    return getRegionVisual(regionId);
+  }, [selectedDest, regionIds]);
   const activeRegionAura = useMemo(() => {
     if (!activeRegionAuraId) return null;
-    const region = DESTINATION_REGIONS.find((item) => item.id === activeRegionAuraId);
+    const region = regionsById.get(activeRegionAuraId);
     if (!region) return null;
     const projection = project(region.lon, region.lat, rotation.lon, rotation.lat, currentRadius);
     if (!projection.visible) return null;
-    return { ...projection, region };
-  }, [activeRegionAuraId, rotation, currentRadius]);
+    return { ...projection, region, visual: getRegionVisual(region.id) };
+  }, [activeRegionAuraId, rotation, currentRadius, regionsById]);
+  const projectedRegionSignatures = useMemo(() => (
+    DESTINATION_REGIONS
+      .map((region) => {
+        const projection = project(region.lon, region.lat, rotation.lon, rotation.lat, currentRadius);
+        if (!projection.visible) return null;
+        const visual = getRegionVisual(region.id);
+        const isActive = activeRegionAuraId === region.id;
+        const isSelected = selectedDest?.id === region.id || selectedDest?.regionId === region.id;
+        return { ...region, ...projection, visual, isActive, isSelected };
+      })
+      .filter(Boolean)
+  ), [rotation, currentRadius, activeRegionAuraId, selectedDest]);
+  const featuredAmbientRegions = useMemo(() => {
+    const orderedIds = [];
+    const pushUnique = (id) => {
+      if (!id || orderedIds.includes(id) || !regionsById.has(id)) return;
+      orderedIds.push(id);
+    };
+
+    pushUnique(selectedDest?.regionId || (selectedDest && regionIds.has(selectedDest.id) ? selectedDest.id : null));
+    pushUnique(selectedRegionId !== 'all' ? selectedRegionId : null);
+    ['region_japan', 'region_france', 'region_southwest', 'region_morocco', 'region_hawaii'].forEach(pushUnique);
+
+    return orderedIds.slice(0, FLOATING_REGION_SLOTS.length).map((id, index) => ({
+      ...regionsById.get(id),
+      visual: getRegionVisual(id),
+      slot: FLOATING_REGION_SLOTS[index]
+    }));
+  }, [selectedDest, selectedRegionId, regionIds, regionsById]);
 
   useEffect(() => {
     if (selectedClusterId && !selectedCluster) {
@@ -1315,6 +1453,22 @@ export default function App() {
             0% { transform: translateY(0px); }
             100% { transform: translateY(-3px); }
           }
+          @keyframes stamp-drift {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+          }
+          @keyframes orbit-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes orbit-spin-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+          }
+          @keyframes twinkle {
+            0%, 100% { opacity: 0.25; transform: scale(0.85); }
+            50% { opacity: 0.9; transform: scale(1.05); }
+          }
           .btn-crazy-rainbow {
             animation: gentle-float 2.2s infinite alternate ease-in-out !important;
             background: linear-gradient(135deg, #fff4d3 0%, #f5d76e 100%) !important;
@@ -1348,10 +1502,77 @@ export default function App() {
       </style>
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-1/2 h-[56rem] w-[56rem] -translate-x-1/2 -translate-y-1/2 opacity-80">
+          <div
+            className="absolute inset-0 rounded-full border border-dashed"
+            style={{ borderColor: globeStyles.orbitStroke }}
+          ></div>
+          <div
+            className="absolute inset-10 rounded-full border border-dashed"
+            style={{ borderColor: globeStyles.orbitStroke }}
+          ></div>
+          <div className="absolute inset-0" style={{ animation: 'orbit-spin 34s linear infinite' }}>
+            <div
+              className="absolute left-1/2 top-1 -translate-x-1/2 rounded-full border-2 border-black px-3 py-1 text-lg shadow-[4px_4px_0_0_#000]"
+              style={{ background: globeStyles.orbitFill }}
+            >
+              ✈️
+            </div>
+          </div>
+          <div className="absolute inset-10" style={{ animation: 'orbit-spin-reverse 28s linear infinite' }}>
+            <div
+              className="absolute right-6 top-1/2 -translate-y-1/2 rounded-full border-2 border-black px-3 py-1 text-lg shadow-[4px_4px_0_0_#000]"
+              style={{ background: globeStyles.orbitFill }}
+            >
+              {selectedDest?.icon || selectedRegion?.icon || '🧭'}
+            </div>
+          </div>
+        </div>
+        {AMBIENT_STARFIELD.map((star, index) => (
+          <span
+            key={`star-${index}`}
+            className="absolute rounded-full"
+            style={{
+              left: star.left,
+              top: star.top,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              background: isComicTheme ? '#fffef8' : '#e0f2fe',
+              boxShadow: isComicTheme ? '0 0 0 2px rgba(23, 32, 51, 0.08)' : '0 0 14px rgba(125, 211, 252, 0.45)',
+              animation: `twinkle 3.8s ease-in-out ${star.delay} infinite`
+            }}
+          ></span>
+        ))}
         <div className="absolute -left-20 top-8 h-72 w-72 rounded-full bg-white/45 blur-3xl"></div>
         <div className="absolute left-[22%] top-[14%] h-52 w-52 rounded-full bg-[#f5d76e]/25 blur-3xl"></div>
         <div className="absolute right-[-6rem] top-[16%] h-[22rem] w-[22rem] rounded-full bg-[#58b7d8]/18 blur-3xl"></div>
         <div className="absolute bottom-[-5rem] left-[18%] h-60 w-60 rounded-full bg-[#f07c5b]/12 blur-3xl"></div>
+      </div>
+
+      <div className="absolute inset-0 z-10 hidden xl:block pointer-events-none">
+        {featuredAmbientRegions.map((region) => (
+          <button
+            key={`featured-${region.id}`}
+            onClick={() => handleRegionSelect(region)}
+            className={`pointer-events-auto absolute flex items-center gap-2 rounded-full border-4 px-4 py-2 shadow-[6px_6px_0_0_#000] transition-transform hover:-translate-y-1 ${region.slot.className} ${region.slot.tilt}`}
+            style={{
+              background: region.visual.surface,
+              borderColor: '#000',
+              animation: `stamp-drift 6.4s ease-in-out ${region.slot.delay} infinite`
+            }}
+          >
+            <span className="text-xl leading-none">{region.icon}</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-900 whitespace-nowrap">
+              {getPlaceShortName(region)}
+            </span>
+            <span
+              className="inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-black text-[10px] font-black"
+              style={{ background: region.visual.tint }}
+            >
+              {region.visual.stamp}
+            </span>
+          </button>
+        ))}
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center">
@@ -1361,11 +1582,6 @@ export default function App() {
               <stop offset="52%" stopColor={globeStyles.atmosphereGlow} stopOpacity="0" />
               <stop offset="78%" stopColor={globeStyles.atmosphereGlow} stopOpacity={isComicTheme ? '0.14' : '0.2'} />
               <stop offset="100%" stopColor={globeStyles.atmosphereGlowEdge} stopOpacity={isComicTheme ? '0.26' : '0.32'} />
-            </radialGradient>
-            <radialGradient id="globe-region-gradient">
-              <stop offset="0%" stopColor={globeStyles.regionAura} stopOpacity={isComicTheme ? '0.28' : '0.2'} />
-              <stop offset="72%" stopColor={globeStyles.regionAuraEdge} stopOpacity={isComicTheme ? '0.14' : '0.18'} />
-              <stop offset="100%" stopColor={globeStyles.regionAuraEdge} stopOpacity="0" />
             </radialGradient>
             <radialGradient id="globe-focus-gradient">
               <stop offset="0%" stopColor={globeStyles.focusCore} stopOpacity="0.95" />
@@ -1390,12 +1606,49 @@ export default function App() {
           
           <circle r={currentRadius} fill="none" stroke={globeStyles.atmosphereShadow} strokeWidth={40 * zoom} strokeDasharray={`${Math.PI*currentRadius} ${Math.PI*currentRadius}`} transform="rotate(-45)" />
 
+          {projectedRegionSignatures.map((region) => (
+            <g key={`region-signature-${region.id}`} transform={`translate(${region.x}, ${region.y})`} pointerEvents="none">
+              <circle
+                r={region.isActive ? currentRadius * 0.16 : region.isSelected ? currentRadius * 0.13 : currentRadius * 0.1}
+                fill={region.visual.glow}
+                opacity={region.isActive ? 0.95 : 0.55}
+              />
+              <circle
+                r={region.isActive ? currentRadius * 0.09 : currentRadius * 0.065}
+                fill="none"
+                stroke={region.visual.accent}
+                strokeOpacity={region.isActive ? 0.78 : 0.32}
+                strokeWidth={region.isActive ? 2.5 : 1.5}
+                strokeDasharray={region.isActive ? '6 9' : '4 10'}
+              />
+              <text
+                y="4"
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize={region.isActive ? 18 : 12}
+                opacity={region.isActive ? 0.95 : 0.55}
+                style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '3px' }}
+              >
+                {region.icon}
+              </text>
+            </g>
+          ))}
+
           {activeRegionAura && (
             <g transform={`translate(${activeRegionAura.x}, ${activeRegionAura.y})`} pointerEvents="none">
-              <circle r={currentRadius * 0.27} fill="url(#globe-region-gradient)" filter="url(#globe-soft-blur)" opacity="0.95" />
-              <circle r={currentRadius * 0.18} fill="none" stroke={globeStyles.regionAuraEdge} strokeOpacity={isComicTheme ? 0.3 : 0.42} strokeWidth="2.5" strokeDasharray="8 10">
+              <circle r={currentRadius * 0.27} fill={activeRegionAura.visual.glow} filter="url(#globe-soft-blur)" opacity="0.95" />
+              <circle r={currentRadius * 0.18} fill="none" stroke={activeRegionAura.visual.accent} strokeOpacity={0.48} strokeWidth="2.5" strokeDasharray="8 10">
                 <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="18s" repeatCount="indefinite" />
               </circle>
+              <text
+                y={currentRadius * -0.02}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontSize="22"
+                style={{ paintOrder: 'stroke', stroke: '#fff', strokeWidth: '4px' }}
+              >
+                {activeRegionAura.region.icon}
+              </text>
             </g>
           )}
 
@@ -1403,7 +1656,7 @@ export default function App() {
             <path
               d={getGreatCirclePath(departure.lon, departure.lat, previewTarget.lon, previewTarget.lat, rotation.lon, rotation.lat, currentRadius)}
               fill="none"
-              stroke={globeStyles.previewRoute}
+              stroke={previewTarget.regionVisual?.route || globeStyles.previewRoute}
               strokeWidth={Math.max(2.5, t.routeStrokeWidth - 0.5)}
               strokeDasharray="8,14"
               strokeLinecap="round"
@@ -1427,7 +1680,7 @@ export default function App() {
                 <animate attributeName="r" values={`${currentRadius * 0.085};${currentRadius * 0.14};${currentRadius * 0.085}`} dur="2.6s" repeatCount="indefinite" />
                 <animate attributeName="opacity" values="0.95;0.42;0.95" dur="2.6s" repeatCount="indefinite" />
               </circle>
-              <circle r={currentRadius * 0.06} fill="none" stroke={globeStyles.focusRing} strokeOpacity="0.92" strokeWidth="2.5" strokeDasharray="6 10">
+              <circle r={currentRadius * 0.06} fill="none" stroke={selectedFocusStyle.accent} strokeOpacity="0.92" strokeWidth="2.5" strokeDasharray="6 10">
                 <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="10s" repeatCount="indefinite" />
               </circle>
             </g>
@@ -1488,13 +1741,13 @@ export default function App() {
                   <g pointerEvents="none">
                     <circle
                       r={marker.isSelected ? 34 : marker.isRegionHovered ? 30 : 24}
-                      fill={marker.isSelected ? 'url(#globe-focus-gradient)' : 'url(#globe-region-gradient)'}
+                      fill={marker.isSelected ? 'url(#globe-focus-gradient)' : marker.regionVisual?.glow || REGION_VISUALS.default.glow}
                       opacity={marker.isSelected ? 0.95 : marker.isHovered ? 0.9 : 0.72}
                     />
                     <circle
                       r={marker.isSelected ? 22 : 18}
                       fill="none"
-                      stroke={marker.isSelected ? globeStyles.focusRing : globeStyles.regionAuraEdge}
+                      stroke={marker.isSelected ? selectedFocusStyle.accent : marker.regionVisual?.accent || REGION_VISUALS.default.accent}
                       strokeOpacity={marker.isSelected ? 0.92 : 0.68}
                       strokeWidth="2"
                       strokeDasharray={marker.isSelected ? '5 7' : '4 8'}
@@ -1534,7 +1787,7 @@ export default function App() {
               }}
             >
               <g className="transition-transform duration-200 group-hover:scale-110">
-                <SvgClusterFace count={cluster.items.length} active={selectedClusterId === cluster.id} />
+                <SvgClusterFace count={cluster.items.length} active={selectedClusterId === cluster.id} items={cluster.items} />
               </g>
             </g>
           ))}
