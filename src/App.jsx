@@ -1580,9 +1580,9 @@ export default function App() {
 
       <div 
         onWheel={(e) => e.stopPropagation()}
-        className="absolute top-6 left-6 w-[22rem] bg-white p-5 rounded-3xl border-4 border-black shadow-[8px_8px_0_0_#000] z-20 pointer-events-auto"
+        className="absolute top-6 left-6 z-20 w-[22rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-3rem)] bg-white p-5 rounded-3xl border-4 border-black shadow-[8px_8px_0_0_#000] pointer-events-auto flex flex-col overflow-hidden"
       >
-        <div className="mb-4">
+        <div className="mb-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#f472b6] border-4 border-black rounded-xl text-black shadow-[4px_4px_0_0_#000]"><Compass size={24} strokeWidth={3}/></div>
             <div>
@@ -1592,7 +1592,8 @@ export default function App() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1 pb-1">
+          <div className="space-y-4">
           <div className="bg-[#f8fafc] border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_#000]">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-black uppercase text-slate-500">{ui.routeTitle}</p>
@@ -1728,6 +1729,7 @@ export default function App() {
               </div>
             )}
           </div>
+        </div>
         </div>
       </div>
 
