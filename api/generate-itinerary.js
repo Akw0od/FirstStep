@@ -1,5 +1,86 @@
+import { createClient } from '@supabase/supabase-js';
+
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+function getSupabase(serviceRole = false) {
+  const url = process.env.SUPABASE_URL;
+  const key = serviceRole ? process.env.SUPABASE_SERVICE_ROLE_KEY : process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+function getToken(req) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith('Bearer ')) return null;
+  return auth.slice(7);
+}
+
+async function getAuthenticatedUser(req) {
+  const token = getToken(req);
+  if (!token) return null;
+
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return null;
+  return user;
+}
+
+async function findSavedTripCache(adminSupabase, userId, { destination, destinationId, departure, departureId, style, days, budget, title }) {
+  if (!adminSupabase || !userId || !destination || !style || !days || !title) return null;
+
+  let query = adminSupabase
+    .from('saved_trips')
+    .select('id, itinerary')
+    .eq('user_id', userId)
+    .eq('destination', destination)
+    .eq('style', style)
+    .eq('days', days)
+    .eq('budget', budget)
+    .eq('title', title)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  query = destinationId ? query.eq('destination_id', destinationId) : query.is('destination_id', null);
+  query = departure ? query.eq('departure', departure) : query.is('departure', null);
+  query = departureId ? query.eq('departure_id', departureId) : query.is('departure_id', null);
+
+  const { data, error } = await query.maybeSingle();
+  if (error || !data?.itinerary) return null;
+  return data;
+}
+
+async function persistGeneratedTrip(adminSupabase, userId, payload) {
+  if (!adminSupabase || !userId) return;
+
+  const existing = await findSavedTripCache(adminSupabase, userId, payload);
+  if (existing?.id) {
+    await adminSupabase
+      .from('saved_trips')
+      .update({
+        itinerary: payload.itinerary,
+        budget: payload.budget,
+        title: payload.title
+      })
+      .eq('id', existing.id);
+    return;
+  }
+
+  await adminSupabase.from('saved_trips').insert({
+    user_id: userId,
+    destination: payload.destination,
+    destination_id: payload.destinationId || null,
+    departure: payload.departure || null,
+    departure_id: payload.departureId || null,
+    style: payload.style || null,
+    days: payload.days || null,
+    budget: payload.budget || null,
+    itinerary: payload.itinerary,
+    title: payload.title || `${payload.departure || ''} → ${payload.destination} ${payload.days} days`
+  });
+}
 
 async function redisGet(key) {
   if (!REDIS_URL || !REDIS_TOKEN) return null;
@@ -29,16 +110,48 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { destination, style, days, budget, departure, language = 'English' } = req.body;
+  const {
+    destination,
+    destination_id: destinationId,
+    style,
+    days,
+    budget,
+    departure,
+    departure_id: departureId,
+    title,
+    language = 'English'
+  } = req.body;
   if (!destination || !style || !days) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  const user = await getAuthenticatedUser(req);
+  const adminSupabase = user ? getSupabase(true) : null;
 
   // Check Redis cache
   const cacheKey = `itinerary:${destination}:${style}:${days}:${budget || 'any'}:${departure || 'any'}:${language}`;
   const cached = await redisGet(cacheKey);
   if (cached) {
     return res.status(200).json({ itinerary: cached, cached: true });
+  }
+
+  // Logged-in users also get a long-lived DB cache fallback.
+  if (user && adminSupabase) {
+    const savedTrip = await findSavedTripCache(adminSupabase, user.id, {
+      destination,
+      destinationId,
+      departure,
+      departureId,
+      style,
+      days,
+      budget,
+      title
+    });
+
+    if (savedTrip?.itinerary) {
+      await redisSet(cacheKey, savedTrip.itinerary);
+      return res.status(200).json({ itinerary: savedTrip.itinerary, cached: true, source: 'database' });
+    }
   }
 
   const API_KEY = process.env.DEEPSEEK_API_KEY;
@@ -217,6 +330,24 @@ Return strictly in this JSON shape with no extra text:
 
     // Cache to Redis (7 days TTL)
     await redisSet(cacheKey, itinerary);
+
+    if (user && adminSupabase) {
+      try {
+        await persistGeneratedTrip(adminSupabase, user.id, {
+          destination,
+          destinationId,
+          departure,
+          departureId,
+          style,
+          days,
+          budget,
+          title,
+          itinerary
+        });
+      } catch (persistError) {
+        console.error('persistGeneratedTrip failed', persistError);
+      }
+    }
 
     return res.status(200).json({ itinerary });
   } catch (err) {

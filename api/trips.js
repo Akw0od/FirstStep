@@ -13,6 +13,28 @@ function getToken(req) {
   return auth.slice(7);
 }
 
+async function findExistingTrip(adminSupabase, userId, { destination, destination_id, departure, departure_id, style, days, budget, title }) {
+  let query = adminSupabase
+    .from('saved_trips')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('destination', destination)
+    .eq('style', style || null)
+    .eq('days', days || null)
+    .eq('budget', budget || null)
+    .eq('title', title)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  query = destination_id ? query.eq('destination_id', destination_id) : query.is('destination_id', null);
+  query = departure ? query.eq('departure', departure) : query.is('departure', null);
+  query = departure_id ? query.eq('departure_id', departure_id) : query.is('departure_id', null);
+
+  const { data, error } = await query.maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -58,6 +80,38 @@ export default async function handler(req, res) {
     const { destination, destination_id, departure, departure_id, style, days, budget, itinerary, title } = req.body;
     if (!destination || !itinerary) {
       return res.status(400).json({ error: 'Missing required fields (destination, itinerary)' });
+    }
+
+    const existingTrip = await findExistingTrip(adminSupabase, user.id, {
+      destination,
+      destination_id,
+      departure,
+      departure_id,
+      style,
+      days,
+      budget,
+      title: title || `${departure || ''} → ${destination} ${days}天`
+    });
+
+    if (existingTrip) {
+      const { data, error } = await adminSupabase
+        .from('saved_trips')
+        .update({
+          itinerary,
+          destination_id: destination_id || null,
+          departure: departure || null,
+          departure_id: departure_id || null,
+          style: style || null,
+          days: days || null,
+          budget: budget || null,
+          title: title || existingTrip.title
+        })
+        .eq('id', existingTrip.id)
+        .select()
+        .single();
+
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ trip: data, deduped: true });
     }
 
     const { data, error } = await adminSupabase

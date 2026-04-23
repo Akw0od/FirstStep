@@ -1021,6 +1021,7 @@ export default function App() {
     setIsSaving(true);
     try {
       const itinerary = displayedItinerary;
+      const totalBudget = calculateTotalCost(selectedDest, days);
       await saveTrip({
         destination: getPlaceName(selectedDest),
         destination_id: selectedDest.id,
@@ -1028,7 +1029,7 @@ export default function App() {
         departure_id: departureId,
         style: travelStyle,
         days,
-        budget,
+        budget: totalBudget,
         itinerary,
         title: formatTripTitle(departure, selectedDest, days)
       });
@@ -1140,15 +1141,22 @@ export default function App() {
     // 1) 尝试调用 DeepSeek API
     try {
       const totalBudget = calculateTotalCost(selectedDest, days);
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/generate-itinerary', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+        },
         body: JSON.stringify({
           destination: getPlaceName(selectedDest),
+          destination_id: selectedDest.id,
           style: travelStyle,
           days,
           budget: totalBudget,
           departure: getPlaceName(departure),
+          departure_id: departureId,
+          title: formatTripTitle(departure, selectedDest, days),
           language
         })
       });
